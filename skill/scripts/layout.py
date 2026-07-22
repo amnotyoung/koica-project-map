@@ -27,6 +27,7 @@ import unicodedata
 from pathlib import Path
 
 from common import GEO_CACHE, design_tokens, log, read_json, write_json
+import geo_prepare
 import resolve_places
 
 MIN_FONT_SCALE = 0.85     # design.md 규칙 4 — 폰트는 15% 까지만 줄인다
@@ -37,39 +38,43 @@ NOTE_AREA = {"ko": "* 원형 표시 지역", "en": "* Areas marked circles"}
 
 # ─────────────────────────────── 투영 ───────────────────────────────
 
+TILE_PX_PER_IN = 130      # 타일 배경을 굽는 해상도 (인치당 CSS 픽셀)
+
+
 class Projection:
-    """정거원통도법(위도 보정). 국가 하나를 프레임에 채우는 용도라 이걸로 충분하다."""
+    """Web Mercator. MapLibre 와 **같은 수식**이어야 타일 배경 위에서 핀이 맞는다.
+
+    배경 이미지는 지도 프레임 전체를 채우고 국가가 그 안에 놓인다. 화면 밖 주변국은
+    마스크로 눌러 대상국만 밝게 남긴다(원본 샘플의 표현).
+    """
 
     def __init__(self, bbox: list, frame: dict, pad_ratio: float = 0.04):
-        lon0, lat0, lon1, lat1 = bbox
-        dlon, dlat = max(lon1 - lon0, 1e-6), max(lat1 - lat0, 1e-6)
-        lon0 -= dlon * pad_ratio
-        lon1 += dlon * pad_ratio
-        lat0 -= dlat * pad_ratio
-        lat1 += dlat * pad_ratio
-        self.lon0, self.lat1 = lon0, lat1
-        self.cos = math.cos(math.radians((lat0 + lat1) / 2))
-        w_deg = (lon1 - lon0) * self.cos
-        h_deg = lat1 - lat0
-        self.k = min(frame["w"] / w_deg, frame["h"] / h_deg)
-        self.ox = frame["x"] + (frame["w"] - w_deg * self.k) / 2
-        self.oy = frame["y"] + (frame["h"] - h_deg * self.k) / 2
-        self.aspect = w_deg / h_deg
-        # 실제로 그림이 차지하는 영역. 프레임과 종횡비가 다르면 위아래(또는 좌우)가
-        # 비는데, 배경 사각형을 프레임 전체로 깔면 빈 회색 띠가 남는다.
-        self.content = {"x": round(self.ox, 4), "y": round(self.oy, 4),
-                        "w": round(w_deg * self.k, 4), "h": round(h_deg * self.k, 4)}
+        import basemap_tiles as bt
+        self.frame = dict(frame)
+        self.px_per_in = TILE_PX_PER_IN
+        self.w_px = max(int(round(frame["w"] * self.px_per_in)), 64)
+        self.h_px = max(int(round(frame["h"] * self.px_per_in)), 64)
+        self.view = bt.fit_view(bbox, self.w_px, self.h_px, pad_ratio)
+        self.world = bt.TILE_SIZE * (2 ** self.view["zoom"])
+        self.cx = bt.merc_x(self.view["center"][0])
+        self.cy = bt.merc_y(self.view["center"][1])
+        self._mx, self._my = bt.merc_x, bt.merc_y
+        # 배경이 프레임을 꽉 채우므로 그림 영역 = 프레임
+        self.content = dict(frame)
 
     def __call__(self, lon: float, lat: float) -> list:
-        return [round(self.ox + (lon - self.lon0) * self.cos * self.k, 4),
-                round(self.oy + (self.lat1 - lat) * self.k, 4)]
+        px = (self._mx(lon) - self.cx) * self.world + self.w_px / 2
+        py = (self._my(lat) - self.cy) * self.world + self.h_px / 2
+        return [round(self.frame["x"] + px / self.px_per_in, 4),
+                round(self.frame["y"] + py / self.px_per_in, 4)]
 
     def rings(self, rings: list) -> list:
         return [[self(p[0], p[1]) for p in r] for r in rings]
 
     def as_dict(self) -> dict:
-        return {"lon0": self.lon0, "lat1": self.lat1, "k": self.k,
-                "cos": self.cos, "ox": self.ox, "oy": self.oy}
+        return {"kind": "mercator", "zoom": self.view["zoom"],
+                "center": self.view["center"],
+                "w_px": self.w_px, "h_px": self.h_px, "px_per_in": self.px_per_in}
 
 
 def country_aspect(bbox: list) -> float:
@@ -271,7 +276,13 @@ def compute(doc: dict, lang: str = "ko", index: int = 1,
     country = doc["country"]
     resolved = resolve_places.resolve(country, doc["projects"], detail)
     iso3 = resolved["iso3"]
-    base = read_json(GEO_CACHE / f"{iso3}_basemap.json")
+    bp = GEO_CACHE / f"{iso3}_basemap.json"
+    base = read_json(bp) if bp.exists() else {}
+    # 레이어가 추가된 뒤라면 옛 캐시를 그대로 쓰면 하천·주 이름 없이 밋밋하게 나온다
+    if base.get("v", 0) < geo_prepare.BASEMAP_VERSION:
+        log(f"  · 지도 캐시가 옛 형식({base.get('v', 0)}) — 다시 만듭니다")
+        geo_prepare.build(country, detail, False)
+        base = read_json(bp)
 
     mode = choose_mode(doc, tok, lang)
     L = tok["layout"][mode]
@@ -378,12 +389,22 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) ->
                     "iso3": base["iso3"]},
         "region": doc.get("region", ""),
         "map": {"frame": frame, "content": proj.content, "projection": proj.as_dict(),
+                "tiles": _tile_background(base, proj, frame),
                 "land": proj.rings(base["land"]),
                 "neighbors": [{"name": n["name"], "rings": proj.rings(n["rings"])}
                               for n in base["neighbors"]],
                 "admin1": proj.rings(base["admin1"]),
-                "cities": [{"name": c["name"], **dict(zip(("x", "y"), proj(c["lon"], c["lat"])))}
-                           for c in base.get("cities", [])[:18]]},
+                "admin2": proj.rings(base.get("admin2", [])),
+                "rivers": proj.rings(base.get("rivers", [])),
+                "lakes": proj.rings(base.get("lakes", [])),
+                "admin1_labels": [
+                    {"name": a["name"], "area": a["area"],
+                     **dict(zip(("x", "y"), proj(a["lon"], a["lat"])))}
+                    for a in base.get("admin1_labels", [])],
+                # 도시는 렌더러가 라벨 충돌을 보고 추리므로 넉넉히 넘긴다
+                "cities": [{"name": c["name"], "pop": c.get("pop", 0),
+                            **dict(zip(("x", "y"), proj(c["lon"], c["lat"])))}
+                           for c in base.get("cities", [])]},
         "cards": placed,
         "markers": _dedupe(markers),
         "leaders": leaders,
@@ -411,6 +432,37 @@ def _place_label(rec: dict, rp: dict, lang: str) -> str:
     # GeoNames 는 장음부호를 단다(Butwāl·Bardiyā). KOICA 표기는 붙이지 않는다.
     plain = unicodedata.normalize("NFKD", "/".join(names))
     return "".join(c for c in plain if not unicodedata.combining(c))
+
+
+def _tile_background(base: dict, proj: "Projection", frame: dict):
+    """OSM 벡터 타일로 배경을 굽는다. 실패하면 None — 렌더러가 벡터로 되돌린다.
+
+    도로·하천 밀도는 Natural Earth 로 낼 수 없어서 타일을 쓴다. 네트워크가 없거나
+    Chrome 이 없으면 조용히 벡터 배경으로 떨어진다.
+    """
+    import basemap_tiles as bt
+    key = (f'{base["iso3"]}_z{proj.view["zoom"]:.3f}'
+           f'_{proj.w_px}x{proj.h_px}.png')
+    out = GEO_CACHE / "tiles" / key
+    if out.exists() and out.stat().st_size > 20000:
+        return {"png": str(out), "w_px": proj.w_px, "h_px": proj.h_px}
+    try:
+        import cdp
+        tok = design_tokens()
+        html, _ = bt.build_html(base["bbox"], proj.w_px, proj.h_px, tok)
+        hp = out.with_suffix(".html")
+        hp.parent.mkdir(parents=True, exist_ok=True)
+        hp.write_text(html, encoding="utf-8")
+        cdp.shot(hp.resolve().as_uri(), out, proj.w_px, proj.h_px, 2,
+                 ready_js="document.title==='MAP_READY'", wait=90)
+        if out.stat().st_size < 20000:
+            raise RuntimeError("배경이 비었습니다")
+        log(f"  · 타일 배경 {out.stat().st_size//1024}KB "
+            f"(zoom {proj.view['zoom']:.2f})")
+        return {"png": str(out), "w_px": proj.w_px, "h_px": proj.h_px}
+    except Exception as e:
+        log(f"  ! 타일 배경 실패 ({e.__class__.__name__}: {e}) — 벡터 배경을 씁니다")
+        return None
 
 
 def _card_pin(card: dict) -> list:

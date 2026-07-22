@@ -18,6 +18,13 @@ from common import SKILL_DIR, design_tokens, log, read_json
 PT = 1.0 / 72.0
 
 
+def _data_uri(png_path: str) -> str:
+    """타일 배경을 data URI 로 박아 HTML 한 장으로 완결시킨다 (PDF·PPTX 변환에 필요)."""
+    import base64
+    return "data:image/png;base64," + base64.b64encode(
+        Path(png_path).read_bytes()).decode()
+
+
 def esc(s) -> str:
     return html.escape(str(s), quote=True)
 
@@ -37,44 +44,108 @@ def draw_map(L: dict, tok: dict) -> str:
     m, ms = L["map"], tok["map_style"]
     # 배경·클립은 프레임이 아니라 **실제 그림 영역**에 맞춘다 (빈 회색 띠 제거)
     f = m.get("content") or m["frame"]
+    tiles = m.get("tiles")
     s = [f'<clipPath id="mapclip"><rect x="{f["x"]:.4f}" y="{f["y"]:.4f}" '
          f'width="{f["w"]:.4f}" height="{f["h"]:.4f}"/></clipPath>',
-         f'<g clip-path="url(#mapclip)">',
-         f'<rect x="{f["x"]:.4f}" y="{f["y"]:.4f}" width="{f["w"]:.4f}" '
-         f'height="{f["h"]:.4f}" fill="{ms["neighbor"]}"/>']
+         f'<g clip-path="url(#mapclip)">']
 
-    for n in m["neighbors"]:
-        s.append(f'<path d="{path_of(n["rings"])}" fill="{ms["neighbor"]}" '
-                 f'stroke="#D9D4D0" stroke-width="0.004"/>')
+    if tiles:
+        # OSM 벡터 타일 배경(도로·하천). 국토 밖은 마스크로 눌러 대상국만 밝게 남긴다 —
+        # 원본 샘플의 "흰 국토 + 회색 주변국" 표현이 이것이다.
+        s.append(f'<image x="{f["x"]:.4f}" y="{f["y"]:.4f}" width="{f["w"]:.4f}" '
+                 f'height="{f["h"]:.4f}" preserveAspectRatio="none" '
+                 f'href="{_data_uri(tiles["png"])}"/>')
+        outer = (f'M{f["x"]:.4f},{f["y"]:.4f} H{f["x"]+f["w"]:.4f} '
+                 f'V{f["y"]+f["h"]:.4f} H{f["x"]:.4f} Z')
+        s.append(f'<path d="{outer} {path_of(m["land"])}" fill-rule="evenodd" '
+                 f'fill="{ms["neighbor"]}" fill-opacity="{ms.get("mask_opacity", 0.8)}"/>')
+    else:
+        s.append(f'<rect x="{f["x"]:.4f}" y="{f["y"]:.4f}" width="{f["w"]:.4f}" '
+                 f'height="{f["h"]:.4f}" fill="{ms["neighbor"]}"/>')
+        for n in m["neighbors"]:
+            s.append(f'<path d="{path_of(n["rings"])}" fill="{ms["neighbor"]}" '
+                     f'stroke="#D9D4D0" stroke-width="0.004"/>')
+        s.append(f'<path d="{path_of(m["land"])}" fill="{ms["land"]}"/>')
+        if m.get("rivers"):
+            d = " ".join("M" + " L".join(f"{p[0]:.4f},{p[1]:.4f}" for p in r)
+                         for r in m["rivers"] if len(r) > 1)
+            s.append(f'<path d="{d}" fill="none" stroke="{ms["river"]}" '
+                     f'stroke-width="{ms["river_w"]*PT:.5f}" stroke-linecap="round"/>')
+        if m.get("lakes"):
+            s.append(f'<path d="{path_of(m["lakes"])}" fill="{ms["lake"]}" '
+                     f'stroke="{ms["river"]}" stroke-width="{0.3*PT:.5f}"/>')
+        if m.get("admin2"):
+            s.append(f'<path d="{path_of(m["admin2"])}" fill="none" '
+                     f'stroke="{ms["admin2"]}" stroke-width="{ms["admin2_w"]*PT:.5f}" '
+                     f'stroke-dasharray="{ms["admin2_dash"].replace(",", " ")}" '
+                     f'opacity="0.85"/>')
+
     for n in m["neighbors"]:                       # 주변국 이름 (샘플의 CHINA/INDIA)
         lab = _neighbor_label(n, f)
         if lab:
             s.append(lab)
-    s.append(f'<path d="{path_of(m["land"])}" fill="{ms["land"]}" '
-             f'stroke="{ms["border"]}" stroke-width="{ms["border_w"]*PT:.5f}" '
-             f'stroke-linejoin="round"/>')
+    # 국경 — 타일 배경이든 벡터든 대상국 윤곽은 또렷해야 한다
+    s.append(f'<path d="{path_of(m["land"])}" fill="none" stroke="{ms["border"]}" '
+             f'stroke-width="{ms["border_w"]*PT:.5f}" stroke-linejoin="round"/>')
+    # dasharray 는 user unit(=인치) 이다. "3,2" 로 쓰면 3인치 대시가 되어 선이 사라진다.
     if m.get("admin1"):
-        # dasharray 는 user unit(=인치) 이다. "3,2" 로 쓰면 3인치 대시가 되어 선이 사라진다.
         s.append(f'<path d="{path_of(m["admin1"])}" fill="none" '
                  f'stroke="{ms["admin1"]}" stroke-width="{ms["admin1_w"]*PT:.5f}" '
                  f'stroke-dasharray="{ms["admin1_dash"].replace(",", " ")}" '
                  f'opacity="0.7"/>')
 
+    # 주 이름은 사업 마커를 피한다 — 핀을 덮으면 지도의 본래 목적이 가려진다.
+    # 반대로 **도시 이름은 마커를 피하지 않는다.** 사업이 있는 도시(카트만두·포카라)의
+    # 이름이야말로 꼭 보여야 하고, 라벨은 점 오른쪽으로 비껴 찍혀 겹치지도 않는다.
+    marker_boxes = [(mk["x"] - 0.13, mk["y"] - 0.13, mk["x"] + 0.13, mk["y"] + 0.13)
+                    for mk in L.get("markers", [])]
+    placed = []
+    al = ms["admin1_label"]
+    for a in m.get("admin1_labels", []):
+        if a.get("area", 1) < al["min_area"]:
+            continue
+        w = len(a["name"]) * (al["size"] * PT * 0.62 + al["tracking"])
+        # 중심이 막히면 위아래로 조금씩 비켜본다. 그래도 안 되면 생략한다.
+        spot = None
+        for dx, dy in ((0, 0), (0, -0.17), (0, 0.17), (-0.22, 0), (0.22, 0),
+                       (0, -0.32), (0, 0.32)):
+            x, y = a["x"] + dx, a["y"] + dy
+            if not (f["x"] + 0.15 < x < f["x"] + f["w"] - 0.15
+                    and f["y"] + 0.1 < y < f["y"] + f["h"] - 0.1):
+                continue
+            box = (x - w / 2, y - 0.06, x + w / 2, y + 0.06)
+            if not any(_overlap(box, b) for b in placed + marker_boxes):
+                spot = (x, y, box)
+                break
+        if not spot:
+            continue
+        x, y, box = spot
+        placed.append(box)
+        s.append(f'<text x="{x:.4f}" y="{y:.4f}" font-size="{al["size"]*PT:.5f}" '
+                 f'fill="{al["color"]}" text-anchor="middle" font-weight="700" '
+                 f'letter-spacing="{al["tracking"]:.4f}" paint-order="stroke" '
+                 f'stroke="#FFFFFF" stroke-width="0.014">{esc(a["name"])}</text>')
+
     cl = ms["city_label"]
-    placed = []                                    # 라벨 충돌 회피
+    shown = 0
     for c in m.get("cities", []):
+        if shown >= ms.get("city_max", 46):
+            break
         if not (f["x"] + 0.05 < c["x"] < f["x"] + f["w"] - 0.4
                 and f["y"] + 0.05 < c["y"] < f["y"] + f["h"] - 0.05):
             continue
         w = len(c["name"]) * cl["size"] * PT * 0.55
-        box = (c["x"] + 0.04, c["y"] - 0.05, c["x"] + 0.04 + w, c["y"] + 0.05)
+        box = (c["x"] - 0.02, c["y"] - 0.045, c["x"] + 0.05 + w, c["y"] + 0.045)
         if any(_overlap(box, b) for b in placed):
             continue
         placed.append(box)
+        shown += 1
         s.append(f'<circle cx="{c["x"]:.4f}" cy="{c["y"]:.4f}" r="{ms["city_dot_r"]:.4f}" '
-                 f'fill="none" stroke="{ms["city_dot"]}" stroke-width="0.006"/>')
+                 f'fill="#FFFFFF" stroke="{ms["city_dot"]}" stroke-width="0.006"/>')
         s.append(f'<text x="{c["x"]+0.045:.4f}" y="{c["y"]+0.028:.4f}" '
-                 f'font-size="{cl["size"]*PT:.5f}" fill="{cl["color"]}">{esc(c["name"])}</text>')
+                 f'font-size="{cl["size"]*PT:.5f}" fill="{cl["color"]}" '
+                 f'paint-order="stroke" stroke="#FFFFFF" stroke-width="0.016">'
+                 f'{esc(c["name"])}</text>')
     s.append("</g>")
     return "\n".join(s)
 
@@ -277,7 +348,8 @@ def draw_notes(L: dict, tok: dict) -> str:
 
 
 def draw_credit(L: dict, tok: dict) -> str:
-    src = "Natural Earth · geoBoundaries (CC BY) · GeoNames (CC BY)"
+    src = ("Natural Earth · geoBoundaries (CC BY) · GeoNames (CC BY)"
+           + (" · 지도 타일 © OpenStreetMap contributors" if L["map"].get("tiles") else ""))
     return (f'<text x="0.22" y="{tok["canvas"]["h_in"]-0.16:.4f}" '
             f'font-size="{4.6*PT:.5f}" fill="#B4B4B4">{esc(src)}</text>')
 

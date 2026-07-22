@@ -117,9 +117,20 @@ map_style:
   admin1:      "#C0504D"   # 주 경계 (점선)
   admin1_w:    0.6
   admin1_dash: "0.045,0.03"   # 인치 단위 — SVG user unit 이 1in 이다
+  admin2:      "#C9A9A6"   # 군 경계 (더 옅게)
+  admin2_w:    0.3
+  admin2_dash: "0.018,0.02"
+  admin1_label: {size: 6.4, color: "#CE7B3C", tracking: 0.014, min_area: 0.25}
+  river:       "#7CACCC"
+  river_w:     0.5
+  road:        "#E5A199"   # 타일 배경의 도로망 (원본 샘플의 분홍 도로)
+  tile_land:   "#FFFFFF"   # 타일 배경의 육지 — 국토를 희게 해야 도로가 도드라진다
+  mask_opacity: 0.80       # 국토 밖을 덮는 정도
+  lake:        "#D6E7F2"
   city_dot:    "#767676"
   city_dot_r:  0.018
   city_label:  {size: 5.5, color: "#3F3F3F"}
+  city_max:    46
 ```
 
 ---
@@ -145,6 +156,23 @@ map_style:
 - 줄 수 = `ceil(글자수 / 21)` — 2.25in ÷ 0.107in(7.7pt 전각) ≈ 21자/줄
 - 카드 높이 = `0.22 + 줄수 × 0.13`
 - 배지는 여러 개 가능(`H` + `A` 등). 가로로 `gap: 0.02` 간격 배치
+
+### 지도 배경
+
+**OSM 벡터 타일**(versatiles, Shortbread 스키마)을 MapLibre 로 렌더해 배경 이미지로 쓴다.
+그 위에 국토 밖을 `neighbor` 색으로 덮어(`mask_opacity`) 대상국만 밝게 남긴다 — 원본 샘플의
+"흰 국토 + 회색 주변국" 표현이 이것이다.
+
+> **Natural Earth 로는 안 된다.** 세계지도용이라 한 나라를 확대하면 하천이 몇 줄뿐이고
+> 도로는 북미·유럽 외에 아예 없다. Overpass 직접 조회도 국가 범위에서 타임아웃이 난다.
+> 원본의 조밀한 도로망·물줄기는 타일에서만 나온다.
+
+타일에서 가져오는 것은 **기하뿐**이다 — 도로·하천·수면·군 경계.
+지명 라벨은 타일이 현지 문자(中文·देवनागरी)로 주므로 쓰지 않고, `render_html` 이
+GeoNames·geoBoundaries 로 라틴 표기와 충돌 회피까지 처리해 직접 얹는다.
+
+투영은 **Web Mercator** 다. `layout.Projection` 이 MapLibre 와 같은 수식을 써야 핀이 맞는다.
+네트워크나 Chrome 이 없으면 조용히 Natural Earth 벡터 배경으로 되돌아간다.
 
 ### 마커
 | 지명 해석 결과 | 마커 | 근거 |

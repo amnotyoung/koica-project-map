@@ -103,6 +103,8 @@ out/
 | `design.md` | **디자인 단일 출처** — 토큰(YAML) + 판단 규칙 |
 | `reference/sector_map.yaml` | 세부 분야 214종 → 배지 5종 매핑 |
 | `scripts/geo_prepare.py` | 국가 경계·지명 사전 준비 (Natural Earth / geoBoundaries / GeoNames) |
+| `scripts/basemap_tiles.py` | OSM 벡터 타일 → 배경 지도 (도로·하천 밀도) |
+| `scripts/cdp.py` | Chrome 원격제어 — 타일 렌더 완료를 기다렸다 캡처 |
 | `scripts/resolve_places.py` | 지명 → 좌표. `--set` 으로 수동 보정 |
 | `scripts/hangul.py` | 한글 음차 ↔ 라틴 지명 매칭 |
 | `scripts/layout.py` | **배치 계산** — 투영·카드·슬롯·교차 제거 |
@@ -117,8 +119,8 @@ out/
 
 - Python 3.10+ · PyYAML
 - **python-pptx** — `skill/.venv` 에 설치되어 있다. PPTX 를 만들려면 `skill/.venv/bin/python` 으로 실행할 것
-- Google Chrome — PDF/PNG 출력용
-- 네트워크 — 최초 1회 경계·지명 데이터 다운로드 (이후 캐시)
+- Google Chrome — PDF/PNG 출력 + 타일 배경 렌더(WebGL, headless 에서 SwiftShader 로 동작)
+- 네트워크 — 경계·지명 데이터와 지도 타일. 모두 캐시되며, 없으면 Natural Earth 벡터 배경으로 자동 대체
 
 venv 가 없으면 만든다:
 ```bash

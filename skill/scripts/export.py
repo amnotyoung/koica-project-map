@@ -36,7 +36,8 @@ def find_chrome() -> str:
         "Chrome 을 찾지 못했습니다. CHROME 환경변수에 실행 파일 경로를 지정하세요.")
 
 
-def run(chrome: str, args: list, expect: Path, timeout: int = 90) -> None:
+def run(chrome: str, args: list, expect: Path, timeout: int = 90,
+        vtb: int = 8000, gl: bool = False) -> None:
     """Chrome 을 띄우고 **산출 파일이 안정되면** 종료시킨다.
 
     headless Chrome 이 파일을 다 쓰고도 프로세스가 살아 있는 환경이 있다
@@ -45,9 +46,12 @@ def run(chrome: str, args: list, expect: Path, timeout: int = 90) -> None:
     if expect.exists():
         expect.unlink()
     tmp = tempfile.mkdtemp()
-    base = [chrome, "--headless=new", "--disable-gpu", "--no-sandbox",
-            "--no-first-run", "--no-default-browser-check", "--hide-scrollbars",
-            "--virtual-time-budget=8000", f"--user-data-dir={tmp}"]
+    base = [chrome, "--headless=new", "--no-sandbox", "--no-first-run",
+            "--no-default-browser-check", "--hide-scrollbars",
+            f"--virtual-time-budget={vtb}", f"--user-data-dir={tmp}"]
+    # MapLibre 는 WebGL 이 필요하다. headless 에선 SwiftShader 로 돈다(확인 완료).
+    base += (["--use-gl=swiftshader", "--enable-unsafe-swiftshader"]
+             if gl else ["--disable-gpu"])
     p = subprocess.Popen(base + args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     try:
         deadline = time.time() + timeout
@@ -85,15 +89,19 @@ def to_pdf(html: Path, out: Path, chrome: str | None = None) -> Path:
     return out
 
 
-def to_png(html: Path, out: Path, scale: int = 2, chrome: str | None = None) -> Path:
+def to_png(html: Path, out: Path, scale: int = 2, chrome: str | None = None,
+           window: tuple | None = None, ready_title: str | None = None) -> Path:
+    """window 는 CSS 픽셀 크기. 생략하면 슬라이드 한 장(13.333×7.5in @96dpi)."""
     chrome = chrome or find_chrome()
     out.parent.mkdir(parents=True, exist_ok=True)
     # --window-size 는 **CSS 픽셀**이다. 여기에 배율을 곱해 넘기면 창만 커지고
     # 시트는 가운데 작게 남는다. 배율은 --force-device-scale-factor 가 담당한다.
-    w, h = round(13.333 * 96), round(7.5 * 96)
+    w, h = window or (round(13.333 * 96), round(7.5 * 96))
+    gl = ready_title is not None            # 타일 지도는 WebGL 이 필요하다
     run(chrome, [f"--screenshot={out}", f"--window-size={w},{h}",
                  f"--force-device-scale-factor={scale}",
-                 "--default-background-color=FFFFFFFF", html.resolve().as_uri()], out)
+                 "--default-background-color=FFFFFFFF", html.resolve().as_uri()],
+        out, vtb=30000 if gl else 8000, gl=gl)
     log(f"  → {out} ({out.stat().st_size//1024}KB, {w*scale}×{h*scale})")
     return out
 

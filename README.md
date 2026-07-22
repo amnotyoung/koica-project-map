@@ -19,6 +19,8 @@ skill/                     → ~/.claude/skills/koica-project-map 로 심볼릭 
 ├── scripts/
 │   ├── make_map.py        전 과정 오케스트레이터
 │   ├── geo_prepare.py     국가 경계·지명 사전 준비
+│   ├── basemap_tiles.py   OSM 벡터 타일 → 배경 지도 (도로·하천)
+│   ├── cdp.py             Chrome 원격제어 (타일 렌더 대기 후 캡처)
 │   ├── resolve_places.py  지명 → 좌표 (+ 수동 보정)
 │   ├── hangul.py          한글 음차 ↔ 라틴 지명 매칭
 │   ├── layout.py          ★ 배치 계산 (투영·카드·슬롯·교차 제거)
@@ -66,12 +68,13 @@ HTML(미리보기·PDF)과 PPTX(편집용)가 그것만 소비한다. 렌더러�
 
 - **oda-map-lab 데이터는 사업 선정 소스로 쓸 수 없다.** 좌표 43%가 국가 중심점 폴백이고,
   한글 지명 커버리지가 네팔 기준 1/12다. 사업 목록은 사용자가 제공한다
-- 지도는 Natural Earth 국경 + geoBoundaries 주 경계 + 주요 도시로 그린다. 샘플 원본의
-  하천·도로·지형 음영은 없다 (원본은 스톡 지도 이미지를 썼다)
+- 지도 배경은 OSM 벡터 타일(versatiles)을 MapLibre 로 렌더해 쓴다. 네트워크나 Chrome 이
+  없으면 Natural Earth 벡터 배경으로 자동 대체되지만, 그 경우 도로가 없고 하천도 성글다
 - headless Chrome 이 이 환경에서 정상 종료하지 않아, `export.py` 는 산출 파일이 안정되면
   프로세스를 종료시킨다
 
 ## 출처
 
 Natural Earth(퍼블릭 도메인) · [geoBoundaries](https://www.geoboundaries.org/)(CC BY) ·
-[GeoNames](https://www.geonames.org/)(CC BY). 생성물 하단에 자동 표기된다.
+[GeoNames](https://www.geonames.org/)(CC BY) · 지도 타일 [versatiles](https://versatiles.org/)
+(© OpenStreetMap contributors, ODbL). 생성물 하단에 자동 표기된다.

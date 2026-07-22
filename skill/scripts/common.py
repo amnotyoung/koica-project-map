@@ -71,7 +71,12 @@ def norm(s: str) -> str:
 # ─────────────────────────────── 지오메트리 ───────────────────────────────
 
 def iter_rings(geom: dict):
-    """GeoJSON geometry → 외곽 링 리스트. Polygon/MultiPolygon 지원."""
+    """GeoJSON geometry → 좌표열 리스트.
+
+    Polygon/MultiPolygon 뿐 아니라 LineString/MultiLineString 도 다뤄야 한다.
+    하천은 MultiLineString 인데 이걸 빠뜨리면 bbox 가 [0,0,0,0] 이 되어
+    화면 범위와 절대 교차하지 않고 조용히 사라진다.
+    """
     if not geom:
         return
     t, c = geom.get("type"), geom.get("coordinates") or []
@@ -82,6 +87,11 @@ def iter_rings(geom: dict):
         for poly in c:
             for ring in poly:
                 yield ring
+    elif t == "LineString":
+        yield c
+    elif t == "MultiLineString":
+        for line in c:
+            yield line
 
 
 def outer_rings(geom: dict) -> list:

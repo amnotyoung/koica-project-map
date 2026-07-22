@@ -20,13 +20,22 @@ from common import (GEO_CACHE, bbox_intersects, bbox_of, centroid_of, fetch,
                     geom_area_deg2, log, norm, outer_rings, read_json,
                     round_ring, simplify, unzip_member, write_json)
 
-NE_URL = ("https://raw.githubusercontent.com/nvkelso/natural-earth-vector/"
-          "master/geojson/ne_{detail}_admin_0_countries.geojson")
+NE_BASE = ("https://raw.githubusercontent.com/nvkelso/natural-earth-vector/"
+           "master/geojson/ne_{detail}_{layer}.geojson")
+NE_URL = NE_BASE.replace("{layer}", "admin_0_countries")
+# 하천·호수는 국경 해상도와 무관하게 10m 를 쓴다.
+# 50m 하천은 전 세계 462줄뿐이라 한 나라를 잘라내면 큰 강 몇 개밖에 안 남는다
+# (네팔 기준 50m 9줄 vs 10m 22줄). 7MB 한 번 받아 캐시한다. 도로는 50MB 라 제외.
+PHYSICAL_DETAIL = {"10m": "10m", "50m": "10m", "110m": "10m"}
 GB_API = "https://www.geoboundaries.org/api/current/gbOpen/{iso3}/{lvl}/"
 GEONAMES_URL = "https://download.geonames.org/export/dump/cities500.zip"
 
 # 지도 단순화 허용오차(도). 국가 크기에 따라 조정된다.
 SIMPLIFY_BASE = 0.004
+
+# basemap.json 형식 버전. 레이어를 추가하면 올린다 — 오래된 캐시를 쓰면
+# 하천·주 이름이 없는 밋밋한 지도가 조용히 나온다.
+BASEMAP_VERSION = 2
 
 
 # ─────────────────────────────── Natural Earth ───────────────────────────────
@@ -99,6 +108,40 @@ def load_adm(iso3: str, lvl: str, force: bool):
     return gj.get("features", [])
 
 
+# ─────────────────────────────── 자연 지물 ───────────────────────────────
+
+def _lines_of(geom: dict) -> list:
+    t, c = geom.get("type"), geom.get("coordinates") or []
+    if t == "LineString":
+        return [c]
+    if t == "MultiLineString":
+        return list(c)
+    return []
+
+
+def load_physical(layer: str, detail: str, view: list, tol: float, force: bool) -> list:
+    """하천/호수를 화면 범위로 잘라온다. 원본 샘플의 물줄기 표현을 대신한다."""
+    det = PHYSICAL_DETAIL.get(detail, "50m")
+    url = NE_BASE.format(detail=det, layer=layer)
+    try:
+        gj = read_json(fetch(url, GEO_CACHE / f"ne_{det}_{layer}.geojson", force))
+    except Exception as e:
+        log(f"  · {layer}: 내려받기 실패 ({e.__class__.__name__})")
+        return []
+    out = []
+    for f in gj.get("features", []):
+        g = f.get("geometry")
+        if not g or not bbox_intersects(bbox_of(g), view):
+            continue
+        if g["type"] in ("LineString", "MultiLineString"):
+            for ln in _lines_of(g):
+                if len(ln) >= 2:
+                    out.append(round_ring(simplify(ln, tol)))
+        else:
+            out.extend(pack_geom(g, tol))
+    return out
+
+
 # ─────────────────────────────── GeoNames ───────────────────────────────
 
 def load_cities(iso2: str, force: bool) -> list:
@@ -122,6 +165,23 @@ def load_cities(iso2: str, force: bool) -> list:
 
 
 # ─────────────────────────────── 조립 ───────────────────────────────
+
+# 행정단위 일반명. 지도 라벨에는 고유명만 쓴다 (`NAVOIY REGION` → `NAVOIY`).
+_ADMIN_TAIL = ("REGION", "PROVINCE", "DISTRICT", "ZONE", "OBLAST", "STATE",
+               "GOVERNORATE", "PREFECTURE", "DEPARTMENT", "COUNTY", "MUNICIPALITY")
+_ADMIN_HEAD = ("REPUBLIC OF ", "STATE OF ", "PROVINCE OF ", "AUTONOMOUS REPUBLIC OF ")
+
+
+def short_admin_name(name: str) -> str:
+    s = " ".join(name.upper().split())
+    for h in _ADMIN_HEAD:
+        if s.startswith(h):
+            s = s[len(h):]
+    parts = s.split()
+    # 끝 단어가 일반명이고 앞에 고유명이 남을 때만 뗀다 (`PROVINCE 1` 은 그대로).
+    if len(parts) > 1 and parts[-1] in _ADMIN_TAIL:
+        parts = parts[:-1]
+    return " ".join(parts) or s
 
 def pack_geom(geom: dict, tol: float) -> list:
     return [round_ring(simplify(r, tol)) for r in outer_rings(geom)]
@@ -159,7 +219,7 @@ def build(country_q: str, detail: str, force: bool) -> tuple[Path, Path]:
     log(f"  · 주변국 {len(neighbors)}개")
 
     # 행정경계
-    adm_render, places = [], []
+    adm_render, adm2_render, adm1_labels, places = [], [], [], []
     for lvl in ("ADM1", "ADM2", "ADM3"):
         fs = load_adm(iso3, lvl, force)
         if not fs:
@@ -170,27 +230,41 @@ def build(country_q: str, detail: str, force: bool) -> tuple[Path, Path]:
             g = f.get("geometry")
             if not nm or not g:
                 continue
+            cen = [round(v, 5) for v in centroid_of(g)]
             places.append({
-                "name": nm, "level": lvl,
-                "centroid": [round(v, 5) for v in centroid_of(g)],
+                "name": nm, "level": lvl, "centroid": cen,
                 "area": round(geom_area_deg2(g), 6),
                 "bbox": [round(v, 4) for v in bbox_of(g)],
             })
-        if lvl == "ADM1":
+            if lvl == "ADM1":
+                # 원본 샘플의 주황색 주(州) 이름 — 지도 인상을 좌우하는 요소다
+                adm1_labels.append({"name": short_admin_name(nm), "lon": cen[0],
+                                    "lat": cen[1], "area": round(geom_area_deg2(g), 6)})
+        if lvl in ("ADM1", "ADM2"):
+            target = adm_render if lvl == "ADM1" else adm2_render
             for f in fs:
                 if f.get("geometry"):
-                    adm_render.extend(pack_geom(f["geometry"], tol))
+                    target.extend(pack_geom(f["geometry"], tol if lvl == "ADM1" else tol * 1.5))
+
+    rivers = load_physical("rivers_lake_centerlines", detail, view, tol * 1.2, force)
+    lakes = load_physical("lakes", detail, view, tol * 1.2, force)
+    log(f"  · 하천 {len(rivers)}줄 · 호수 {len(lakes)}개")
 
     cities = load_cities(iso2, force) if iso2 else []
     log(f"  · 도시 {len(cities)}개 (GeoNames cities500)")
 
     basemap = {
+        "v": BASEMAP_VERSION,
         "iso3": iso3, "iso2": iso2, "name_ko": name_ko, "name_en": name_en,
         "bbox": [round(v, 5) for v in bbox],
         "land": pack_geom(cf["geometry"], tol),
         "neighbors": neighbors,
         "admin1": adm_render,
-        "cities": [c for c in cities[:40]],   # 지도 라벨용 상위 도시
+        "admin2": adm2_render,
+        "admin1_labels": sorted(adm1_labels, key=lambda a: -a["area"]),
+        "rivers": rivers,
+        "lakes": lakes,
+        "cities": cities[:120],               # 지도 라벨용 — 렌더러가 충돌 회피로 추린다
         "source": {"boundary": f"Natural Earth {detail}",
                    "admin": "geoBoundaries gbOpen", "places": "GeoNames cities500"},
     }
