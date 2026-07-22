@@ -95,9 +95,19 @@ def _ratio(ka: str, kb: str) -> float:
 SKELETON_MIN = 4
 
 
+def full_ratio(a: str, b: str) -> float:
+    """모음까지 살린 느슨한 키만으로 비교. **우열을 가릴 때** 쓴다.
+
+    골격(자음만)은 후보를 넓게 걷어오는 장치라 서로 다른 지명이 같은 값을 갖기
+    쉽다 — Chiquimula 와 Chiquimulilla 는 골격이 둘 다 `chkmr` 다. 그 값으로
+    1·2위를 견주면 정답이 있는데도 '모호함'으로 버려진다.
+    """
+    return _ratio(loose_key(a), loose_key(b))
+
+
 def similarity(a: str, b: str) -> float:
-    """느슨한 키와 자음 골격 중 높은 쪽. 모음 표기가 흔들려도 잡아낸다."""
-    full = _ratio(loose_key(a), loose_key(b))
+    """느슨한 키와 자음 골격 중 높은 쪽. 모음 표기가 흔들려도 **찾아낸다**."""
+    full = full_ratio(a, b)
     if full >= 1.0:
         return 1.0
     sa, sb = skeleton(a), skeleton(b)

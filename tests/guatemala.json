@@ -1,0 +1,44 @@
+{
+  "country": "과테말라",
+  "country_en": "Guatemala",
+  "region": "중남미",
+  "_note": "oda-map-lab map-base.json 의 실제 KOICA 사업(프로젝트 원조·진행). 사업명·기간·예산은 원문 그대로.",
+  "projects": [
+    {
+      "place": "과테말라시티",
+      "badges": ["T"],
+      "name_ko": "과테말라 수도권 교통개선마스터플랜 수립 및 순환고속도로 타당성 조사사업('21-'25/900만불)",
+      "name_en": "Master Plan for Metropolitan Transport Improvement and Feasibility Study on Ring Expressway in Guatemala(2021-2025/$9.0mil.)"
+    },
+    {
+      "place": "과테말라시티",
+      "badges": ["G"],
+      "name_ko": "과테말라 경찰 치안역량 강화를 위한 경찰고등교육원 개선 사업('24-'29/800만불)",
+      "name_en": "Improvement of the Police Higher Education Institute for Strengthening Public Security Capacity in Guatemala(2024-2029/$8.0mil.)"
+    },
+    {
+      "place": "키체 주",
+      "badges": ["A"],
+      "name_ko": "과테말라 키체주 농촌취약지역 기후회복력 강화사업('22-'26/700만불)",
+      "name_en": "Strengthening Climate Resilience in Vulnerable Rural Areas of Quiché, Guatemala(2022-2026/$7.0mil.)"
+    },
+    {
+      "place": "키체/케찰테낭고/토토니카판/솔롤라/치말테낭고 주",
+      "badges": ["A"],
+      "name_ko": "과테말라 GCF 서부고원지대 기후변화 복원력 강화사업('19-'26/500만불)",
+      "name_en": "GCF Building Climate Resilience in the Western Highlands of Guatemala(2019-2026/$5.0mil.)"
+    },
+    {
+      "place": "사카파/치키물라 주",
+      "badges": ["A"],
+      "name_ko": "과테말라 중부 및 동부 농촌지역 기후회복력 강화사업(GCF)('21-'29/700만불)",
+      "name_en": "GCF Climate Resilience in Central and Eastern Rural Areas of Guatemala(2021-2029/$7.0mil.)"
+    },
+    {
+      "place": "과테말라시티/빌라누에바/믹스코/팔린",
+      "badges": ["H"],
+      "name_ko": "과테말라 주요 지자체 구급차량 지원(2025/317백만원)",
+      "name_en": "Ambulance Support for Major Municipalities in Guatemala(2025/KRW 317mil.)"
+    }
+  ]
+}

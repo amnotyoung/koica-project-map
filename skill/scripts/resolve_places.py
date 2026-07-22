@@ -21,7 +21,7 @@ import sys
 from pathlib import Path
 
 from common import CACHE_DIR, GEO_CACHE, log, norm, read_json, write_json
-from hangul import loose_key, similarity
+from hangul import full_ratio, loose_key, similarity
 
 import geo_prepare
 
@@ -81,18 +81,26 @@ def match_one(query: str, aliases: list, index: list) -> dict:
     for label, canon, level, lon, lat, pop in index:
         s = max(similarity(t, label) for t in terms)
         if s > 0:
-            scored.append((s, LEVEL_ORDER.index(level), -pop, canon, level, lon, lat))
+            f = max(full_ratio(t, label) for t in terms)
+            fc = max(full_ratio(t, canon) for t in terms)   # 별칭이 아닌 **본명** 유사도
+            scored.append((s, LEVEL_ORDER.index(level), -pop, canon, level, lon, lat, f, fc))
     if not scored:
         return {"ok": False, "reason": "후보 없음"}
-    # 점수 우선 → 같은 점수면 도시 > ADM3 > ADM2 > ADM1, 인구 많은 쪽
-    scored.sort(key=lambda t: (-t[0], t[1], t[2]))
+    # 점수 → 본명 유사도 → 도시 > ADM3 > ADM2 > ADM1 → 인구 순
+    scored.sort(key=lambda t: (-t[0], -t[8], t[1], t[2]))
     best = scored[0]
     # 2위가 '다른 지명'일 때만 마진을 따진다.
     # 같은 곳이 발음기호·행정레벨만 달리해 중복되는 경우가 많아(Butwāl 도시 ↔ Butwal ADM3)
     # 표기가 아니라 느슨한 키로 동일성을 판단한다.
     bk = loose_key(best[3])
     runner = next((s for s in scored if loose_key(s[3]) != bk), None)
-    ambiguous = runner is not None and best[0] - runner[0] < MARGIN
+    # 우열은 **전체키**로 가린다. 골격(자음만)은 후보를 넓게 걷어오는 장치라
+    # 서로 다른 지명이 같은 값을 갖기 쉽다 — Chiquimula/Chiquimulilla 둘 다 `chkmr`.
+    # 전체키까지 같으면 **본명**으로 가른다 — `Santiago Chimaltenango` 는 별칭이
+    # `Chimaltenango` 와 같지만 본명은 딴판이라 진짜 후보가 아니다.
+    ambiguous = (runner is not None
+                 and best[7] - runner[7] < MARGIN
+                 and best[8] - runner[8] < MARGIN)
     if best[0] < ACCEPT:
         return {"ok": False, "reason": f"최고 유사도 {best[0]:.2f} < {ACCEPT}",
                 "near": [{"name": s[3], "level": s[4], "score": round(s[0], 3)}
