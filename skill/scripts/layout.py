@@ -424,8 +424,7 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) ->
     # 4) 지시선 · 결과 조립 — 글자가림 검사에서 자기 카드를 빼려면 소유 카드를 달아둔다
     leaders = []
     for i, p in enumerate(placed):
-        ld = _leader(p)
-        if ld:
+        for ld in _leaders_of_card(p):
             ld["card"] = i
             leaders.append(ld)
     text_hits = count_text_hits(leaders, placed, tok)
@@ -592,24 +591,28 @@ def _materialize(assign, cards, sides, mode, L, gap, tok, frame) -> list:
     gutter = round(frame["x"] - 0.06, 4) if mode == "A" else None
     for c in placed:
         c["anchor"] = anchor_of({"x": c["x"], "y": c["y"]}, c, c["side"])
-        c["target"] = _nearest_point(c)
         if c["side"] == "left":
             c["gutter"] = gutter
     return placed
 
 
-def _nearest_point(card: dict):
-    # 대상지가 여러 곳인 면 단위 사업은 연결선을 긋지 않는다 (원으로만 표시)
-    if card.get("no_leader"):
-        return None
-    if not card["points"]:
-        return None
+def _targets(card: dict) -> list:
+    """지시선을 그을 지점들 — **카드의 모든 대상지**.
+
+    한 곳만 이으면 나머지 마커가 어느 사업인지 알 수 없는 고아가 된다
+    (`과테말라시티/빌라누에바/믹스코/팔린` 은 4곳 중 3개가 떠 있었다).
+    면 단위 다중 대상지 카드만 예외로, 초록 원과 `* 원형 표시 지역` 주석이
+    설명을 대신하므로 선을 긋지 않는다.
+    """
+    if card.get("no_leader") or not card["points"]:
+        return []
     a = card["anchor"]
-    return min(card["points"], key=lambda p: (p["x"] - a[0]) ** 2 + (p["y"] - a[1]) ** 2)
+    return sorted(card["points"],
+                  key=lambda p: (p["x"] - a[0]) ** 2 + (p["y"] - a[1]) ** 2)
 
 
-def _leader(card: dict):
-    """카드 → 마커 지시선. 좌측열은 **꺾은선**으로 뺀다.
+def _leaders_of_card(card: dict) -> list:
+    """카드 → 마커 지시선(대상지마다 하나). 좌측열은 **꺾은선**으로 뺀다.
 
     좌측열 카드에서 곧장 대각선을 그으면 아래 카드들의 사업명 위를 지나간다.
     지명 헤딩 높이로 수평으로 빠져나와 카드 열을 벗어난 뒤에 꺾으면
@@ -618,22 +621,23 @@ def _leader(card: dict):
     우측열(레이아웃 B)은 카드 왼쪽 모서리에서 지도 쪽으로 나가므로 애초에 겹치지 않는다.
     하단행도 카드 위가 비어 있어 직선으로 충분하다.
     """
-    if not card.get("target"):
-        return None
     a = card["anchor"]
-    t = [card["target"]["x"], card["target"]["y"]]
-    pts = [a]
     gut = card.get("gutter")
-    if gut is not None and a[0] < gut < t[0]:
-        pts.append([gut, a[1]])
-    pts.append(t)
-    return {"points": pts, "from": a, "to": t, "place": card["place"]}
+    out = []
+    for tp in _targets(card):
+        t = [tp["x"], tp["y"]]
+        pts = [a]
+        if gut is not None and a[0] < gut < t[0]:
+            pts.append([gut, a[1]])
+        pts.append(t)
+        out.append({"points": pts, "from": a, "to": t, "place": card["place"]})
+    return out
 
 
 def _improve(placed: list, mode: str, rounds: int = 40) -> None:
     """2-opt — 같은 변(side) 안에서 카드를 맞바꿔 지시선 교차를 줄인다."""
     def leaders_of(lst):
-        return [l for l in (_leader(c) for c in lst) if l]
+        return [l for c in lst for l in _leaders_of_card(c)]
 
     best = count_crossings(leaders_of(placed))
     if best == 0:
@@ -668,8 +672,7 @@ def _restack(placed: list, side: str) -> None:
         for c in placed:
             if c["side"] == "bottom":
                 c["anchor"] = anchor_of(c, c, c["side"])
-                c["target"] = _nearest_point(c)
-        return
+                return
     col = sorted([c for c in placed if c["side"] == side], key=lambda c: c["y"])
     if not col:
         return
@@ -678,7 +681,6 @@ def _restack(placed: list, side: str) -> None:
         c["y"] = round(y, 4)
         y += c["h"] + 0.10
         c["anchor"] = anchor_of(c, c, c["side"])
-        c["target"] = _nearest_point(c)
 
 
 def _fits(placed, mode, L, tok) -> bool:
