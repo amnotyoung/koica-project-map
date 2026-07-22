@@ -221,12 +221,19 @@ def segments_cross(p1, p2, p3, p4) -> bool:
     return o1 != o2 and o3 != o4
 
 
+def _segments(leader: dict) -> list:
+    p = leader.get("points") or [leader["from"], leader["to"]]
+    return [(p[i], p[i + 1]) for i in range(len(p) - 1)]
+
+
 def count_crossings(leaders: list) -> int:
+    """꺾은선끼리 교차하는 지시선 쌍의 수. 한 쌍이 여러 번 만나도 1로 센다."""
     n = 0
     for i in range(len(leaders)):
         for j in range(i + 1, len(leaders)):
-            a, b = leaders[i], leaders[j]
-            if segments_cross(a["from"], a["to"], b["from"], b["to"]):
+            if any(segments_cross(a1, a2, b1, b2)
+                   for a1, a2 in _segments(leaders[i])
+                   for b1, b2 in _segments(leaders[j])):
                 n += 1
     return n
 
@@ -355,7 +362,7 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) ->
         + ["bottom"] * len(row_sorted)
     n_left = len(col_sorted)
 
-    placed = _materialize(assign, cards, sides, mode, L, gap, tok)
+    placed = _materialize(assign, cards, sides, mode, L, gap, tok, frame)
     _improve(placed, mode)
 
     # 4) 지시선 · 결과 조립
@@ -428,7 +435,7 @@ def _provisional_slots(mode, L, sides, avg_h, gap, tok) -> list:
     return out
 
 
-def _materialize(assign, cards, sides, mode, L, gap, tok) -> list:
+def _materialize(assign, cards, sides, mode, L, gap, tok, frame) -> list:
     """슬롯 배정 결과를 실제 좌표로 굳힌다."""
     col = L["left_col"] if mode == "A" else L["right_col"]
     side_of = {i: sides[i] for i in range(len(sides))}
@@ -452,9 +459,13 @@ def _materialize(assign, cards, sides, mode, L, gap, tok) -> list:
             c.update({"x": round(L["bottom_row"]["x0"] + j * step, 4),
                       "y": L["bottom_row"]["y"], "side": "bottom"})
             placed.append(c)
+    # 좌측열만 꺾은선을 쓴다 — 카드 열을 벗어나는 지점(지도 왼쪽 경계 직전)에서 꺾는다
+    gutter = round(frame["x"] - 0.06, 4) if mode == "A" else None
     for c in placed:
         c["anchor"] = anchor_of({"x": c["x"], "y": c["y"]}, c, c["side"])
         c["target"] = _nearest_point(c)
+        if c["side"] == "left":
+            c["gutter"] = gutter
     return placed
 
 
@@ -466,10 +477,25 @@ def _nearest_point(card: dict):
 
 
 def _leader(card: dict):
+    """카드 → 마커 지시선. 좌측열은 **꺾은선**으로 뺀다.
+
+    좌측열 카드에서 곧장 대각선을 그으면 아래 카드들의 사업명 위를 지나간다.
+    지명 헤딩 높이로 수평으로 빠져나와 카드 열을 벗어난 뒤에 꺾으면
+    글자 영역을 전혀 지나지 않는다 (헤딩 줄은 사업명보다 위에 있다).
+
+    우측열(레이아웃 B)은 카드 왼쪽 모서리에서 지도 쪽으로 나가므로 애초에 겹치지 않는다.
+    하단행도 카드 위가 비어 있어 직선으로 충분하다.
+    """
     if not card.get("target"):
         return None
-    return {"from": card["anchor"], "to": [card["target"]["x"], card["target"]["y"]],
-            "place": card["place"]}
+    a = card["anchor"]
+    t = [card["target"]["x"], card["target"]["y"]]
+    pts = [a]
+    gut = card.get("gutter")
+    if gut is not None and a[0] < gut < t[0]:
+        pts.append([gut, a[1]])
+    pts.append(t)
+    return {"points": pts, "from": a, "to": t, "place": card["place"]}
 
 
 def _improve(placed: list, mode: str, rounds: int = 40) -> None:

@@ -109,13 +109,15 @@ def draw_slide(prs, L: dict, tok: dict, tmp: Path, layout_path: Path) -> None:
     img, c = map_image(layout_path, tmp)
     slide.shapes.add_picture(str(img), I(c["x"]), I(c["y"]), I(c["w"]), I(c["h"]))
 
-    # 2) 지시선
+    # 2) 지시선 — 꺾은선은 직선 커넥터 여러 개로 나눠 그린다.
+    #    python-pptx 의 ELBOW 커넥터는 꺾이는 지점을 지정할 수 없어 쓸 수 없다.
     for ld in L["leaders"]:
-        cn = slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT,
-                                        I(ld["from"][0]), I(ld["from"][1]),
-                                        I(ld["to"][0]), I(ld["to"][1]))
-        cn.line.color.rgb = rgb(col["leader"])
-        cn.line.width = Pt(tok["leader"]["w_pt"])
+        pts = ld.get("points") or [ld["from"], ld["to"]]
+        for p, q in zip(pts, pts[1:]):
+            cn = slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT,
+                                            I(p[0]), I(p[1]), I(q[0]), I(q[1]))
+            cn.line.color.rgb = rgb(col["leader"])
+            cn.line.width = Pt(tok["leader"]["w_pt"])
 
     # 3) 마커
     mk = tok["marker"]

@@ -100,13 +100,15 @@ def _neighbor_label(n: dict, f: dict):
 
 
 def draw_leaders(L: dict, tok: dict) -> str:
+    """꺾은선 지시선. 좌측열은 카드 열을 수평으로 빠져나온 뒤 꺾인다(layout._leader)."""
     c = tok["color"]["leader"]
     w = tok["leader"]["w_pt"] * PT
     out = []
     for ld in L["leaders"]:
-        out.append(f'<line x1="{ld["from"][0]:.4f}" y1="{ld["from"][1]:.4f}" '
-                   f'x2="{ld["to"][0]:.4f}" y2="{ld["to"][1]:.4f}" '
-                   f'stroke="{c}" stroke-width="{w:.5f}"/>')
+        pts = ld.get("points") or [ld["from"], ld["to"]]
+        d = " ".join(f"{p[0]:.4f},{p[1]:.4f}" for p in pts)
+        out.append(f'<polyline points="{d}" fill="none" stroke="{c}" '
+                   f'stroke-width="{w:.5f}" stroke-linejoin="round"/>')
     return "\n".join(out)
 
 
