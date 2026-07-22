@@ -42,6 +42,17 @@ AREA_NOTE_MIN_SITES = 2
 # 범례가 위로 올라갈 수 있는 한계 — 지역 탭(y 0.58~1.45)과 x 가 겹치므로 그 아래여야 한다
 LEGEND_MIN_Y = 1.60
 
+# KOICA 지역 구분의 영문 표기. 원본 slide2 는 `Asia and Pacific` 으로 시작한다.
+# 입력에 `region_en` 이 있으면 그 값이 우선한다.
+REGION_EN = {
+    "아시아태평양": "Asia and Pacific",
+    "아프리카": "Africa",
+    "중남미": "Latin America and the Caribbean",
+    "중동·CIS": "Middle East and CIS",
+    "중동": "Middle East",
+    "동구·CIS": "Eastern Europe and CIS",
+}
+
 
 # ─────────────────────────────── 투영 ───────────────────────────────
 
@@ -378,8 +389,15 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) ->
 
     # 1) 카드 생성 + 마커 좌표
     cards, markers, warnings = [], [], []
+    country_en = doc.get("country_en") or base.get("name_en") or ""
+    # 영문 슬라이드인데 영문 사업명이 없으면 한글이 그대로 실린다 — 조용히 넘기지 않는다
+    if lang == "en":
+        miss = sum(1 for p in doc["projects"] if not p.get("name_en"))
+        if miss:
+            warnings.append(f"영문 사업명(name_en) 누락 {miss}/{len(doc['projects'])}건 "
+                            f"— 해당 카드는 한글 사업명으로 나옵니다")
     for rec, rp in zip(doc["projects"], resolved["places"]):
-        card = build_card(rec, tok, lang, scale, place=_place_label(rec, rp, lang))
+        card = build_card(rec, tok, lang, scale, place=_place_label(rec, rp, lang, country_en))
         pts = []
         for part in rp["parts"]:
             if not part.get("ok") or part.get("kind") == "nationwide":
@@ -464,7 +482,9 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) ->
         "country": {"ko": doc.get("country_ko") or base["name_ko"],
                     "en": doc.get("country_en") or base["name_en"],
                     "iso3": base["iso3"]},
-        "region": doc.get("region", ""),
+        "region": (doc.get("region", "") if lang == "ko" else
+                   (doc.get("region_en")
+                    or REGION_EN.get(doc.get("region", ""), doc.get("region", "")))),
         "map": {"frame": frame, "content": proj.content, "projection": proj.as_dict(),
                 "tiles": _tile_background(base, proj, frame),
                 "land": proj.rings(base["land"]),
@@ -498,19 +518,33 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) ->
     return doc_out
 
 
-def _place_label(rec: dict, rp: dict, lang: str) -> str:
+def strip_accents(s: str) -> str:
+    """라틴 발음기호만 떼고 **한글은 그대로** 둔다.
+
+    NFKD 는 한글 음절도 자모로 쪼갠다(`동티모르` → 9글자). 결합문자를 지운 뒤
+    NFC 로 되돌리지 않으면 화면에 자모가 흩어져 찍힌다.
+    """
+    d = unicodedata.normalize("NFKD", s)
+    return unicodedata.normalize("NFC", "".join(c for c in d
+                                                if not unicodedata.combining(c)))
+
+
+def _place_label(rec: dict, rp: dict, lang: str, country_en: str = "") -> str:
     """영문 슬라이드의 지명 헤딩은 해석된 라틴 표기를 쓴다 (포카라 → Pokhara).
     입력에 `place_en` 이 있으면 그 값이 우선한다."""
     if lang == "ko":
         return rec.get("place", "")
     if rec.get("place_en"):
         return rec["place_en"]
-    names = [p.get("matched") for p in rp["parts"] if p.get("ok") and p.get("matched")]
+    parts = [p for p in rp["parts"] if p.get("ok") and p.get("matched")]
+    # 전국사업은 해석 결과가 한글 국가명이다 — 영문 슬라이드에선 영문 국가명을 쓴다
+    if parts and all(p.get("kind") == "nationwide" for p in parts) and country_en:
+        return f"{country_en} nationwide"
+    names = [p["matched"] for p in parts]
     if not names:
         return rec.get("place", "")
     # GeoNames 는 장음부호를 단다(Butwāl·Bardiyā). KOICA 표기는 붙이지 않는다.
-    plain = unicodedata.normalize("NFKD", "/".join(names))
-    return "".join(c for c in plain if not unicodedata.combining(c))
+    return strip_accents("/".join(names))
 
 
 def _mark_area_note(cards: list, lang: str) -> None:
