@@ -243,6 +243,40 @@ def count_crossings(leaders: list) -> int:
     return n
 
 
+def _card_text_boxes(placed: list, tok: dict) -> list:
+    """지시선이 지나선 안 되는 글자 영역 — 각 카드의 지명 헤딩과 사업명 블록."""
+    nm = tok["card"]["name"]
+    boxes = []
+    for c in placed:
+        boxes.append((c["x"] - 0.01, c["y"], c["x"] + c["place_w"], c["y"] + 0.14))
+        x0 = c["x"] + nm["dx"]
+        boxes.append((x0, c["y"] + nm["dy"] - 0.02, x0 + nm["w"], c["y"] + c["h"]))
+    return boxes
+
+
+def _seg_hits_box(p, q, b) -> bool:
+    def inside(pt):
+        return b[0] < pt[0] < b[2] and b[1] < pt[1] < b[3]
+    if inside(p) or inside(q):
+        return True
+    corners = [(b[0], b[1]), (b[2], b[1]), (b[2], b[3]), (b[0], b[3])]
+    return any(segments_cross(p, q, e1, e2)
+               for e1, e2 in zip(corners, corners[1:] + corners[:1]))
+
+
+def count_text_hits(leaders: list, placed: list, tok: dict) -> int:
+    """카드 글자를 가리는 지시선 수. 배치 불변식 — 0 이 아니면 규칙 위반이다.
+
+    한 번 눈으로 잡았던 회귀(직선 지시선이 사업명을 관통)를 코드로 못 박는다.
+    꺾은선 규칙이 지켜지면 수평 구간은 헤딩 줄 높이라 어떤 글자 상자와도
+    만나지 않고, 대각 구간은 지도 영역 안에만 있다.
+    """
+    boxes = _card_text_boxes(placed, tok)
+    return sum(1 for ld in leaders
+               if any(_seg_hits_box(p, q, b)
+                      for p, q in _segments(ld) for b in boxes))
+
+
 def assign_sides(pins: list, col_x: float, row_y: float, n_row: int) -> list:
     """어느 카드를 하단행으로 보낼지 고른다 — 열보다 행이 가까운 순.
 
@@ -378,6 +412,9 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) ->
 
     # 4) 지시선 · 결과 조립
     leaders = [l for l in (_leader(p) for p in placed) if l]
+    text_hits = count_text_hits(leaders, placed, tok)
+    if text_hits:
+        warnings.append(f"지시선이 카드 글자를 {text_hits}건 가립니다 — 배치 규칙 위반")
     fits = _fits(placed, mode, L, tok)
     doc_out = {
         "canvas": {"w": tok["canvas"]["w_in"], "h": tok["canvas"]["h_in"]},
@@ -411,6 +448,7 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) ->
         "legend": _legend(tok, lang),
         "notes": (([NOTE_AREA[lang]] if any(m["kind"] == "area" for m in markers) else [])),
         "crossings": count_crossings(leaders),
+        "text_hits": text_hits,
         "font_scale": scale,
         "warnings": warnings,
         "fits": fits,
@@ -647,7 +685,7 @@ def main() -> int:
     out = compute(doc, a.lang, a.index, a.detail)
     write_json(Path(a.out), out, indent=1)
     log(f'  카드 {len(out["cards"])} · 마커 {len(out["markers"])} · 지시선 {len(out["leaders"])} '
-        f'· 교차 {out["crossings"]} · 폰트 {out["font_scale"]}배')
+        f'· 교차 {out["crossings"]} · 글자가림 {out["text_hits"]} · 폰트 {out["font_scale"]}배')
     for w in out["warnings"]:
         log(f"  ! {w}")
     log(f'  → {a.out}')

@@ -49,7 +49,8 @@ def run(inputs: list, outdir: Path, langs: list, formats: list,
             lp = write_json(outdir / f"{stem}.layout.json", L, indent=1)
             layouts.append(lp)
             log(f'  카드 {len(L["cards"])} · 마커 {len(L["markers"])} · 지시선 '
-                f'{len(L["leaders"])} · 교차 {L["crossings"]} · 폰트 {L["font_scale"]}배')
+                f'{len(L["leaders"])} · 교차 {L["crossings"]} · 글자가림 {L.get("text_hits", 0)} '
+                f'· 폰트 {L["font_scale"]}배')
             for w in L["warnings"]:
                 log(f"  ! {w}")
 
