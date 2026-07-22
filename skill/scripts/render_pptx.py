@@ -148,11 +148,17 @@ def draw_slide(prs, L: dict, tok: dict, tmp: Path, layout_path: Path) -> None:
         textbox(slide, x + cd["name"]["dx"], y + cd["name"]["dy"] - 0.015,
                 cd["name"]["w"], card["h"], card["lines"], card["font"],
                 col["body"], spacing=0.92)
+        # 대상지가 여럿인 면 단위 사업의 설명 — 그 카드 안에 붙는다 (원본과 동일)
+        if card.get("note"):
+            textbox(slide, x + cd["name"]["dx"],
+                    y + cd["name"]["dy"] - 0.015 + len(card["lines"]) * card["line_h"],
+                    cd["name"]["w"], card["line_h"] * 1.3, card["note"], card["font"],
+                    col["area_ring"], bold=True)
 
     draw_title(slide, L, tok)
     draw_region_tab(slide, L, tok)
     draw_legend(slide, L, tok)
-    draw_notes(slide, L, tok)
+    
 
 
 _SYMS = {"E": "E", "H": "H", "G": "G", "A": "A", "T": "…"}

@@ -35,6 +35,10 @@ MIN_FONT_SCALE = 0.85     # design.md 규칙 4 — 폰트는 15% 까지만 줄�
 # 면 단위 사업 주석 (샘플 slide1/slide2 표기 그대로)
 NOTE_AREA = {"ko": "* 원형 표시 지역", "en": "* Areas marked circles"}
 
+# 사업대상지가 이만큼 이상이면 지시선을 하나로 특정할 수 없다 → 원으로만 표시하고
+# 카드에 주석을 단다. 원본 샘플의 `바라/팔사/반케/버르디야` 가 이 경우다.
+AREA_NOTE_MIN_SITES = 2
+
 
 # ─────────────────────────────── 투영 ───────────────────────────────
 
@@ -244,13 +248,17 @@ def count_crossings(leaders: list) -> int:
 
 
 def _card_text_boxes(placed: list, tok: dict) -> list:
-    """지시선이 지나선 안 되는 글자 영역 — 각 카드의 지명 헤딩과 사업명 블록."""
+    """지시선이 지나선 안 되는 글자 영역 — (카드번호, 상자) 목록.
+
+    카드번호를 함께 돌려주는 이유: 지시선은 **자기 카드**의 헤딩 모서리에서
+    출발하므로 자기 상자와는 당연히 닿는다. 그건 위반이 아니다.
+    """
     nm = tok["card"]["name"]
     boxes = []
-    for c in placed:
-        boxes.append((c["x"] - 0.01, c["y"], c["x"] + c["place_w"], c["y"] + 0.14))
+    for i, c in enumerate(placed):
+        boxes.append((i, (c["x"] - 0.01, c["y"], c["x"] + c["place_w"], c["y"] + 0.14)))
         x0 = c["x"] + nm["dx"]
-        boxes.append((x0, c["y"] + nm["dy"] - 0.02, x0 + nm["w"], c["y"] + c["h"]))
+        boxes.append((i, (x0, c["y"] + nm["dy"] - 0.02, x0 + nm["w"], c["y"] + c["h"])))
     return boxes
 
 
@@ -274,7 +282,8 @@ def count_text_hits(leaders: list, placed: list, tok: dict) -> int:
     boxes = _card_text_boxes(placed, tok)
     return sum(1 for ld in leaders
                if any(_seg_hits_box(p, q, b)
-                      for p, q in _segments(ld) for b in boxes))
+                      for p, q in _segments(ld)
+                      for i, b in boxes if i != ld.get("card")))
 
 
 def assign_sides(pins: list, col_x: float, row_y: float, n_row: int) -> list:
@@ -364,6 +373,8 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) ->
         if not rp["resolved"]:
             warnings.append(f'지명 미해석: {rp["query"]}')
 
+    _mark_area_note(cards, lang)
+
     linked = [c for c in cards if c["points"]]
     free = [c for c in cards if not c["points"]]      # 전국사업 — 지시선 없음
 
@@ -410,8 +421,13 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) ->
     placed = _materialize(assign, cards, sides, mode, L, gap, tok, frame)
     _improve(placed, mode)
 
-    # 4) 지시선 · 결과 조립
-    leaders = [l for l in (_leader(p) for p in placed) if l]
+    # 4) 지시선 · 결과 조립 — 글자가림 검사에서 자기 카드를 빼려면 소유 카드를 달아둔다
+    leaders = []
+    for i, p in enumerate(placed):
+        ld = _leader(p)
+        if ld:
+            ld["card"] = i
+            leaders.append(ld)
     text_hits = count_text_hits(leaders, placed, tok)
     if text_hits:
         warnings.append(f"지시선이 카드 글자를 {text_hits}건 가립니다 — 배치 규칙 위반")
@@ -446,7 +462,8 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) ->
         "markers": _dedupe(markers),
         "leaders": leaders,
         "legend": _legend(tok, lang),
-        "notes": (([NOTE_AREA[lang]] if any(m["kind"] == "area" for m in markers) else [])),
+        # 주석은 해당 카드 안에 들어간다(card["note"]). 슬라이드 각주로 두지 않는다.
+        "notes": [],
         "crossings": count_crossings(leaders),
         "text_hits": text_hits,
         "font_scale": scale,
@@ -470,6 +487,28 @@ def _place_label(rec: dict, rp: dict, lang: str) -> str:
     # GeoNames 는 장음부호를 단다(Butwāl·Bardiyā). KOICA 표기는 붙이지 않는다.
     plain = unicodedata.normalize("NFKD", "/".join(names))
     return "".join(c for c in plain if not unicodedata.combining(c))
+
+
+def _mark_area_note(cards: list, lang: str) -> None:
+    """`* 원형 표시 지역` 을 붙일 카드를 **하나만** 고른다.
+
+    원본 샘플에서 이 주석은 슬라이드당 한 번, 사업대상지가 여러 곳이라 지시선을
+    한 지점으로 특정할 수 없는 카드 안에 들어간다(네팔 `바라/팔사/반케/버르디야`,
+    동티모르 `딜리/리키사/에르메라/바우카우 주`). 그 카드는 지시선을 긋지 않고
+    지도의 초록 원으로만 위치를 알린다.
+
+    슬라이드 각주로 두면 무관한 카드 위에 얹히고, 다중지역 카드마다 달면
+    지시선이 거의 사라진다 — 둘 다 원본과 다르다.
+    """
+    cand = [c for c in cards
+            if sum(1 for p in c["points"] if p["kind"] == "area") >= AREA_NOTE_MIN_SITES]
+    if not cand:
+        return
+    pick = max(cand, key=lambda c: (sum(1 for p in c["points"] if p["kind"] == "area"),
+                                    -cards.index(c)))
+    pick["note"] = NOTE_AREA[lang]
+    pick["no_leader"] = True
+    pick["h"] += pick["line_h"]
 
 
 def _tile_background(base: dict, proj: "Projection", frame: dict):
@@ -560,6 +599,9 @@ def _materialize(assign, cards, sides, mode, L, gap, tok, frame) -> list:
 
 
 def _nearest_point(card: dict):
+    # 대상지가 여러 곳인 면 단위 사업은 연결선을 긋지 않는다 (원으로만 표시)
+    if card.get("no_leader"):
+        return None
     if not card["points"]:
         return None
     a = card["anchor"]

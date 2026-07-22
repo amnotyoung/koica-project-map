@@ -226,6 +226,12 @@ def draw_cards(L: dict, tok: dict) -> str:
                        f'fill="{col["body"]}" paint-order="stroke" stroke="#FFFFFF" '
                        f'stroke-width="{0.022:.4f}" stroke-linejoin="round">{esc(line)}</text>')
             ty += c["line_h"]
+        # 대상지가 여럿인 면 단위 사업의 설명 — 그 카드 안에 붙는다 (원본과 동일)
+        if c.get("note"):
+            out.append(f'<text x="{x + cd["name"]["dx"]:.4f}" y="{ty:.4f}" '
+                       f'font-size="{c["font"]*PT:.5f}" fill="{col["area_ring"]}" '
+                       f'font-weight="700" paint-order="stroke" stroke="#FFFFFF" '
+                       f'stroke-width="{0.022:.4f}">{esc(c["note"])}</text>')
     return "\n".join(out)
 
 
@@ -369,7 +375,7 @@ def render(L: dict, layers: str = "all") -> str:
         draw_title(L, tok),
         draw_region_tab(L, tok),
         draw_legend(L, tok),
-        draw_notes(L, tok),
+        
         draw_credit(L, tok),
     ]
     body = "\n".join(parts)
