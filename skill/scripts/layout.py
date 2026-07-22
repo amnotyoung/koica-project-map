@@ -39,6 +39,9 @@ NOTE_AREA = {"ko": "* 원형 표시 지역", "en": "* Areas marked circles"}
 # 카드에 주석을 단다. 원본 샘플의 `바라/팔사/반케/버르디야` 가 이 경우다.
 AREA_NOTE_MIN_SITES = 2
 
+# 범례가 위로 올라갈 수 있는 한계 — 지역 탭(y 0.58~1.45)과 x 가 겹치므로 그 아래여야 한다
+LEGEND_MIN_Y = 1.60
+
 
 # ─────────────────────────────── 투영 ───────────────────────────────
 
@@ -286,6 +289,24 @@ def count_text_hits(leaders: list, placed: list, tok: dict) -> int:
                       for i, b in boxes if i != ld.get("card")))
 
 
+def check_bounds(placed: list, legend: dict, tok: dict) -> list:
+    """배치된 요소가 슬라이드를 벗어나는지 본다 — 배치 불변식.
+
+    영문 범례가 슬라이드 밖으로 흘러나간 적이 있다(렌더러마다 따로 계산해 갈라졌다).
+    layout 이 좌표를 굳히는 이상, 이탈 여부도 여기서 판정할 수 있어야 한다.
+    """
+    W, H = tok["canvas"]["w_in"], tok["canvas"]["h_in"]
+    out = []
+    for c in placed:
+        if c["y"] + c["h"] > H - 0.02:
+            out.append(f'카드 「{c["place"][:14]}」 하단 {c["y"] + c["h"]:.2f}in')
+        if c["x"] + c["w"] > W - 0.02:
+            out.append(f'카드 「{c["place"][:14]}」 우측 {c["x"] + c["w"]:.2f}in')
+    if legend.get("bottom", 0) > H - 0.02:
+        out.append(f'범례 하단 {legend["bottom"]:.2f}in')
+    return out
+
+
 def assign_sides(pins: list, col_x: float, row_y: float, n_row: int) -> list:
     """어느 카드를 하단행으로 보낼지 고른다 — 열보다 행이 가까운 순.
 
@@ -430,6 +451,10 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) ->
     text_hits = count_text_hits(leaders, placed, tok)
     if text_hits:
         warnings.append(f"지시선이 카드 글자를 {text_hits}건 가립니다 — 배치 규칙 위반")
+    legend = _legend(tok, lang)
+    outside = check_bounds(placed, legend, tok)
+    for o in outside:
+        warnings.append(f"슬라이드 밖으로 나갑니다: {o}")
     fits = _fits(placed, mode, L, tok)
     doc_out = {
         "canvas": {"w": tok["canvas"]["w_in"], "h": tok["canvas"]["h_in"]},
@@ -460,7 +485,7 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) ->
         "cards": placed,
         "markers": _dedupe(markers),
         "leaders": leaders,
-        "legend": _legend(tok, lang),
+        "legend": legend,
         # 주석은 해당 카드 안에 들어간다(card["note"]). 슬라이드 각주로 두지 않는다.
         "notes": [],
         "crossings": count_crossings(leaders),
@@ -706,11 +731,52 @@ def _dedupe(markers: list) -> list:
 
 
 def _legend(tok: dict, lang: str) -> dict:
+    """범례 배치를 **여기서 끝낸다** — 항목마다 좌표와 글자 크기를 굳혀서 넘긴다.
+
+    렌더러가 각자 계산하면 갈라진다. 실제로 HTML 은 넘칠 때 글자를 줄였는데
+    PPTX 는 그 축소를 빼먹어 영문 범례가 슬라이드 밖으로 흘러나갔다.
+
+    한글은 글자를 세로로 쌓고(한 글자 = 1행), 영문은 통째로 90° 회전한다 —
+    영문을 낱자로 쌓으면 읽히지 않는다.
+    """
     from common import sector_map
     sm = sector_map()["badges"]
     lg = dict(tok["legend"])
-    lg["items"] = [{"key": k, "symbol": sm[k]["symbol"], "label": sm[k][lang]}
-                   for k in ("E", "H", "G", "A", "T")]
+    items = [{"key": k, "symbol": sm[k]["symbol"], "label": sm[k][lang]}
+             for k in ("E", "H", "G", "A", "T")]
+    en = lang == "en"
+    gap, sw = 0.09, lg["swatch"]
+    bottom = tok["canvas"]["h_in"] - 0.34          # 쪽번호 자리를 남긴다
+
+    def label_h(s, size_pt):
+        if en:                                      # 회전 → 글자열의 가로폭이 세로높이
+            return text_width(s, size_pt)
+        n = len([c for c in s if c != " "])
+        return n * size_pt / 72.0 + s.count(" ") * size_pt / 144.0
+
+    # 넘치면 **글자를 줄이기 전에 시작 위치를 올린다** — 원본이 그렇게 했다.
+    # 국문 slide1 은 (11.91,4.29) 높이 2.33in, 영문 slide2 는 (11.84,2.95) 높이 3.68in
+    # 로 둘 다 4.81pt 다. 영문 라벨이 길다고 3pt 로 줄이면 읽을 수 없다.
+    size = lg["size"]
+    y0 = lg["y0"]
+    for _ in range(24):
+        need = sum(sw + label_h(i["label"], size) + gap for i in items)
+        y0 = min(lg["y0"], bottom - need)
+        if y0 >= LEGEND_MIN_Y or size <= lg["size"] * 0.6:
+            break
+        size *= 0.94                                # 위로도 모자랄 때만 줄인다
+    y0 = max(y0, LEGEND_MIN_Y)
+
+    y = y0
+    for it in items:
+        h = label_h(it["label"], size)
+        it.update({"x": lg["x"], "y": round(y, 4), "size": round(size, 3),
+                   "label_y": round(y + sw + size / 72.0 * (1.0 if en else 0.9), 4),
+                   "label_h": round(h, 4), "rotate": en})
+        y += sw + h + gap
+    lg["items"] = items
+    lg["y0"] = round(y0, 4)
+    lg["bottom"] = round(y - gap, 4)
     return lg
 
 

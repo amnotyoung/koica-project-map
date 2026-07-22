@@ -262,28 +262,27 @@ def draw_region_tab(slide, L: dict, tok: dict) -> None:
 
 
 def draw_legend(slide, L: dict, tok: dict) -> None:
+    """범례 — 좌표·글자 크기는 layout._legend 가 정한다. 여기서 재계산하지 말 것.
+
+    예전엔 HTML 만 넘침 축소를 했고 PPTX 는 빠뜨려, 영문 범례가 슬라이드 밖으로
+    흘러나갔다. 두 렌더러가 같은 값을 쓰도록 배치를 layout 으로 올렸다.
+    """
     lg, col = L["legend"], tok["color"]
-    fs = lg["size"]
-    y = lg["y0"]
     for it in lg["items"]:
-        rect(slide, lg["x"], y, lg["swatch"], lg["swatch"], col["badge_bg"])
-        textbox(slide, lg["x"], y, lg["swatch"], lg["swatch"], it["symbol"], fs,
-                col["badge_fg"], bold=True, align=PP_ALIGN.CENTER,
-                anchor=MSO_ANCHOR.MIDDLE)
-        # 한글은 글자를 세로로 쌓고, 영문은 통째로 90° 회전 (낱자로 흩어지면 못 읽는다)
-        if L["lang"] == "en":
-            h = len(it["label"]) * fs / 72 * 0.55
-            tb = textbox(slide, lg["x"] + lg["swatch"] / 2 - h / 2,
-                         y + lg["swatch"] + 0.02 + h / 2 - 0.06, h, 0.12,
-                         it["label"], fs, col["body"], align=PP_ALIGN.CENTER,
-                         anchor=MSO_ANCHOR.MIDDLE)
+        rect(slide, it["x"], it["y"], lg["swatch"], lg["swatch"], col["badge_bg"])
+        textbox(slide, it["x"], it["y"], lg["swatch"], lg["swatch"], it["symbol"],
+                lg["size"], col["badge_fg"], bold=True,
+                align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+        cx, h = it["x"] + lg["swatch"] / 2, it["label_h"]
+        if it["rotate"]:                       # 영문: 가로 텍스트박스를 90° 회전
+            tb = textbox(slide, cx - h / 2, it["y"] + lg["swatch"] + h / 2 - 0.06,
+                         h, 0.12, it["label"], it["size"], col["body"],
+                         align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
             tb.rotation = 90
-        else:
-            h = len(it["label"]) * fs / 72 * 1.05
-            textbox(slide, lg["x"] - 0.03, y + lg["swatch"] + 0.02, lg["swatch"] + 0.06,
-                    h, list(it["label"]), fs, col["body"], align=PP_ALIGN.CENTER,
-                    spacing=0.9)
-        y += lg["swatch"] + h + 0.09
+        else:                                  # 한글: 글자를 세로로 쌓는다
+            textbox(slide, it["x"] - 0.03, it["y"] + lg["swatch"] + 0.02,
+                    lg["swatch"] + 0.06, h, list(it["label"]), it["size"],
+                    col["body"], align=PP_ALIGN.CENTER, spacing=0.9)
     pn = lg["page_num"]
     textbox(slide, pn["x"], pn["y"] - 0.14, 0.3, 0.2, str(L.get("index", 1)),
             pn["size"], col["body"])

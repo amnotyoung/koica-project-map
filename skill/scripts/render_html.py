@@ -320,39 +320,23 @@ def draw_region_tab(L: dict, tok: dict) -> str:
 
 
 def draw_legend(L: dict, tok: dict) -> str:
-    """세로 5칸. 항목마다 글자 수가 달라(교육 2자 ↔ 기술환경에너지 7자) 고정 간격을
-    쓰면 겹친다. 실측 세로 블록 2.33in 안에 들어가도록 글자 크기를 맞춘다."""
+    """범례 — 좌표·글자 크기는 layout._legend 가 정한다. 여기서 재계산하지 말 것."""
     lg, col = L["legend"], tok["color"]
-    en = L["lang"] == "en"
-    fs = lg["size"] * PT
-    gap = 0.09
-    # 한글은 글자를 세로로 쌓고(한 글자 = 1행), 영문은 통째로 90° 회전시킨다.
-    # 영문을 글자 단위로 쌓으면 'Education' 이 세로 낱자로 흩어져 읽히지 않는다.
-    def label_h(s):
-        return len(s) * fs * (0.52 if en else 1.0)
-
-    total = sum(lg["swatch"] + label_h(i["label"]) + gap for i in lg["items"])
-    avail = tok["canvas"]["h_in"] - lg["y0"] - 0.42
-    if total > avail:
-        fixed = len(lg["items"]) * (lg["swatch"] + gap)
-        fs *= max(0.5, (avail - fixed) / max(total - fixed, 1e-6))
-
-    out, y = [], lg["y0"]
+    out = []
     for it in lg["items"]:
-        cx = lg["x"] + lg["swatch"] / 2
-        out.append(f'<rect x="{lg["x"]:.4f}" y="{y:.4f}" width="{lg["swatch"]:.4f}" '
+        cx = it["x"] + lg["swatch"] / 2
+        fs = it["size"] * PT
+        out.append(f'<rect x="{it["x"]:.4f}" y="{it["y"]:.4f}" width="{lg["swatch"]:.4f}" '
                    f'height="{lg["swatch"]:.4f}" fill="{col["badge_bg"]}"/>')
-        out.append(f'<text x="{cx:.4f}" y="{y+lg["swatch"]*0.78:.4f}" '
+        out.append(f'<text x="{cx:.4f}" y="{it["y"]+lg["swatch"]*0.78:.4f}" '
                    f'font-size="{lg["size"]*PT:.5f}" fill="{col["badge_fg"]}" '
                    f'text-anchor="middle" font-weight="700">{esc(it["symbol"])}</text>')
-        ly = y + lg["swatch"] + fs * 0.6
-        if en:
+        ly = it["label_y"]
+        if it["rotate"]:                      # 영문은 통째로 90° 회전
             out.append(f'<text x="{cx:.4f}" y="{ly:.4f}" font-size="{fs:.5f}" '
                        f'fill="{col["body"]}" transform="rotate(90 {cx:.4f} {ly:.4f})">'
                        f'{esc(it["label"])}</text>')
-            ly += label_h(it["label"])
-        else:
-            ly += fs * 0.4
+        else:                                 # 한글은 글자를 세로로 쌓는다
             for ch in it["label"]:
                 if ch == " ":
                     ly += fs * 0.5
@@ -360,7 +344,6 @@ def draw_legend(L: dict, tok: dict) -> str:
                 out.append(f'<text x="{cx:.4f}" y="{ly:.4f}" font-size="{fs:.5f}" '
                            f'fill="{col["body"]}" text-anchor="middle">{esc(ch)}</text>')
                 ly += fs
-        y = ly + gap
     pn = lg["page_num"]
     out.append(f'<text x="{pn["x"]:.4f}" y="{pn["y"]:.4f}" font-size="{pn["size"]*PT:.5f}" '
                f'fill="{col["body"]}">{L.get("index", 1)}</text>')
