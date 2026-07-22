@@ -12,7 +12,24 @@ description: KOICA 연도별 프로젝트맵(사업 위치 지도) 자동 생성
 
 ## 워크플로
 
-### 1. 사업 정보 → `projects.json`
+### 1. 사업 목록 만들기
+
+**(a) 사이트에서 받아 고르기 — 권장**
+
+```bash
+python scripts/pick_projects.py --country 네팔 --year 2026 --out projects.json
+```
+
+oda-map-lab 에서 그 국가 KOICA 사업을 **전부** 끌어와 브라우저 체크박스 UI 를 연다.
+사업명(국·영문)·지명·분야 배지를 그 자리에서 고칠 수 있고, 없는 사업은 `+ 직접 추가` 로 넣는다.
+저장하면 `projects.json` 이 만들어지고 서버는 닫힌다.
+
+- 국별협력사업(프로젝트 원조·30억원 이상·진행)은 **기본 체크**, 봉사단·연수는 해제 상태
+- **지명은 추정값이다.** 원본 그룹 라벨을 옮긴 것이라 실제 대상지와 다를 수 있다
+  (`룸비니` 그룹에 버르디야 사업이 들어 있는 식) — 이 확인이 이 단계의 핵심이다
+- 사이트에 아직 없는 신규 사업이 있다 (샘플 네팔 10건 중 3건). `+ 직접 추가` 로 넣는다
+
+**(b) 직접 작성**
 
 사용자가 준 사업 정보를 아래 형식으로 만든다. **사업명은 원문 그대로** 둔다
 (`사업명(기간/예산)` 형식 유지 — 임의로 줄이지 않는다).
@@ -86,6 +103,22 @@ skill/.venv/bin/python scripts/make_map.py --input projects.json --outdir out --
 생성된 파일 경로를 알려준다. PPTX 는 지도만 이미지이고 **카드·배지·지시선·마커는 편집 가능한
 도형**이라 파워포인트에서 그대로 손볼 수 있다는 점을 함께 안내한다.
 
+### 6. 위치 정보 기여 제안
+
+생성 로그에 `── 위치 정보 기여 제안 ──` 이 뜨면, 원천 데이터가 **국가 중심점**으로만 알고
+있던 지점을 이번에 정밀화했다는 뜻이다. 사용자에게 알리고 원하면 파일을 만들어 준다.
+
+```bash
+python scripts/contribute.py --layout out/<이름>_ko.layout.json --author "이름"
+```
+
+`koica-contrib` 규격(schema v2) JSON 이 나온다. 국가폴백이던 지점은 `corrects` 로 묶여
+"이 핀을 이 좌표로 고쳐 달라"는 형태가 된다.
+
+- **자동으로 보내지 않는다.** 파일만 만들고 제출은 사용자가 한다
+- 작성자 이름이 필수다 — **임의로 지어내지 말고 사용자에게 묻는다**
+- 보내기 전에 파일을 열어 좌표·작성자를 확인하라고 안내한다
+
 ## 산출물
 
 ```
@@ -102,6 +135,9 @@ out/
 |---|---|
 | `design.md` | **디자인 단일 출처** — 토큰(YAML) + 판단 규칙 |
 | `reference/sector_map.yaml` | 세부 분야 214종 → 배지 5종 매핑 |
+| `scripts/fetch_projects.py` | oda-map-lab 에서 국가별 KOICA 사업 전량 수집 (초안) |
+| `scripts/pick_projects.py` | 브라우저 체크박스 UI — 선택·편집 → `projects.json` |
+| `scripts/contribute.py` | 정밀 좌표 → oda-map-lab 기여 파일 (전송은 사용자가) |
 | `scripts/geo_prepare.py` | 국가 경계·지명 사전 준비 (Natural Earth / geoBoundaries / GeoNames) |
 | `scripts/basemap_tiles.py` | OSM 벡터 타일 → 배경 지도 (도로·하천 밀도) |
 | `scripts/cdp.py` | Chrome 원격제어 — 타일 렌더 완료를 기다렸다 캡처 |
@@ -131,5 +167,6 @@ python3 -m venv skill/.venv --system-site-packages && skill/.venv/bin/pip instal
 
 - **배치를 렌더러에서 다시 계산하지 말 것.** 좌표는 `layout.json` 이 유일한 출처다. 렌더러가 제 나름대로 위치를 잡으면 HTML 과 PPTX 가 갈라진다
 - **사업을 임의로 빼지 말 것.** 카드가 넘치면 폰트 축소 → 지도 축소 순으로 대응하고, 그래도 안 되면 슬라이드 분할을 사용자에게 제안한다
-- **oda-map-lab 데이터는 사업 선정 소스가 아니다.** 좌표 43%가 국가 중심점 폴백이고 한글 지명 커버리지가 낮다. 사업 목록은 사용자가 준다
+- **oda-map-lab 의 좌표는 쓰지 않는다.** 사업 지점 43%가 국가 중심점 폴백이다. 사업명·기간·예산·분야만 받고 위치는 지명에서 다시 푼다
+- **기여 파일을 대신 제출하지 말 것.** 남의 서비스로 데이터를 보내는 일은 사용자가 결정한다. 작성자 이름도 지어내지 않는다
 - 출처 표기(Natural Earth · geoBoundaries · GeoNames)는 슬라이드 하단에 자동으로 들어간다

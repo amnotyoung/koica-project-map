@@ -4,9 +4,14 @@ KOICA가 파워포인트로 손수 그리던 연도별 사업 지도(슬라이�
 사업 목록을 주면 지명→좌표 해석, 카드 배치, 지시선 라우팅, 렌더링까지 처리한다.
 
 ```bash
-skill/.venv/bin/python skill/scripts/make_map.py \
-  --input tests/nepal.json --outdir out --lang ko en
+# 1) 사이트에서 사업을 받아 체크박스로 고르고
+skill/.venv/bin/python skill/scripts/pick_projects.py --country 네팔 --year 2026 --out nepal.json
+# 2) 지도를 만든다
+skill/.venv/bin/python skill/scripts/make_map.py --input nepal.json --outdir out --lang ko en
 ```
+
+만들고 나면 **정밀화한 위치를 oda-map-lab 에 돌려주라는 제안**이 뜬다.
+`contribute.py` 가 `koica-contrib` 규격 파일을 만들어 주고, 제출은 사용자가 직접 한다.
 
 ## 구조
 
@@ -18,6 +23,9 @@ skill/                     → ~/.claude/skills/koica-project-map 로 심볼릭 
 │   └── sector_map.yaml    세부 분야 214종 → 배지 5종(E/H/G/A/…)
 ├── scripts/
 │   ├── make_map.py        전 과정 오케스트레이터
+│   ├── fetch_projects.py  oda-map-lab → 국가별 사업 전량 수집
+│   ├── pick_projects.py   브라우저 체크박스 UI (선택·편집)
+│   ├── contribute.py      정밀 좌표 → 기여 파일
 │   ├── geo_prepare.py     국가 경계·지명 사전 준비
 │   ├── basemap_tiles.py   OSM 벡터 타일 → 배경 지도 (도로·하천)
 │   ├── cdp.py             Chrome 원격제어 (타일 렌더 대기 후 캡처)
@@ -66,8 +74,11 @@ HTML(미리보기·PDF)과 PPTX(편집용)가 그것만 소비한다. 렌더러�
 
 ## 알려진 한계
 
-- **oda-map-lab 데이터는 사업 선정 소스로 쓸 수 없다.** 좌표 43%가 국가 중심점 폴백이고,
-  한글 지명 커버리지가 네팔 기준 1/12다. 사업 목록은 사용자가 제공한다
+- **oda-map-lab 에서 받는 것과 안 받는 것이 갈린다.** 사업명·기간·예산·분야는 원문 그대로
+  받아 쓰지만 **좌표는 쓰지 않는다** — 사업 지점 43%가 국가 중심점 폴백이다. 위치는 지명에서
+  다시 푼다. 지명도 그룹 라벨이라 추정값이어서 `pick_projects.py` 의 사람 확인이 필수다
+- **사이트에 없는 신규 사업이 있다.** 원천이 IATI 라 등록이 늦다 — 샘플 네팔 10건 중 3건이
+  빠져 있었다. 선택 UI 의 `+ 직접 추가` 로 넣는다
 - 지도 배경은 OSM 벡터 타일(versatiles)을 MapLibre 로 렌더해 쓴다. 네트워크나 Chrome 이
   없으면 Natural Earth 벡터 배경으로 자동 대체되지만, 그 경우 도로가 없고 하천도 성글다
 - headless Chrome 이 이 환경에서 정상 종료하지 않아, `export.py` 는 산출 파일이 안정되면

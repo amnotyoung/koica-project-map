@@ -403,8 +403,11 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) ->
             if not part.get("ok") or part.get("kind") == "nationwide":
                 continue
             xy = proj(part["lon"], part["lat"])
+            # 경위도도 남긴다 — 인치 좌표만 두면 이 지도가 확정한 위치를
+            # 밖으로 내보낼 수 없다 (contribute.py 가 이 값을 쓴다)
             pts.append({"x": xy[0], "y": xy[1], "kind": part["kind"],
-                        "name": part["matched"]})
+                        "name": part["matched"], "lon": part["lon"],
+                        "lat": part["lat"], "level": part.get("level", "")})
         card["nationwide"] = all(p.get("kind") == "nationwide" for p in rp["parts"])
         card["points"] = pts
         markers.extend(pts)

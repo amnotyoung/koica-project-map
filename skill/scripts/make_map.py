@@ -67,6 +67,8 @@ def run(inputs: list, outdir: Path, langs: list, formats: list,
                 if "pdf" in formats:
                     made["pdf"].append(export.to_pdf(html, outdir / f"{stem}.pdf"))
 
+    _suggest_contribution(layouts)
+
     if "pptx" in formats:
         try:
             import render_pptx
@@ -77,6 +79,29 @@ def run(inputs: list, outdir: Path, langs: list, formats: list,
             name = "project_map.pptx" if len(layouts) > 1 else f"{Path(inputs[0]).stem}.pptx"
             made["pptx"].append(render_pptx.build(layouts, outdir / name))
     return made
+
+
+def _suggest_contribution(layouts: list) -> None:
+    """지도를 다 만들었으면 위치를 사람이 확인했다는 뜻이다.
+
+    원천 데이터가 국가 중심점으로만 알고 있던 지점을 우리가 정밀화했다면
+    돌려줄 값어치가 있다. **여기서 보내지는 않는다** — 안내만 하고 제출은 사람이 한다.
+    """
+    try:
+        import contribute
+    except ImportError:
+        return
+    seen = set()
+    for lp in layouts:
+        L = read_json(lp)
+        country = L["country"]["ko"]
+        if country in seen:
+            continue
+        seen.add(country)
+        doc = contribute.build(L, author="", only_improved=True)
+        n = len(doc["points"])
+        if n:
+            contribute.suggest(lp, country, n + doc["_skipped_already_precise"], n)
 
 
 def main() -> int:
