@@ -85,8 +85,21 @@ def textbox(slide, x, y, w, h, text, size, color, *, bold=False, align=PP_ALIGN.
     return tb
 
 
+def flatten(shape):
+    """도형에 붙는 테마 스타일(<p:style>)을 떼어 그림자·광택을 없앤다.
+
+    `shadow.inherit = False` 는 빈 <a:effectLst/> 만 넣는데, 뷰어에 따라
+    테마의 effectRef 를 그대로 살려 그림자가 남는다. 원본 샘플은 평면이다.
+    """
+    el = shape._element.find(
+        "{http://schemas.openxmlformats.org/presentationml/2006/main}style")
+    if el is not None:
+        shape._element.remove(el)
+    return shape
+
+
 def rect(slide, x, y, w, h, fill=None, line=None, line_w=0.75, shape=MSO_SHAPE.RECTANGLE):
-    s = slide.shapes.add_shape(shape, I(x), I(y), I(w), I(h))
+    s = flatten(slide.shapes.add_shape(shape, I(x), I(y), I(w), I(h)))
     if fill:
         s.fill.solid()
         s.fill.fore_color.rgb = rgb(fill)
@@ -168,15 +181,45 @@ def _sym(k: str) -> str:
     return _SYMS.get(k, k)
 
 
+def map_pin(slide, p: dict, fill: str):
+    """지도 핀 — 자유형으로 그린다.
+
+    MSO_SHAPE.TEAR 를 회전시키면 기울어진 달걀이 나와 원본과 전혀 다르다.
+    render_html.pin_path 와 같은 기하를 다각형으로 근사한다(작은 크기라 충분히 매끈).
+    """
+    import math
+
+    import render_html as rh
+    cx, cy, r, tip = rh.pin_geometry(p)
+    d = max(tip - cy, r * 1.05)
+    a = math.pi / 2 - math.asin(min(r / d, 0.999))     # 접점까지의 각
+    pts = [(cx, tip)]
+    steps = 48
+    a0 = math.atan2(r * math.cos(a), r * math.sin(a))  # 우측 접점의 각
+    for i in range(steps + 1):                          # 접점 → 위쪽 → 반대 접점
+        th = a0 - (2 * math.pi - 2 * a0) * i / steps
+        pts.append((cx + r * math.sin(th), cy + r * math.cos(th)))
+    ff = slide.shapes.build_freeform(I(pts[0][0]), I(pts[0][1]))
+    ff.add_line_segments([(I(x), I(y)) for x, y in pts[1:]], close=True)
+    s = flatten(ff.convert_to_shape())
+    s.fill.solid()
+    s.fill.fore_color.rgb = rgb(fill)
+    s.line.fill.background()
+    s.shadow.inherit = False
+    return cx, cy
+
+
 def draw_title(slide, L: dict, tok: dict) -> None:
     t, col = tok["title"], tok["color"]
     p, b = t["pin"], t["box"]
     rect(slide, b["x"], b["y"], b["w"], b["h"], None, col["region_tab"], 1.2)
-    pin = rect(slide, p["x"], p["y"], p["w"], p["h"], col["region_tab"], None,
-               shape=MSO_SHAPE.TEAR)
-    pin.rotation = 135
-    textbox(slide, p["x"], p["y"], p["w"], p["h"] * 0.75, _roman(L.get("index", 1)),
-            7.0, "FFFFFF", align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    # 핀 = 보라 물방울 + 흰 원 + 로마숫자 (원본은 도형 3개다)
+    cx, cy = map_pin(slide, p, col["region_tab"])
+    ri = p.get("inner_d", p["w"] * 0.82) / 2
+    rect(slide, cx - ri, cy - ri, ri * 2, ri * 2, "FFFFFF", None, shape=MSO_SHAPE.OVAL)
+    textbox(slide, cx - ri, cy - ri, ri * 2, ri * 2, _roman(L.get("index", 1)),
+            p.get("label_size", 8.98), col["region_tab"],
+            align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
 
     tb = slide.shapes.add_textbox(I(b["x"] + t["text"]["dx"]), I(b["y"]),
                                   I(b["w"]), I(b["h"]))

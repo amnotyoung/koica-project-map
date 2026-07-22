@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import html
+import math
 import sys
 from pathlib import Path
 
@@ -242,30 +243,57 @@ def _sym(k: str) -> str:
     return _SYMS.get(k, k)
 
 
+def pin_geometry(p: dict):
+    """제목 핀의 머리 중심·반지름·꼭짓점. 흰 원 위치에서 역산한다.
+
+    원본 실측: 물방울 (2.121,0.458) 0.249×0.397, 흰 원 (2.144,0.482) ⌀0.204
+    → 머리 중심은 물방울 위쪽에 있고 꼭짓점이 아래로 길게 빠진다.
+    """
+    r = p["w"] / 2
+    cx = p["x"] + r
+    cy = p["y"] + r                      # 머리는 위에 붙는다
+    tip = p["y"] + p["h"]
+    return cx, cy, r, tip
+
+
+def pin_path(cx: float, cy: float, r: float, tip: float) -> str:
+    """지도 핀 외곽 — 꼭짓점에서 원에 접선으로 올라가 머리를 한 바퀴 돈다."""
+    d = max(tip - cy, r * 1.05)
+    th = math.asin(min(r / d, 0.999))    # 접선이 이루는 각
+    a = math.pi / 2 - th                 # 중심에서 접점까지의 각 (아래 기준)
+    x1, y1 = cx + r * math.sin(a + 0.0), cy + r * math.cos(a)      # 우측 접점
+    x2, y2 = cx - r * math.sin(a), cy + r * math.cos(a)            # 좌측 접점
+    return (f"M{cx:.4f},{tip:.4f} L{x1:.4f},{y1:.4f} "
+            f"A{r:.4f},{r:.4f} 0 1 0 {x2:.4f},{y2:.4f} Z")
+
+
 def draw_title(L: dict, tok: dict) -> str:
     t, col = tok["title"], tok["color"]
     p, b = t["pin"], t["box"]
     ko, en = L["country"]["ko"], L["country"]["en"]
     roman = _roman(L.get("index", 1))
     size = t["text"]["size_ko"] * PT
+    r_in = p.get("inner_d", p["w"] * 0.82) / 2          # 흰 원 반지름
+    cx, cy, r, tip = pin_geometry(p)
     out = [
         f'<rect x="{b["x"]:.4f}" y="{b["y"]:.4f}" width="{b["w"]:.4f}" height="{b["h"]:.4f}" '
         f'fill="none" stroke="{col["region_tab"]}" stroke-width="{1.2*PT:.5f}"/>',
-        # 로마숫자 핀 — 위는 원, 아래는 꼭짓점
-        f'<path d="M{p["x"]+p["w"]/2:.4f},{p["y"]+p["h"]:.4f} '
-        f'L{p["x"]:.4f},{p["y"]+p["h"]*0.52:.4f} '
-        f'A{p["w"]/2:.4f},{p["w"]/2:.4f} 0 1 1 {p["x"]+p["w"]:.4f},{p["y"]+p["h"]*0.52:.4f} Z" '
-        f'fill="{col["region_tab"]}"/>',
-        f'<text x="{p["x"]+p["w"]/2:.4f}" y="{p["y"]+p["h"]*0.48:.4f}" '
-        f'font-size="{8.98*PT:.5f}" fill="#FFFFFF" text-anchor="middle">{roman}</text>',
+        # 지도 핀 — 보라 물방울 + 흰 원 + 로마숫자 (원본은 도형 3개다)
+        f'<path d="{pin_path(cx, cy, r, tip)}" fill="{col["region_tab"]}"/>',
+        f'<circle cx="{cx:.4f}" cy="{cy:.4f}" r="{r_in:.4f}" fill="#FFFFFF"/>',
+        f'<text x="{cx:.4f}" y="{cy:.4f}" font-size="{p.get("label_size", 8.98)*PT:.5f}" '
+        f'fill="{col["region_tab"]}" text-anchor="middle" '
+        f'dominant-baseline="central">{roman}</text>',
     ]
     if L["lang"] == "ko":
-        out.append(f'<text x="{b["x"]+t["text"]["dx"]:.4f}" y="{b["y"]+b["h"]*0.72:.4f}" '
-                   f'font-size="{size:.5f}" fill="{col["heading"]}">{esc(ko)}'
+        out.append(f'<text x="{b["x"]+t["text"]["dx"]:.4f}" y="{b["y"]+b["h"]/2:.4f}" '
+                   f'font-size="{size:.5f}" fill="{col["heading"]}" '
+                   f'dominant-baseline="central">{esc(ko)}'
                    f'<tspan font-size="{t["text"]["size_en"]*PT:.5f}" dx="0.06">{esc(en)}</tspan></text>')
     else:
-        out.append(f'<text x="{b["x"]+t["text"]["dx"]:.4f}" y="{b["y"]+b["h"]*0.72:.4f}" '
-                   f'font-size="{size:.5f}" fill="{col["heading"]}">{esc(en)}</text>')
+        out.append(f'<text x="{b["x"]+t["text"]["dx"]:.4f}" y="{b["y"]+b["h"]/2:.4f}" '
+                   f'font-size="{size:.5f}" fill="{col["heading"]}" '
+                   f'dominant-baseline="central">{esc(en)}</text>')
     return "\n".join(out)
 
 
