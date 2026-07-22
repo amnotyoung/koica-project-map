@@ -1,0 +1,68 @@
+{
+  "country": "네팔",
+  "region": "아시아태평양",
+  "_note": "프로젝트맵 샘플.pptx slide1(국문)/slide2(영문) 재현용 입력. 배치·지명해석 검증 기준.",
+  "projects": [
+    {
+      "place": "카트만두/부트왈",
+      "badges": ["G"],
+      "name_ko": "네팔 한국 귀환노동자 안정적 재정착을 위한 단계별 지원체계 강화사업(2022-2028/800만불)",
+      "name_en": "Project for strengthening stage-wise support system for the stable reintegration of Korea returnee migrants in Nepal(2022-2028/$8.0mil)"
+    },
+    {
+      "place": "포카라",
+      "badges": ["T"],
+      "name_ko": "네팔 포카라시 리사이클 업사이클 플랫폼 및 친환경 시범마을 구축을 통한 녹색일자리 창출지원사업(2023-2029/980만불)",
+      "name_en": "Green Job Creation Support through Recycling and Upcycling Project in Pokhara Metropolitan City, Nepal(2023-2029/$9.8mil.)"
+    },
+    {
+      "place": "카트만두",
+      "badges": ["G"],
+      "name_ko": "네팔 경찰청 사이버 안전국 설립을 통한 사이버 수사능력 강화사업(2021-2026/800만불)",
+      "name_en": "Enhancing Cyber Crime Investigation Capacity by Establishing Cyber Bureau for Nepal Police(2021-2026/$8.0mil.)"
+    },
+    {
+      "place": "버르디야",
+      "badges": ["A"],
+      "name_ko": "네팔 버르디야 지역 포용적 농촌공동체 개발사업(‘24-’29/800만불)",
+      "name_en": "Inclusive Rural Development Project in Bardiya District, Nepal(2024-2029/$8.0mil.)"
+    },
+    {
+      "place": "페디콜라",
+      "badges": ["E"],
+      "name_ko": "네팔 Province4 직업교육학교건립사업 ('24-’30/900만불)",
+      "name_en": "Gandaki Institute of Technology(GIT) Infrastructure Development Project in Nepal(2024-2030/$9.0mil.)"
+    },
+    {
+      "place": "칸찬푸르",
+      "badges": ["E"],
+      "name_ko": "네팔 Province 7 지역 숙련인력 양성을 위한 폴리테크닉 설립사업 (’25-’29/1,000만불)",
+      "name_en": "Establishing Polytechnic in Sudurpashchim Province leading to cultivate skilled workforce(2025-2029/$10.0mil.)"
+    },
+    {
+      "place": "룸비니",
+      "badges": ["A"],
+      "name_ko": "네팔 과일 및 채소 가치사슬 개발사업(2단계)(‘25-’31/1,000만불)",
+      "name_en": "Value Chain Development for Fruits and Vegetables Project, 2nd phase in Nepal(2025-2031/$10.0mil.)"
+    },
+    {
+      "place": "바라/팔사/반케/버르디야",
+      "kind": "area",
+      "badges": ["A"],
+      "name_ko": "네팔 떠라이 지역 기후탄력적 벼 품종 재배 및 쌀 생산량 증대사업 (2026-2031/1,200만불)",
+      "name_en": "Climate-Resilient Rice Production and Productivity Increase in the Terai Region, Nepal(’26-’31/$12mil.)"
+    },
+    {
+      "place": "박타푸르",
+      "badges": ["H"],
+      "name_ko": "네팔 박타푸르 취약지역의 빈곤층 건강수준 향상을 위한 역량강화 및 의료인프라 개선사업 (2022-2027/950만불)",
+      "name_en": "Project for Capacity Building and Improvement of medical infrastructure to enhance the health level of the poor in vulnerable areas in Bhaktapur, Nepal(2022-2027/$9.5mil)"
+    },
+    {
+      "place": "바디바스",
+      "badges": ["E"],
+      "name_ko": "네팔 Province 2 지역 건설기술인력 양성을 위한 모델 폴리텍 설립사업 (2021-2027/860만불)",
+      "name_en": "Establishment of Model Polytechnic Institute for construction workforce development in Province 2, Nepal(2021-2027/$8.6mil.)"
+    }
+  ]
+}

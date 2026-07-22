@@ -1,0 +1,580 @@
+"""배치 계산 엔진 — 프로젝트맵의 모든 좌표를 여기서 정한다.
+
+    python layout.py --input projects.json --out layout.json [--lang ko] [--index 1]
+
+렌더러(render_html/render_pptx)는 layout.json 만 소비한다. 배치 규칙을 렌더러에
+복제하지 말 것 — 두 출력이 갈라진다.
+
+계산 순서
+    1. 국가 종횡비로 레이아웃 A(지도 중앙·카드 좌측+하단) / B(지도 좌측·카드 우측) 선택
+    2. 정거원통도법으로 국토 bbox 를 지도 프레임에 맞춤
+    3. 사업명 길이 → 줄 수 → 카드 높이
+    4. 슬롯 생성 후 **각도 정렬**로 배정 → **2-opt** 로 지시선 교차 제거
+    5. 넘치면 폰트 축소 → 지도 축소 → 경고 (design.md 판단 규칙 4)
+
+입력 projects.json
+    {"country": "네팔", "region": "아시아태평양",
+     "projects": [{"place": "카트만두/부트왈", "name_ko": "...(2022-2028/800만불)",
+                   "name_en": "...", "badges": ["G"], "kind": "point"}]}
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import math
+import sys
+import unicodedata
+from pathlib import Path
+
+from common import GEO_CACHE, design_tokens, log, read_json, write_json
+import resolve_places
+
+MIN_FONT_SCALE = 0.85     # design.md 규칙 4 — 폰트는 15% 까지만 줄인다
+
+# 면 단위 사업 주석 (샘플 slide1/slide2 표기 그대로)
+NOTE_AREA = {"ko": "* 원형 표시 지역", "en": "* Areas marked circles"}
+
+
+# ─────────────────────────────── 투영 ───────────────────────────────
+
+class Projection:
+    """정거원통도법(위도 보정). 국가 하나를 프레임에 채우는 용도라 이걸로 충분하다."""
+
+    def __init__(self, bbox: list, frame: dict, pad_ratio: float = 0.04):
+        lon0, lat0, lon1, lat1 = bbox
+        dlon, dlat = max(lon1 - lon0, 1e-6), max(lat1 - lat0, 1e-6)
+        lon0 -= dlon * pad_ratio
+        lon1 += dlon * pad_ratio
+        lat0 -= dlat * pad_ratio
+        lat1 += dlat * pad_ratio
+        self.lon0, self.lat1 = lon0, lat1
+        self.cos = math.cos(math.radians((lat0 + lat1) / 2))
+        w_deg = (lon1 - lon0) * self.cos
+        h_deg = lat1 - lat0
+        self.k = min(frame["w"] / w_deg, frame["h"] / h_deg)
+        self.ox = frame["x"] + (frame["w"] - w_deg * self.k) / 2
+        self.oy = frame["y"] + (frame["h"] - h_deg * self.k) / 2
+        self.aspect = w_deg / h_deg
+        # 실제로 그림이 차지하는 영역. 프레임과 종횡비가 다르면 위아래(또는 좌우)가
+        # 비는데, 배경 사각형을 프레임 전체로 깔면 빈 회색 띠가 남는다.
+        self.content = {"x": round(self.ox, 4), "y": round(self.oy, 4),
+                        "w": round(w_deg * self.k, 4), "h": round(h_deg * self.k, 4)}
+
+    def __call__(self, lon: float, lat: float) -> list:
+        return [round(self.ox + (lon - self.lon0) * self.cos * self.k, 4),
+                round(self.oy + (self.lat1 - lat) * self.k, 4)]
+
+    def rings(self, rings: list) -> list:
+        return [[self(p[0], p[1]) for p in r] for r in rings]
+
+    def as_dict(self) -> dict:
+        return {"lon0": self.lon0, "lat1": self.lat1, "k": self.k,
+                "cos": self.cos, "ox": self.ox, "oy": self.oy}
+
+
+def country_aspect(bbox: list) -> float:
+    lon0, lat0, lon1, lat1 = bbox
+    cos = math.cos(math.radians((lat0 + lat1) / 2))
+    return ((lon1 - lon0) * cos) / max(lat1 - lat0, 1e-6)
+
+
+def choose_mode(doc: dict, tok: dict, lang: str) -> str:
+    """레이아웃 A / B 선택 — **카드가 한 열에 들어가는가**로 갈린다.
+
+    국가 종횡비가 아니다. 샘플에서 네팔(bbox 1.77)은 A, 동티모르(2.35)는 B인데
+    동티모르 쪽이 오히려 더 넓다. 실제 차이는 사업 수였다(10건 vs 7건).
+    """
+    col = tok["layout"]["B"]["right_col"]
+    gap = tok["card"]["gap"]
+    cards = [build_card(p, tok, lang, 1.0) for p in doc["projects"]]
+    need = sum(c["h"] for c in cards) + gap * max(len(cards) - 1, 0)
+    return "B" if need <= (col["y1"] - col["y0"]) else "A"
+
+
+# ─────────────────────────────── 카드 ───────────────────────────────
+
+def text_width(s: str, size_pt: float) -> float:
+    """인치 단위 근사 폭. 한글·전각은 1.0, 라틴·숫자는 0.5 로 센다."""
+    em = size_pt / 72.0
+    w = 0.0
+    for ch in s:
+        o = ord(ch)
+        w += 1.0 if (0xAC00 <= o <= 0xD7A3 or 0x3000 <= o <= 0x30FF
+                     or 0x4E00 <= o <= 0x9FFF or 0xFF00 <= o <= 0xFF60) else 0.5
+    return w * em
+
+
+def wrap_text(s: str, width_in: float, size_pt: float, first_indent: float = 0.0) -> list:
+    """폭에 맞춰 줄바꿈. 한글은 어디서나, 라틴은 단어 경계에서 끊는다.
+
+    `first_indent` 는 첫 줄만 좁히는 폭(분야 배지 자리). 한 번에 처리해야 한다 —
+    두 번 나눠 감고 `"".join(lines)` 로 다시 이으면 영문 단어 사이 공백이 사라진다.
+    """
+    lines, cur = [], ""
+    for token in _tokens(s):
+        avail = width_in - (first_indent if not lines else 0.0)
+        trial = cur + token
+        if cur and text_width(trial, size_pt) > avail:
+            lines.append(cur.rstrip())
+            cur = token.lstrip() if token.strip() else ""
+        else:
+            cur = trial
+    if cur.strip():
+        lines.append(cur.rstrip())
+    # 마지막 줄에 닫는 괄호만 떨어지면 앞줄에 붙인다 ('…1,200만불' / ')' 방지).
+    # `lines[-2] += lines.pop()` 는 인덱스를 pop 뒤에 계산해 터진다 — 먼저 꺼낸다.
+    while len(lines) > 1 and lines[-1].strip() and \
+            all(c in ")]』」’\"'.," for c in lines[-1].strip()):
+        tail = lines.pop().strip()
+        lines[-1] += tail
+    return lines or [""]
+
+
+def _tokens(s: str):
+    """한글/기호는 1글자, 라틴 낱말은 통째로 (공백 포함) 내보낸다."""
+    buf = ""
+    for ch in s:
+        o = ord(ch)
+        latin = (0x41 <= o <= 0x5A) or (0x61 <= o <= 0x7A) or (0x30 <= o <= 0x39)
+        if latin or ch in ".,'-/$":
+            buf += ch
+        else:
+            if buf:
+                yield buf
+                buf = ""
+            yield ch
+    if buf:
+        yield buf
+
+
+def build_card(proj_rec: dict, tok: dict, lang: str, scale: float,
+               place: str | None = None) -> dict:
+    c = tok["card"]
+    size = c["name"]["size"] * scale
+    name = proj_rec.get(f"name_{lang}") or proj_rec.get("name_ko") or ""
+    badges = proj_rec.get("badges") or []
+    # 배지가 붙는 첫 줄만 배지 폭만큼 좁다
+    indent = len(badges) * (c["badge"]["w"] + c["badge"]["gap"])
+    lines = wrap_text(name, c["name"]["w"], size, first_indent=indent)
+    lh = c["name"]["line_h"] * scale
+    place = place if place is not None else proj_rec.get("place", "")
+    return {
+        "place": place,
+        "badges": badges,
+        "text": name,
+        "lines": lines,
+        "w": c["name"]["w"] + c["name"]["dx"],
+        "h": c["name"]["dy"] + len(lines) * lh,
+        "line_h": round(lh, 4),
+        "font": round(size, 2),
+        "place_w": round(text_width(place, c["place"]["size"] * scale), 4),
+    }
+
+
+# ─────────────────────────────── 슬롯 ───────────────────────────────
+
+def stack_slots(cards: list, x: float, y0: float, gap: float) -> list:
+    """세로 열 — 카드 실제 높이만큼 쌓는다."""
+    out, y = [], y0
+    for c in cards:
+        out.append({"x": x, "y": round(y, 4)})
+        y += c["h"] + gap
+    return out
+
+
+def row_slots(n: int, y: float, x0: float, x1: float, pitch: float) -> list:
+    if n <= 0:
+        return []
+    span = x1 - x0
+    step = min(pitch, span / n) if n > 1 else 0
+    if n > 1:
+        step = max(step, (span - pitch) / (n - 1)) if span > pitch else step
+        step = min(step, span / (n - 1)) if n > 1 else step
+    return [{"x": round(x0 + i * step, 4), "y": y} for i in range(n)]
+
+
+def column_capacity(y0: float, y1: float, card_h: float, gap: float) -> int:
+    return max(1, int((y1 - y0 + gap) // (card_h + gap)))
+
+
+# ─────────────────────────────── 각도 배정 · 교차 제거 ───────────────────────────────
+
+def anchor_of(slot: dict, card: dict, side: str) -> list:
+    """지시선이 카드에서 출발하는 점 — 지명 헤딩 끝."""
+    if side == "right":                       # 레이아웃 B: 카드 왼쪽에서 나간다
+        return [slot["x"], round(slot["y"] + 0.075, 4)]
+    return [round(slot["x"] + card["place_w"] + 0.03, 4), round(slot["y"] + 0.075, 4)]
+
+
+def segments_cross(p1, p2, p3, p4) -> bool:
+    # 같은 핀으로 모이는 지시선은 끝점을 공유할 뿐 교차가 아니다.
+    # (동티모르 바우카우처럼 한 지점에 사업 여러 건이 걸리는 경우가 흔하다)
+    def same(a, b):
+        return abs(a[0] - b[0]) < 1e-9 and abs(a[1] - b[1]) < 1e-9
+    if any(same(a, b) for a in (p1, p2) for b in (p3, p4)):
+        return False
+
+    def o(a, b, c):
+        v = (b[1] - a[1]) * (c[0] - b[0]) - (b[0] - a[0]) * (c[1] - b[1])
+        return 0 if abs(v) < 1e-12 else (1 if v > 0 else 2)
+    o1, o2, o3, o4 = o(p1, p2, p3), o(p1, p2, p4), o(p3, p4, p1), o(p3, p4, p2)
+    return o1 != o2 and o3 != o4
+
+
+def count_crossings(leaders: list) -> int:
+    n = 0
+    for i in range(len(leaders)):
+        for j in range(i + 1, len(leaders)):
+            a, b = leaders[i], leaders[j]
+            if segments_cross(a["from"], a["to"], b["from"], b["to"]):
+                n += 1
+    return n
+
+
+def assign_sides(pins: list, col_x: float, row_y: float, n_row: int) -> list:
+    """어느 카드를 하단행으로 보낼지 고른다 — 열보다 행이 가까운 순.
+
+    각도 정렬은 쓰지 않는다. 핀이 지도 중앙에 몰리면(네팔이 그렇다) 중심 기준
+    각도가 불안정해져 배정이 뒤집힌다.
+    """
+    if n_row <= 0:
+        return ["col"] * len(pins)
+    gain = sorted(range(len(pins)),
+                  key=lambda i: (abs(pins[i][0] - col_x) - abs(pins[i][1] - row_y)),
+                  reverse=True)
+    sides = ["col"] * len(pins)
+    for i in gain[:n_row]:
+        sides[i] = "row"
+    return sides
+
+
+def order_for(pins: list, axis: int) -> list:
+    """세로 열은 y(axis=1), 가로 행은 x(axis=0) 순. 같은 쪽으로 나가는
+    지시선끼리는 이 순서가 교차를 만들지 않는다."""
+    return sorted(range(len(pins)), key=lambda i: pins[i][axis])
+
+
+# ─────────────────────────────── 본체 ───────────────────────────────
+
+def compute(doc: dict, lang: str = "ko", index: int = 1,
+            detail: str = "50m", force_scale: float | None = None) -> dict:
+    """force_scale 을 주면 그 배율로 고정한다 — 국문·영문 슬라이드를 짝으로 맞출 때 쓴다
+    (design.md 판단 규칙 5)."""
+    tok = design_tokens()
+    country = doc["country"]
+    resolved = resolve_places.resolve(country, doc["projects"], detail)
+    iso3 = resolved["iso3"]
+    base = read_json(GEO_CACHE / f"{iso3}_basemap.json")
+
+    mode = choose_mode(doc, tok, lang)
+    L = tok["layout"][mode]
+    log(f'[{iso3}] {base["name_ko"]} 사업 {len(doc["projects"])}건 '
+        f'· 종횡비 {country_aspect(base["bbox"]):.2f} → 레이아웃 {mode}')
+
+    for attempt in range(3):
+        scale = force_scale if force_scale else (1.0 if attempt == 0 else MIN_FONT_SCALE)
+        shrink = 0.88 if attempt == 2 else 1.0     # 3차 시도에서 지도를 줄인다
+        frame = dict(L["map"])
+        if shrink < 1.0:
+            frame["w"] *= shrink
+            frame["h"] *= shrink
+        res = _try_layout(doc, resolved, base, tok, L, mode, lang, index,
+                          frame, scale)
+        if res["fits"]:
+            if attempt:
+                log(f"  · 넘침 대응: 폰트 {scale:.2f}배" + (f", 지도 {shrink:.2f}배" if shrink < 1 else ""))
+            return res
+        last = res
+    last["warnings"].append(
+        "카드가 슬라이드를 넘칩니다. 사업 수를 줄이거나 슬라이드를 분할하세요.")
+    return last
+
+
+def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) -> dict:
+    gap = tok["card"]["gap"]
+    proj = Projection(base["bbox"], frame)
+
+    # 1) 카드 생성 + 마커 좌표
+    cards, markers, warnings = [], [], []
+    for rec, rp in zip(doc["projects"], resolved["places"]):
+        card = build_card(rec, tok, lang, scale, place=_place_label(rec, rp, lang))
+        pts = []
+        for part in rp["parts"]:
+            if not part.get("ok") or part.get("kind") == "nationwide":
+                continue
+            xy = proj(part["lon"], part["lat"])
+            pts.append({"x": xy[0], "y": xy[1], "kind": part["kind"],
+                        "name": part["matched"]})
+        card["nationwide"] = all(p.get("kind") == "nationwide" for p in rp["parts"])
+        card["points"] = pts
+        markers.extend(pts)
+        cards.append(card)
+        if not rp["resolved"]:
+            warnings.append(f'지명 미해석: {rp["query"]}')
+
+    linked = [c for c in cards if c["points"]]
+    free = [c for c in cards if not c["points"]]      # 전국사업 — 지시선 없음
+
+    # 2) 슬롯 배분 — 좌측열이 넘치면 하단행으로 흘린다
+    avg_h = sum(c["h"] for c in cards) / max(len(cards), 1)
+    if mode == "A":
+        cap_left = column_capacity(L["left_col"]["y0"], L["left_col"]["y1"], avg_h, gap)
+        pitch = tok["card"]["name"]["w"] + tok["card"]["name"]["dx"] + 0.22
+        cap_bottom = max(1, int((L["bottom_row"]["x1"] - L["bottom_row"]["x0"]) // pitch))
+        n_bottom = max(0, min(len(cards) - cap_left, cap_bottom))
+        n_left = len(cards) - n_bottom
+        sides = ["left"] * n_left + ["bottom"] * n_bottom
+    else:
+        cap_left = column_capacity(L["right_col"]["y0"], L["right_col"]["y1"], avg_h, gap)
+        n_left, n_bottom = len(cards), 0
+        sides = ["right"] * len(cards)
+
+    # 3) 배정 — 핀이 열/행 중 가까운 쪽으로 가고, 같은 쪽 안에서는 좌표순으로 놓는다
+    col_x = L["left_col"]["x"] if mode == "A" else L["right_col"]["x"]
+    row_y = L["bottom_row"]["y"] if mode == "A" else tok["canvas"]["h_in"]
+    idx_linked = [i for i, c in enumerate(cards) if c["points"]]
+    idx_free = [i for i, c in enumerate(cards) if not c["points"]]
+    pins = [_card_pin(cards[i]) for i in idx_linked]
+
+    side_pick = assign_sides(pins, col_x, row_y, n_bottom)
+    col_idx = [idx_linked[i] for i, s in enumerate(side_pick) if s == "col"] + idx_free
+    row_idx = [idx_linked[i] for i, s in enumerate(side_pick) if s == "row"]
+    col_pins = [_card_pin(cards[i]) for i in col_idx]
+    row_pins = [_card_pin(cards[i]) for i in row_idx]
+    # 전국사업(핀 없음)은 열 맨 아래로
+    col_sorted = [col_idx[i] for i in order_for(col_pins, 1) if cards[col_idx[i]]["points"]] \
+        + [i for i in col_idx if not cards[i]["points"]]
+    row_sorted = [row_idx[i] for i in order_for(row_pins, 0)]
+
+    assign = {}                                  # slot_index -> card_index
+    for s, c in enumerate(col_sorted):
+        assign[s] = c
+    for j, c in enumerate(row_sorted):
+        assign[n_left + j] = c
+    sides = ["left" if mode == "A" else "right"] * len(col_sorted) \
+        + ["bottom"] * len(row_sorted)
+    n_left = len(col_sorted)
+
+    placed = _materialize(assign, cards, sides, mode, L, gap, tok)
+    _improve(placed, mode)
+
+    # 4) 지시선 · 결과 조립
+    leaders = [l for l in (_leader(p) for p in placed) if l]
+    fits = _fits(placed, mode, L, tok)
+    doc_out = {
+        "canvas": {"w": tok["canvas"]["w_in"], "h": tok["canvas"]["h_in"]},
+        "lang": lang, "mode": mode, "index": index,
+        # 영문명은 입력에서 덮어쓸 수 있다 — Natural Earth 는 'East Timor' 지만
+        # KOICA 표기는 'Timor-Leste' 다.
+        "country": {"ko": doc.get("country_ko") or base["name_ko"],
+                    "en": doc.get("country_en") or base["name_en"],
+                    "iso3": base["iso3"]},
+        "region": doc.get("region", ""),
+        "map": {"frame": frame, "content": proj.content, "projection": proj.as_dict(),
+                "land": proj.rings(base["land"]),
+                "neighbors": [{"name": n["name"], "rings": proj.rings(n["rings"])}
+                              for n in base["neighbors"]],
+                "admin1": proj.rings(base["admin1"]),
+                "cities": [{"name": c["name"], **dict(zip(("x", "y"), proj(c["lon"], c["lat"])))}
+                           for c in base.get("cities", [])[:18]]},
+        "cards": placed,
+        "markers": _dedupe(markers),
+        "leaders": leaders,
+        "legend": _legend(tok, lang),
+        "notes": (([NOTE_AREA[lang]] if any(m["kind"] == "area" for m in markers) else [])),
+        "crossings": count_crossings(leaders),
+        "font_scale": scale,
+        "warnings": warnings,
+        "fits": fits,
+        "source": base.get("source", {}),
+    }
+    return doc_out
+
+
+def _place_label(rec: dict, rp: dict, lang: str) -> str:
+    """영문 슬라이드의 지명 헤딩은 해석된 라틴 표기를 쓴다 (포카라 → Pokhara).
+    입력에 `place_en` 이 있으면 그 값이 우선한다."""
+    if lang == "ko":
+        return rec.get("place", "")
+    if rec.get("place_en"):
+        return rec["place_en"]
+    names = [p.get("matched") for p in rp["parts"] if p.get("ok") and p.get("matched")]
+    if not names:
+        return rec.get("place", "")
+    # GeoNames 는 장음부호를 단다(Butwāl·Bardiyā). KOICA 표기는 붙이지 않는다.
+    plain = unicodedata.normalize("NFKD", "/".join(names))
+    return "".join(c for c in plain if not unicodedata.combining(c))
+
+
+def _card_pin(card: dict) -> list:
+    if not card["points"]:
+        return [0.0, 0.0]
+    return [sum(p["x"] for p in card["points"]) / len(card["points"]),
+            sum(p["y"] for p in card["points"]) / len(card["points"])]
+
+
+def _provisional_slots(mode, L, sides, avg_h, gap, tok) -> list:
+    """각도 정렬용 임시 위치. 실제 높이는 배정 후 다시 쌓는다."""
+    out = []
+    n_left = sides.count("left") + sides.count("right")
+    col = L["left_col"] if mode == "A" else L["right_col"]
+    for i in range(n_left):
+        out.append([col["x"], col["y0"] + i * (avg_h + gap)])
+    n_bottom = sides.count("bottom")
+    if n_bottom:
+        pitch = (L["bottom_row"]["x1"] - L["bottom_row"]["x0"]) / max(n_bottom, 1)
+        for j in range(n_bottom):
+            out.append([L["bottom_row"]["x0"] + j * pitch, L["bottom_row"]["y"]])
+    return out
+
+
+def _materialize(assign, cards, sides, mode, L, gap, tok) -> list:
+    """슬롯 배정 결과를 실제 좌표로 굳힌다."""
+    col = L["left_col"] if mode == "A" else L["right_col"]
+    side_of = {i: sides[i] for i in range(len(sides))}
+    col_cards = [(s, assign[s]) for s in sorted(assign) if side_of[s] != "bottom"]
+    row_cards = [(s, assign[s]) for s in sorted(assign) if side_of[s] == "bottom"]
+
+    placed = []
+    y = col["y0"]
+    for _, ci in col_cards:
+        c = dict(cards[ci])
+        c.update({"x": col["x"], "y": round(y, 4),
+                  "side": "right" if mode == "B" else "left"})
+        y += c["h"] + gap
+        placed.append(c)
+    if row_cards:
+        n = len(row_cards)
+        span = L["bottom_row"]["x1"] - L["bottom_row"]["x0"]
+        step = span / n
+        for j, (_, ci) in enumerate(row_cards):
+            c = dict(cards[ci])
+            c.update({"x": round(L["bottom_row"]["x0"] + j * step, 4),
+                      "y": L["bottom_row"]["y"], "side": "bottom"})
+            placed.append(c)
+    for c in placed:
+        c["anchor"] = anchor_of({"x": c["x"], "y": c["y"]}, c, c["side"])
+        c["target"] = _nearest_point(c)
+    return placed
+
+
+def _nearest_point(card: dict):
+    if not card["points"]:
+        return None
+    a = card["anchor"]
+    return min(card["points"], key=lambda p: (p["x"] - a[0]) ** 2 + (p["y"] - a[1]) ** 2)
+
+
+def _leader(card: dict):
+    if not card.get("target"):
+        return None
+    return {"from": card["anchor"], "to": [card["target"]["x"], card["target"]["y"]],
+            "place": card["place"]}
+
+
+def _improve(placed: list, mode: str, rounds: int = 40) -> None:
+    """2-opt — 같은 변(side) 안에서 카드를 맞바꿔 지시선 교차를 줄인다."""
+    def leaders_of(lst):
+        return [l for l in (_leader(c) for c in lst) if l]
+
+    best = count_crossings(leaders_of(placed))
+    if best == 0:
+        return
+    for _ in range(rounds):
+        improved = False
+        for i in range(len(placed)):
+            for j in range(i + 1, len(placed)):
+                a, b = placed[i], placed[j]
+                if a["side"] != b["side"] or not (a["points"] or b["points"]):
+                    continue
+                _swap_slots(a, b)
+                _restack(placed, a["side"])
+                n = count_crossings(leaders_of(placed))
+                if n < best:
+                    best, improved = n, True
+                else:
+                    _swap_slots(a, b)
+                    _restack(placed, a["side"])
+        if not improved or best == 0:
+            break
+
+
+def _swap_slots(a: dict, b: dict) -> None:
+    a["x"], b["x"] = b["x"], a["x"]
+    a["y"], b["y"] = b["y"], a["y"]
+
+
+def _restack(placed: list, side: str) -> None:
+    """세로 열은 카드 높이가 달라 맞바꾼 뒤 다시 쌓아야 한다."""
+    if side == "bottom":
+        for c in placed:
+            if c["side"] == "bottom":
+                c["anchor"] = anchor_of(c, c, c["side"])
+                c["target"] = _nearest_point(c)
+        return
+    col = sorted([c for c in placed if c["side"] == side], key=lambda c: c["y"])
+    if not col:
+        return
+    y = min(c["y"] for c in col)
+    for c in col:
+        c["y"] = round(y, 4)
+        y += c["h"] + 0.10
+        c["anchor"] = anchor_of(c, c, c["side"])
+        c["target"] = _nearest_point(c)
+
+
+def _fits(placed, mode, L, tok) -> bool:
+    col_key = "left_col" if mode == "A" else "right_col"
+    for c in placed:
+        if c["side"] == "bottom":
+            if c["y"] + c["h"] > tok["canvas"]["h_in"] - 0.05:
+                return False
+        elif c["y"] + c["h"] > L[col_key]["y1"] + 0.02:
+            return False
+    return True
+
+
+def _dedupe(markers: list) -> list:
+    seen, out = set(), []
+    for m in markers:
+        k = (round(m["x"], 3), round(m["y"], 3), m["kind"])
+        if k in seen:
+            continue
+        seen.add(k)
+        out.append(m)
+    return out
+
+
+def _legend(tok: dict, lang: str) -> dict:
+    from common import sector_map
+    sm = sector_map()["badges"]
+    lg = dict(tok["legend"])
+    lg["items"] = [{"key": k, "symbol": sm[k]["symbol"], "label": sm[k][lang]}
+                   for k in ("E", "H", "G", "A", "T")]
+    return lg
+
+
+# ─────────────────────────────── CLI ───────────────────────────────
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description="프로젝트맵 배치 계산")
+    ap.add_argument("--input", required=True, help="사업 목록 JSON")
+    ap.add_argument("--out", required=True, help="layout.json 출력 경로")
+    ap.add_argument("--lang", default="ko", choices=["ko", "en"])
+    ap.add_argument("--index", type=int, default=1, help="국가 순번 (제목 로마숫자)")
+    ap.add_argument("--detail", default="50m")
+    a = ap.parse_args()
+
+    doc = read_json(Path(a.input))
+    out = compute(doc, a.lang, a.index, a.detail)
+    write_json(Path(a.out), out, indent=1)
+    log(f'  카드 {len(out["cards"])} · 마커 {len(out["markers"])} · 지시선 {len(out["leaders"])} '
+        f'· 교차 {out["crossings"]} · 폰트 {out["font_scale"]}배')
+    for w in out["warnings"]:
+        log(f"  ! {w}")
+    log(f'  → {a.out}')
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

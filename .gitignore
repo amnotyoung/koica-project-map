@@ -1,0 +1,28 @@
+# ── 공개 배포 전제 저장소다. 아래 항목은 절대 커밋하지 않는다. ──
+
+# KOICA 내부 문서. design.md 가 실측치를 담고 있으므로 원본은 로컬에만 둔다.
+# 이 저장소는 공개 예정이라 히스토리에 한 번이라도 들어가면 지우기 어렵다.
+*.pptx
+!tests/**/*.pptx
+
+# 파이썬 가상환경 (python-pptx 설치처)
+.venv/
+skill/.venv/
+
+# 지리 데이터·지명 좌표 캐시 — 실행하면 다시 받고, 스크립트가 디렉터리도 만든다
+skill/cache/
+
+# 생성물
+out/
+output/
+*.layout.json
+
+# 파이썬
+__pycache__/
+*.py[cod]
+
+# macOS
+.DS_Store
+
+# 로컬 전용 설정
+.claude/settings.local.json
