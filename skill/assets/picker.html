@@ -24,6 +24,9 @@
        position:sticky; top:57px; z-index:8; }
   tr.off { background:#fbfbfa; color:#9ca3af; }
   tr.off input, tr.off select { color:#9ca3af; }
+  .del { display:block; margin-top:6px; width:22px; height:22px; padding:0; line-height:1;
+         border:1px solid #f0c5c5; background:#fff; color:#c0392b; border-radius:5px; cursor:pointer; }
+  .del:hover { background:#c0392b; color:#fff; border-color:#c0392b; }
   input[type=text] { width:100%; padding:4px 6px; border:1px solid var(--line);
                      border-radius:4px; font:inherit; }
   td.nm input { font-size:13px; }
@@ -68,20 +71,29 @@
 <script>
 const DATA = window.__DRAFT__;
 const BADGES = [["E","교육"],["H","보건"],["G","공공행정"],["A","농림수산"],["T","기술환경"]];
-const rows = DATA.projects.map(p => ({...p}));
+// 행마다 고정 id 를 준다. 인덱스로 참조하면 행을 지웠을 때 번호가 밀려
+// 엉뚱한 행이 수정된다 (직접 추가 행 삭제 기능의 전제).
+let _seq = 0;
+const rows = DATA.projects.map(p => ({...p, _rid: ++_seq}));
+const rowById = rid => rows.find(r => r._rid === rid);
 document.getElementById('ctry').textContent = '— ' + DATA.country;
 document.getElementById('cen').value = DATA.country_en || '';
 document.getElementById('reg').value = DATA.region || '';
 
 function esc(s){ return (s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function money(v){ return v ? (v/1e8).toFixed(1) + '억' : ''; }
+function updateCount(){
+  document.getElementById('cnt').textContent =
+    `${rows.filter(r=>r.selected).length} / ${rows.length} 건 선택`;
+}
 
 function render(){
-  document.getElementById('rows').innerHTML = rows.map((r,i) => `
-    <tr class="${r.selected ? '' : 'off'}" data-i="${i}">
-      <td><input type="checkbox" class="sel" ${r.selected ? 'checked' : ''}></td>
+  document.getElementById('rows').innerHTML = rows.map(r => `
+    <tr class="${r.selected ? '' : 'off'}" data-rid="${r._rid}">
+      <td><input type="checkbox" class="sel" ${r.selected ? 'checked' : ''}>
+          ${r._added ? '<button class="del" title="이 행 삭제">✕</button>' : ''}</td>
       <td><input type="text" class="place" value="${esc(r.place)}">
-          <div class="hint">${esc(r._period||'')} ${money(r._budget_krw)} ${esc(r._aid||'')}</div></td>
+          <div class="hint">${r._added ? '직접 추가' : esc(r._period||'')+' '+money(r._budget_krw)+' '+esc(r._aid||'')}</div></td>
       <td><div class="badges">${BADGES.map(([k,ko]) => `
             <label class="${(r.badges||[]).includes(k)?'on':''}">
               <input type="checkbox" class="bg" data-k="${k}" ${(r.badges||[]).includes(k)?'checked':''}>${k}</label>`).join('')}</div>
@@ -90,11 +102,10 @@ function render(){
           <input type="text" class="en" value="${esc(r.name_en)}" placeholder="영문 사업명 (영문 슬라이드용)" style="margin-top:4px">
       </td>
     </tr>`).join('');
-  document.getElementById('cnt').textContent =
-    `${rows.filter(r=>r.selected).length} / ${rows.length} 건 선택`;
+  updateCount();
 }
 function readRow(tr){
-  const i = +tr.dataset.i, r = rows[i];
+  const r = rowById(+tr.dataset.rid); if (!r) return;
   r.selected = tr.querySelector('.sel').checked;
   r.place = tr.querySelector('.place').value.trim();
   r.name_ko = tr.querySelector('.ko').value.trim();
@@ -103,14 +114,21 @@ function readRow(tr){
 }
 document.getElementById('rows').addEventListener('input', e => {
   const tr = e.target.closest('tr'); readRow(tr);
-  if (e.target.classList.contains('sel')) tr.classList.toggle('off', !rows[+tr.dataset.i].selected);
+  if (e.target.classList.contains('sel')) tr.classList.toggle('off', !rowById(+tr.dataset.rid).selected);
   if (e.target.classList.contains('bg')) e.target.closest('label').classList.toggle('on', e.target.checked);
-  document.getElementById('cnt').textContent =
-    `${rows.filter(r=>r.selected).length} / ${rows.length} 건 선택`;
+  updateCount();
+});
+document.getElementById('rows').addEventListener('click', e => {
+  if (!e.target.classList.contains('del')) return;
+  const tr = e.target.closest('tr'), rid = +tr.dataset.rid;
+  const r = rowById(rid);
+  if (r && (!r.name_ko.trim() || confirm('이 행을 삭제할까요?'))) {
+    rows.splice(rows.indexOf(r), 1); render();
+  }
 });
 document.getElementById('addRow').onclick = () => {
   rows.unshift({selected:true, place:'', badges:[], name_ko:'', name_en:'',
-                _period:'', _budget_krw:0, _aid:'직접 추가', _sector:''});
+                _added:true, _rid:++_seq});
   render(); document.querySelector('#rows .place').focus();
 };
 document.getElementById('save').onclick = async () => {
