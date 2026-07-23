@@ -6,7 +6,7 @@ KOICA가 파워포인트로 손수 그리던 연도별 사업 지도(슬라이�
 ```bash
 # 1) 사이트에서 사업을 받아 체크박스로 고르고
 skill/.venv/bin/python skill/scripts/pick_projects.py --country 네팔 --year 2026 --out nepal.json
-# 2) 지도를 만든다
+# 2) 지도를 만든다 (out/<날짜_시각>/ 에 생성, out/latest 로 최신 접근)
 skill/.venv/bin/python skill/scripts/make_map.py --input nepal.json --outdir out --lang ko en
 ```
 

@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+from datetime import datetime
 from pathlib import Path
 
 from common import log, read_json, write_json
@@ -19,6 +20,26 @@ import layout as layout_mod
 import render_html
 
 ALL_FORMATS = ["html", "png", "pdf", "pptx"]
+
+
+def stamped_dir(base: Path) -> Path:
+    """`base/<YYYY-MM-DD_HHMM>/` 를 만들고 `base/latest` 가 그것을 가리키게 한다.
+
+    실행마다 폴더가 갈라져 이전 산출물을 덮어쓰지 않는다. 이력이 쌓이고,
+    최신은 언제나 `base/latest` 로 찾는다.
+    """
+    run = base / datetime.now().strftime("%Y-%m-%d_%H%M")
+    if run.exists():                                   # 같은 분에 두 번 돌리면 초까지
+        run = base / datetime.now().strftime("%Y-%m-%d_%H%M%S")
+    run.mkdir(parents=True, exist_ok=True)
+    link = base / "latest"
+    try:
+        if link.is_symlink() or link.exists():
+            link.unlink()
+        link.symlink_to(run.name)                      # base 기준 상대 링크
+    except OSError:
+        pass                                           # 심볼릭 링크 불가 환경은 그냥 건너뛴다
+    return run
 
 
 def run(inputs: list, outdir: Path, langs: list, formats: list,
@@ -113,14 +134,20 @@ def main() -> int:
                     choices=ALL_FORMATS)
     ap.add_argument("--detail", default="50m", choices=["10m", "50m", "110m"])
     ap.add_argument("--scale", type=int, default=2, help="PNG 배율 (2 = 192dpi)")
+    ap.add_argument("--flat", action="store_true",
+                    help="날짜 하위폴더 없이 outdir 에 바로 쓴다 (덮어쓰기)")
     a = ap.parse_args()
 
-    made = run([Path(p) for p in a.input], Path(a.outdir), a.lang, a.formats,
+    # 실행마다 out/<날짜_시각>/ 로 나눠 이전 산출물을 지키고, out/latest 로 최신을 가리킨다
+    outdir = Path(a.outdir) if a.flat else stamped_dir(Path(a.outdir))
+    made = run([Path(p) for p in a.input], outdir, a.lang, a.formats,
                a.detail, a.scale)
-    log("\n생성 완료:")
+    log(f"\n생성 완료 → {outdir}")
+    if not a.flat:
+        log(f"  (최신본은 {Path(a.outdir) / 'latest'} 로도 열 수 있습니다)")
     for f, paths in made.items():
         for p in paths:
-            log(f"  {f:5s} {p}")
+            log(f"  {f:5s} {p.name}")
     return 0
 
 
