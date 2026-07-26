@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "dependencies": {
+    "amnotyoung/oda-map-lab": {
+      "slug": "oda-map-lab",
+      "mode": "contract",
+      "source_path": ".dependency-source/oda-map-lab",
+      "lock_path": ".github/dependency-locks/oda-map-lab.json",
+      "branch": "main",
+      "change_type": "oda-map-contract",
+      "watched_paths": [
+        "build_web_assets.py",
+        "web/public/generated/map-base.json",
+        "web/public/generated/contributor-schema.json"
+      ]
+    }
+  }
+}
