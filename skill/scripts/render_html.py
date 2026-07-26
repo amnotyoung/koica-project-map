@@ -188,13 +188,14 @@ def draw_markers(L: dict, tok: dict) -> str:
     mk, col = tok["marker"], tok["color"]
     out = []
     for m in L["markers"]:
-        if m["kind"] == "area":
+        if m.get("marker_kind") == "multi":
             out.append(f'<circle cx="{m["x"]:.4f}" cy="{m["y"]:.4f}" '
                        f'r="{mk["area"]["d"]/2:.4f}" fill="none" '
                        f'stroke="{col["area_ring"]}" '
                        f'stroke-width="{mk["area"]["line_w"]*PT:.5f}"/>')
-        out.append(f'<circle cx="{m["x"]:.4f}" cy="{m["y"]:.4f}" '
-                   f'r="{mk["point"]["d"]/2:.4f}" fill="{col["pin"]}"/>')
+        else:
+            out.append(f'<circle cx="{m["x"]:.4f}" cy="{m["y"]:.4f}" '
+                       f'r="{mk["point"]["d"]/2:.4f}" fill="{col["pin"]}"/>')
     return "\n".join(out)
 
 
@@ -227,7 +228,7 @@ def draw_cards(L: dict, tok: dict) -> str:
                        f'fill="{col["body"]}" paint-order="stroke" stroke="#FFFFFF" '
                        f'stroke-width="{0.022:.4f}" stroke-linejoin="round">{esc(line)}</text>')
             ty += c["line_h"]
-        # 대상지가 여럿인 면 단위 사업의 설명 — 그 카드 안에 붙는다 (원본과 동일)
+        # 다중 대상지 사업의 설명 — 그 카드 안에 붙는다 (원본과 동일)
         if c.get("note"):
             out.append(f'<text x="{x + cd["name"]["dx"]:.4f}" y="{ty:.4f}" '
                        f'font-size="{c["font"]*PT:.5f}" fill="{col["area_ring"]}" '

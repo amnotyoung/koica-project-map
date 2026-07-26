@@ -35,7 +35,7 @@ SIMPLIFY_BASE = 0.004
 
 # basemap.json 형식 버전. 레이어를 추가하면 올린다 — 오래된 캐시를 쓰면
 # 하천·주 이름이 없는 밋밋한 지도가 조용히 나온다.
-BASEMAP_VERSION = 2
+BASEMAP_VERSION = 3
 
 
 # ─────────────────────────────── Natural Earth ───────────────────────────────
@@ -119,7 +119,8 @@ def _lines_of(geom: dict) -> list:
     return []
 
 
-def load_physical(layer: str, detail: str, view: list, tol: float, force: bool) -> list:
+def load_physical(layer: str, detail: str, view: list, tol: float, force: bool,
+                  wrap_antimeridian: bool = False) -> list:
     """하천/호수를 화면 범위로 잘라온다. 원본 샘플의 물줄기 표현을 대신한다."""
     det = PHYSICAL_DETAIL.get(detail, "50m")
     url = NE_BASE.format(detail=det, layer=layer)
@@ -131,6 +132,8 @@ def load_physical(layer: str, detail: str, view: list, tol: float, force: bool) 
     out = []
     for f in gj.get("features", []):
         g = f.get("geometry")
+        if wrap_antimeridian and g:
+            g = wrap_geometry(g)
         if not g or not bbox_intersects(bbox_of(g), view):
             continue
         if g["type"] in ("LineString", "MultiLineString"):
@@ -183,6 +186,24 @@ def short_admin_name(name: str) -> str:
         parts = parts[:-1]
     return " ".join(parts) or s
 
+
+def wrap_geometry(geom: dict) -> dict:
+    """날짜변경선 동쪽의 음수 경도를 0~360 좌표계로 옮긴다.
+
+    Fiji·Kiribati처럼 GeoJSON이 -180/180 양쪽에 걸치면 단순 bbox가 전 세계 폭으로
+    잡힌다. 해당 국가에 한해서만 음수 경도를 +360 하여 연속된 좁은 범위로 만든다.
+    """
+    def walk(coords):
+        if not coords:
+            return coords
+        if isinstance(coords[0], (int, float)):
+            lon = coords[0] + 360.0 if coords[0] < 0 else coords[0]
+            return [lon, *coords[1:]]
+        return [walk(c) for c in coords]
+
+    return {**geom, "coordinates": walk(geom.get("coordinates") or [])}
+
+
 def pack_geom(geom: dict, tol: float) -> list:
     return [round_ring(simplify(r, tol)) for r in outer_rings(geom)]
 
@@ -195,7 +216,18 @@ def build(country_q: str, detail: str, force: bool) -> tuple[Path, Path]:
     iso2 = (p.get("ISO_A2_EH") or p.get("ISO_A2") or "").upper()
     name_ko = p.get("NAME_KO") or p.get("NAME")
     name_en = p.get("NAME_EN") or p.get("NAME") or p.get("ADMIN")
-    bbox = bbox_of(cf["geometry"])
+    country_geom = cf["geometry"]
+    raw_bbox = bbox_of(country_geom)
+    wrapped_geom = wrap_geometry(country_geom)
+    wrapped_bbox = bbox_of(wrapped_geom)
+    wrap_antimeridian = (raw_bbox[2] - raw_bbox[0] > 180
+                         and wrapped_bbox[2] - wrapped_bbox[0]
+                         < raw_bbox[2] - raw_bbox[0])
+    if wrap_antimeridian:
+        country_geom, bbox = wrapped_geom, wrapped_bbox
+        log("  · 날짜변경선 경계 보정: 음수 경도를 +360°로 래핑")
+    else:
+        bbox = raw_bbox
     span = max(bbox[2] - bbox[0], bbox[3] - bbox[1], 0.5)
     tol = SIMPLIFY_BASE * max(span / 5.0, 0.35)
 
@@ -208,9 +240,11 @@ def build(country_q: str, detail: str, force: bool) -> tuple[Path, Path]:
     for f in feats:
         if f is cf or iso3_of(f["properties"]) == iso3:
             continue
-        if not bbox_intersects(bbox_of(f["geometry"]), view):
+        neighbor_geom = (wrap_geometry(f["geometry"]) if wrap_antimeridian
+                         else f["geometry"])
+        if not bbox_intersects(bbox_of(neighbor_geom), view):
             continue
-        rings = pack_geom(f["geometry"], tol * 1.6)
+        rings = pack_geom(neighbor_geom, tol * 1.6)
         if rings:
             np_ = f["properties"]
             # 지도 위 표기는 영문을 쓴다 — 한글 정식명은 너무 길다(중화인민공화국)
@@ -225,11 +259,15 @@ def build(country_q: str, detail: str, force: bool) -> tuple[Path, Path]:
         if not fs:
             continue
         log(f"  · {lvl} {len(fs)}개")
+        render_geoms = []
         for f in fs:
             nm = (f["properties"].get("shapeName") or "").strip()
             g = f.get("geometry")
             if not nm or not g:
                 continue
+            if wrap_antimeridian:
+                g = wrap_geometry(g)
+            render_geoms.append(g)
             cen = [round(v, 5) for v in centroid_of(g)]
             places.append({
                 "name": nm, "level": lvl, "centroid": cen,
@@ -242,22 +280,27 @@ def build(country_q: str, detail: str, force: bool) -> tuple[Path, Path]:
                                     "lat": cen[1], "area": round(geom_area_deg2(g), 6)})
         if lvl in ("ADM1", "ADM2"):
             target = adm_render if lvl == "ADM1" else adm2_render
-            for f in fs:
-                if f.get("geometry"):
-                    target.extend(pack_geom(f["geometry"], tol if lvl == "ADM1" else tol * 1.5))
+            for g in render_geoms:
+                target.extend(pack_geom(g, tol if lvl == "ADM1" else tol * 1.5))
 
-    rivers = load_physical("rivers_lake_centerlines", detail, view, tol * 1.2, force)
-    lakes = load_physical("lakes", detail, view, tol * 1.2, force)
+    rivers = load_physical("rivers_lake_centerlines", detail, view, tol * 1.2, force,
+                           wrap_antimeridian)
+    lakes = load_physical("lakes", detail, view, tol * 1.2, force,
+                          wrap_antimeridian)
     log(f"  · 하천 {len(rivers)}줄 · 호수 {len(lakes)}개")
 
     cities = load_cities(iso2, force) if iso2 else []
+    if wrap_antimeridian:
+        for city in cities:
+            if city["lon"] < 0:
+                city["lon"] = round(city["lon"] + 360.0, 5)
     log(f"  · 도시 {len(cities)}개 (GeoNames cities500)")
 
     basemap = {
         "v": BASEMAP_VERSION,
         "iso3": iso3, "iso2": iso2, "name_ko": name_ko, "name_en": name_en,
         "bbox": [round(v, 5) for v in bbox],
-        "land": pack_geom(cf["geometry"], tol),
+        "land": pack_geom(country_geom, tol),
         "neighbors": neighbors,
         "admin1": adm_render,
         "admin2": adm2_render,

@@ -32,12 +32,12 @@ import resolve_places
 
 MIN_FONT_SCALE = 0.85     # design.md 규칙 4 — 폰트는 15% 까지만 줄인다
 
-# 면 단위 사업 주석 (샘플 slide1/slide2 표기 그대로)
-NOTE_AREA = {"ko": "* 원형 표시 지역", "en": "* Areas marked circles"}
+# 다중 대상지 사업 주석 (샘플 slide1/slide2 표기 그대로)
+NOTE_MULTI = {"ko": "* 원형 표시 지역", "en": "* Areas marked circles"}
 
-# 사업대상지가 이만큼 이상이면 지시선을 하나로 특정할 수 없다 → 원으로만 표시하고
+# 한 사업의 대상지가 이만큼 이상이면 지시선을 하나로 특정할 수 없다 → 원으로만 표시하고
 # 카드에 주석을 단다. 원본 샘플의 `바라/팔사/반케/버르디야` 가 이 경우다.
-AREA_NOTE_MIN_SITES = 2
+MULTI_SITE_MIN = 2
 
 # 범례가 위로 올라갈 수 있는 한계 — 지역 탭(y 0.58~1.45)과 x 가 겹치므로 그 아래여야 한다
 LEGEND_MIN_Y = 1.60
@@ -69,6 +69,7 @@ class Projection:
     def __init__(self, bbox: list, frame: dict, pad_ratio: float = 0.04):
         import basemap_tiles as bt
         self.frame = dict(frame)
+        self.bbox = list(bbox)
         self.px_per_in = TILE_PX_PER_IN
         self.w_px = max(int(round(frame["w"] * self.px_per_in)), 64)
         self.h_px = max(int(round(frame["h"] * self.px_per_in)), 64)
@@ -361,8 +362,9 @@ def compute(doc: dict, lang: str = "ko", index: int = 1,
 
     mode = choose_mode(doc, tok, lang)
     L = tok["layout"][mode]
+    map_bbox = doc.get("map_bbox") or base["bbox"]
     log(f'[{iso3}] {base["name_ko"]} 사업 {len(doc["projects"])}건 '
-        f'· 종횡비 {country_aspect(base["bbox"]):.2f} → 레이아웃 {mode}')
+        f'· 종횡비 {country_aspect(map_bbox):.2f} → 레이아웃 {mode}')
 
     for attempt in range(3):
         scale = force_scale if force_scale else (1.0 if attempt == 0 else MIN_FONT_SCALE)
@@ -385,7 +387,7 @@ def compute(doc: dict, lang: str = "ko", index: int = 1,
 
 def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) -> dict:
     gap = tok["card"]["gap"]
-    proj = Projection(base["bbox"], frame)
+    proj = Projection(doc.get("map_bbox") or base["bbox"], frame)
 
     # 1) 카드 생성 + 마커 좌표
     cards, markers, warnings = [], [], []
@@ -399,13 +401,15 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) ->
     for rec, rp in zip(doc["projects"], resolved["places"]):
         card = build_card(rec, tok, lang, scale, place=_place_label(rec, rp, lang, country_en))
         pts = []
-        for part in rp["parts"]:
-            if not part.get("ok") or part.get("kind") == "nationwide":
-                continue
+        valid_parts = [part for part in rp["parts"]
+                       if part.get("ok") and part.get("kind") != "nationwide"]
+        marker_kind = "multi" if len(valid_parts) >= MULTI_SITE_MIN else "point"
+        for part in valid_parts:
             xy = proj(part["lon"], part["lat"])
             # 경위도도 남긴다 — 인치 좌표만 두면 이 지도가 확정한 위치를
             # 밖으로 내보낼 수 없다 (contribute.py 가 이 값을 쓴다)
             pts.append({"x": xy[0], "y": xy[1], "kind": part["kind"],
+                        "marker_kind": marker_kind,
                         "name": part["matched"], "lon": part["lon"],
                         "lat": part["lat"], "level": part.get("level", "")})
         card["nationwide"] = all(p.get("kind") == "nationwide" for p in rp["parts"])
@@ -415,7 +419,7 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) ->
         if not rp["resolved"]:
             warnings.append(f'지명 미해석: {rp["query"]}')
 
-    _mark_area_note(cards, lang)
+    _mark_multi_site_note(cards, lang)
 
     linked = [c for c in cards if c["points"]]
     free = [c for c in cards if not c["points"]]      # 전국사업 — 지시선 없음
@@ -550,7 +554,7 @@ def _place_label(rec: dict, rp: dict, lang: str, country_en: str = "") -> str:
     return strip_accents("/".join(names))
 
 
-def _mark_area_note(cards: list, lang: str) -> None:
+def _mark_multi_site_note(cards: list, lang: str) -> None:
     """`* 원형 표시 지역` 을 붙일 카드를 **하나만** 고른다.
 
     원본 샘플에서 이 주석은 슬라이드당 한 번, 사업대상지가 여러 곳이라 지시선을
@@ -561,13 +565,11 @@ def _mark_area_note(cards: list, lang: str) -> None:
     슬라이드 각주로 두면 무관한 카드 위에 얹히고, 다중지역 카드마다 달면
     지시선이 거의 사라진다 — 둘 다 원본과 다르다.
     """
-    cand = [c for c in cards
-            if sum(1 for p in c["points"] if p["kind"] == "area") >= AREA_NOTE_MIN_SITES]
+    cand = [c for c in cards if len(c["points"]) >= MULTI_SITE_MIN]
     if not cand:
         return
-    pick = max(cand, key=lambda c: (sum(1 for p in c["points"] if p["kind"] == "area"),
-                                    -cards.index(c)))
-    pick["note"] = NOTE_AREA[lang]
+    pick = max(cand, key=lambda c: (len(c["points"]), -cards.index(c)))
+    pick["note"] = NOTE_MULTI[lang]
     pick["no_leader"] = True
     pick["h"] += pick["line_h"]
 
@@ -580,6 +582,7 @@ def _tile_background(base: dict, proj: "Projection", frame: dict):
     """
     import basemap_tiles as bt
     key = (f'{base["iso3"]}_z{proj.view["zoom"]:.3f}'
+           f'_c{proj.view["center"][0]:.3f}_{proj.view["center"][1]:.3f}'
            f'_{proj.w_px}x{proj.h_px}.png')
     out = GEO_CACHE / "tiles" / key
     if out.exists() and out.stat().st_size > 20000:
@@ -587,7 +590,7 @@ def _tile_background(base: dict, proj: "Projection", frame: dict):
     try:
         import cdp
         tok = design_tokens()
-        html, _ = bt.build_html(base["bbox"], proj.w_px, proj.h_px, tok)
+        html, _ = bt.build_html(proj.bbox, proj.w_px, proj.h_px, tok)
         hp = out.with_suffix(".html")
         hp.parent.mkdir(parents=True, exist_ok=True)
         hp.write_text(html, encoding="utf-8")
@@ -663,7 +666,7 @@ def _targets(card: dict) -> list:
 
     한 곳만 이으면 나머지 마커가 어느 사업인지 알 수 없는 고아가 된다
     (`과테말라시티/빌라누에바/믹스코/팔린` 은 4곳 중 3개가 떠 있었다).
-    면 단위 다중 대상지 카드만 예외로, 초록 원과 `* 원형 표시 지역` 주석이
+    다중 대상지 카드만 예외로, 초록 원과 `* 원형 표시 지역` 주석이
     설명을 대신하므로 선을 긋지 않는다.
     """
     if card.get("no_leader") or not card["points"]:
@@ -759,7 +762,7 @@ def _fits(placed, mode, L, tok) -> bool:
 def _dedupe(markers: list) -> list:
     seen, out = set(), []
     for m in markers:
-        k = (round(m["x"], 3), round(m["y"], 3), m["kind"])
+        k = (round(m["x"], 3), round(m["y"], 3), m.get("marker_kind", "point"))
         if k in seen:
             continue
         seen.add(k)

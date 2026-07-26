@@ -1,0 +1,64 @@
+{
+  "country": "피지",
+  "country_en": "Fiji",
+  "region": "아시아태평양",
+  "map_bbox": [176.8, -18.7, 179.7, -16.0],
+  "year": 2026,
+  "source": "https://oda-map-lab.pages.dev/generated/map-base.json",
+  "fetched_at": "2026-07-27",
+  "_note": "피지 2026 프로젝트맵 및 날짜변경선·단일 대상지 마커 회귀 검증 입력. 진행 중인 KOICA 프로젝트 원조 중 30억원 이상 기본 후보를 사용한다.",
+  "projects": [
+    {
+      "place": "수바",
+      "kind": "point",
+      "badges": ["H"],
+      "name_ko": "피지 국립 알코올 및 약물 회복센터 건립 및 지역사회 역량강화 사업('26-'31/1,000만불)",
+      "name_en": "Establishment of the National Alcohol and Drug Recovery Center and Community Capacity Building in Fiji"
+    },
+    {
+      "place": "수바",
+      "kind": "point",
+      "badges": ["H"],
+      "name_ko": "피지 국립대학교 의과대학 교육 역량강화사업(23-27/977만불)",
+      "name_en": "Educational Capacity Building Project for College of Medicine, Nursing and Health Sciences (CMNHS) of the Fiji National University (FNU) in Fiji"
+    },
+    {
+      "place": "수바",
+      "kind": "point",
+      "badges": ["H"],
+      "name_ko": "피지 국립재활센터 건립사업('22-'27/1,000만불)",
+      "name_en": "Project for establishment of National Rehabilitation center in Fiji"
+    },
+    {
+      "place": "오발라우",
+      "aliases": ["Ovalau"],
+      "kind": "area",
+      "badges": ["A"],
+      "name_ko": "피지 농업공존형 태양광 발전사업(GCF)('21-'27/841만불)",
+      "name_en": "Fiji Agrophotovoltaic Program (GCF)"
+    },
+    {
+      "place": "수바",
+      "kind": "point",
+      "badges": ["T"],
+      "name_ko": "피지 신재생에너지 확산 및 역량강화사업('23-'26/700만불)",
+      "name_en": "Project for renewable energy expansion and capacity development in Fiji"
+    },
+    {
+      "place": "수바",
+      "kind": "point",
+      "badges": ["H"],
+      "name_ko": "피지 기후변화 대응 보건역량 강화사업(WHO)('19-'26/641만불)",
+      "name_en": "Strengthening Health Adaptation Project: Responding to Climate Change in Fiji (SHAPE)"
+    },
+    {
+      "place": "Central Division",
+      "aliases": ["Central"],
+      "place_en": "Central Division",
+      "kind": "area",
+      "badges": ["E"],
+      "name_ko": "피지 여성의 사회경제적 참여 증진을 위한 디지털 역량강화 사업('26-'29/350만불)",
+      "name_en": "Digital Capacity Building for Enhancing Socio-Economic Participation of Women in Fiji"
+    }
+  ]
+}

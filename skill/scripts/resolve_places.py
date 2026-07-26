@@ -7,7 +7,7 @@
     1) gazetteer.json 사용자 확정값        (최우선 — 한 번 고치면 계속 재사용)
     2) GeoNames 도시  → 점(point)
     3) ADM3 시/면     → 점(point)
-    4) ADM2 군 · ADM1 주 → 면(area, 초록 원)
+    4) ADM2 군 · ADM1 주 → 지명 해석상 면(area)
 
 한글 음차 지명은 hangul.loose_key 로 라틴 지명과 대조한다. 자세한 원리는 hangul.py 참고.
 `kind` 를 입력에서 명시하면 그 값이 우선한다 (사업이 지역 전체를 다루면 area).
