@@ -135,13 +135,14 @@ def draw_slide(prs, L: dict, tok: dict, tmp: Path, layout_path: Path) -> None:
     # 3) 마커
     mk = tok["marker"]
     for m in L["markers"]:
-        if m["kind"] == "area":
+        if m.get("marker_kind") == "multi":
             d = mk["area"]["d"]
             rect(slide, m["x"] - d / 2, m["y"] - d / 2, d, d, None,
                  col["area_ring"], mk["area"]["line_w"], MSO_SHAPE.OVAL)
-        d = mk["point"]["d"]
-        rect(slide, m["x"] - d / 2, m["y"] - d / 2, d, d, col["pin"], None,
-             shape=MSO_SHAPE.OVAL)
+        else:
+            d = mk["point"]["d"]
+            rect(slide, m["x"] - d / 2, m["y"] - d / 2, d, d, col["pin"], None,
+                 shape=MSO_SHAPE.OVAL)
 
     # 4) 카드
     bd = cd["badge"]
@@ -161,7 +162,7 @@ def draw_slide(prs, L: dict, tok: dict, tmp: Path, layout_path: Path) -> None:
         textbox(slide, x + cd["name"]["dx"], y + cd["name"]["dy"] - 0.015,
                 cd["name"]["w"], card["h"], card["lines"], card["font"],
                 col["body"], spacing=0.92)
-        # 대상지가 여럿인 면 단위 사업의 설명 — 그 카드 안에 붙는다 (원본과 동일)
+        # 다중 대상지 사업의 설명 — 그 카드 안에 붙는다 (원본과 동일)
         if card.get("note"):
             textbox(slide, x + cd["name"]["dx"],
                     y + cd["name"]["dy"] - 0.015 + len(card["lines"]) * card["line_h"],
