@@ -361,11 +361,11 @@ def outline_box(slide, x: float, y: float, w: float, h: float,
 
 def draw_title(slide, L: dict, tok: dict) -> None:
     t, col = tok["title"], tok["color"]
-    p, b = t["pin"], t["box"]
+    spec = L.get("title") or {}
+    p, b = t["pin"], spec.get("box") or t["box"]
 
     # 원본 z-order: 제목 텍스트 → 박스 → 물방울 → 흰 타원 → 로마숫자.
     # 박스를 먼저 그리면 긴 `ㅣ` 획이 아래선을 검게 덮어 사용자 눈에 겹침으로 보인다.
-    spec = L.get("title")
     if spec and spec.get("runs"):
         template_runs_textbox(
             slide, spec, col.get("title", col["heading"]), font="맑은 고딕"

@@ -75,11 +75,14 @@ def draw_map(L: dict, tok: dict) -> str:
         if m.get("lakes"):
             s.append(f'<path d="{path_of(m["lakes"])}" fill="{ms["lake"]}" '
                      f'stroke="{ms["river"]}" stroke-width="{0.3*PT:.5f}"/>')
-        if m.get("admin2"):
-            s.append(f'<path d="{path_of(m["admin2"])}" fill="none" '
-                     f'stroke="{ms["admin2"]}" stroke-width="{ms["admin2_w"]*PT:.5f}" '
-                     f'stroke-dasharray="{ms["admin2_dash"].replace(",", " ")}" '
-                     f'opacity="0.85"/>')
+
+    # 공개 VersaTiles Shortbread 경계는 admin 2/4로 제한되어 시·군급 경계가 없다.
+    # 타일 사용 여부와 무관하게 geoBoundaries ADM2를 위에 겹쳐 도시 구조를 보존한다.
+    if m.get("admin2"):
+        s.append(f'<path d="{path_of(m["admin2"])}" fill="none" '
+                 f'stroke="{ms["admin2"]}" stroke-width="{ms["admin2_w"]*PT:.5f}" '
+                 f'stroke-dasharray="{ms["admin2_dash"].replace(",", " ")}" '
+                 f'opacity="0.85"/>')
 
     for n in m["neighbors"]:                       # 주변국 이름 (샘플의 CHINA/INDIA)
         lab = _neighbor_label(n, f)
@@ -272,7 +275,8 @@ def pin_path(cx: float, cy: float, r: float, tip: float) -> str:
 
 def draw_title(L: dict, tok: dict) -> str:
     t, col = tok["title"], tok["color"]
-    p, b = t["pin"], t["box"]
+    spec = L.get("title") or {}
+    p, b = t["pin"], spec.get("box") or t["box"]
     roman = _roman(L.get("index", 1))
     cx, cy, r, tip = pin_geometry(p)
     line_w = b.get("line_w", 1.2)
@@ -281,7 +285,6 @@ def draw_title(L: dict, tok: dict) -> str:
     label_cx = p["x"] + p["w"] / 2
     label_cy = p["label_y"] + p["label_h"] / 2
     out = []
-    spec = L.get("title")
     if spec and spec.get("runs"):
         fg = col.get("title", col["heading"])
         x = spec["x"] + spec.get("paragraph_margin", 8145) / 914400

@@ -101,6 +101,111 @@ class PlaceGroupTests(unittest.TestCase):
         cards = grouped.call_args.args[0]
         self.assertEqual(len(layout._group_cards(cards, tok)), 2)
 
+    def test_shared_coordinate_prefers_point_over_multi_marker(self):
+        markers = [
+            {"x": 5.1234, "y": 4.5678, "marker_kind": "multi", "name": "Guatemala City"},
+            {"x": 3.0, "y": 2.0, "marker_kind": "multi", "name": "Mixco"},
+            {"x": 5.1234, "y": 4.5678, "marker_kind": "point", "name": "Guatemala City"},
+        ]
+
+        deduped = layout._dedupe(markers)
+
+        self.assertEqual(len(deduped), 2)
+        self.assertEqual(deduped[0]["marker_kind"], "point")
+        self.assertEqual(deduped[1]["name"], "Mixco")
+
+
+class CityBasemapTests(unittest.TestCase):
+    def test_city_density_is_default_for_every_map_extent(self):
+        city_doc = {"map_bbox": [-90.82, 14.30, -90.30, 14.78]}
+
+        self.assertEqual(layout.choose_map_density(city_doc), "city")
+        self.assertEqual(layout.choose_map_density({}), "city")
+
+    def test_density_can_be_explicitly_lowered(self):
+        self.assertEqual(
+            layout.choose_map_density({"map_density": "standard"}),
+            "standard",
+        )
+        self.assertEqual(layout.choose_map_density({"map_density": "city"}), "city")
+        with self.assertRaisesRegex(ValueError, "standard.*city"):
+            layout.choose_map_density({"map_density": "dense"})
+
+    def test_city_density_raises_tile_zoom_without_moving_markers(self):
+        bbox = [-90.82, 14.30, -90.30, 14.78]
+        frame = {"x": 2.142, "y": 1.123, "w": 6.830, "h": 4.934}
+        standard = layout.Projection(
+            bbox, frame, px_per_in=layout.TILE_PX_PER_IN
+        )
+        city = layout.Projection(
+            bbox, frame, px_per_in=layout.CITY_TILE_PX_PER_IN
+        )
+
+        self.assertGreater(city.view["zoom"], 12.0)
+        self.assertGreater(city.view["zoom"], standard.view["zoom"] + 2.2)
+        for lon, lat in [(-90.51327, 14.64072), (-90.69659, 14.40358)]:
+            sx, sy = standard(lon, lat)
+            cx, cy = city(lon, lat)
+            self.assertAlmostEqual(sx, cx, delta=0.003)
+            self.assertAlmostEqual(sy, cy, delta=0.003)
+
+    def test_country_detail_keeps_features_but_thins_background_lines(self):
+        frame = {"x": 2.142, "y": 1.123, "w": 6.830, "h": 4.934}
+        country = layout.Projection(
+            [-92.23516, 13.73652, -88.22832, 17.81641],
+            frame,
+            px_per_in=layout.CITY_TILE_PX_PER_IN,
+        )
+        city = layout.Projection(
+            [-90.82, 14.30, -90.30, 14.78],
+            frame,
+            px_per_in=layout.CITY_TILE_PX_PER_IN,
+        )
+
+        self.assertLess(country.view["zoom"], layout.THIN_LINE_ZOOM + 0.7)
+        self.assertLess(layout.tile_line_scale(country), 2.7)
+        self.assertEqual(layout.tile_line_scale(city), 5.0)
+
+    def test_city_style_contains_local_roads_and_land_cover(self):
+        import basemap_tiles
+
+        style = basemap_tiles.style_json({
+            "neighbor": "#eee", "river": "#00f", "lake": "#def",
+            "admin2": "#999",
+        }, line_scale=5.0)
+        ids = {layer["id"] for layer in style["layers"]}
+
+        self.assertIn("road-local", ids)
+        self.assertIn("land-forest", ids)
+        self.assertIn("land-developed", ids)
+        self.assertIn("rail", ids)
+        local = next(layer for layer in style["layers"]
+                     if layer["id"] == "road-local")
+        self.assertEqual(local["paint"]["line-width"][4], 2.75)
+
+    def test_admin2_overlay_is_kept_when_tiles_exist(self):
+        tok = design_tokens()
+        layout_doc = {
+            "map": {
+                "frame": {"x": 0, "y": 0, "w": 2, "h": 2},
+                "content": {"x": 0, "y": 0, "w": 2, "h": 2},
+                "tiles": {"png": "/not/read/in/test.png"},
+                "land": [[[0, 0], [2, 0], [2, 2], [0, 2], [0, 0]]],
+                "neighbors": [],
+                "admin1": [],
+                "admin2": [[[0.5, 0], [0.5, 2], [0.5, 0]]],
+                "admin1_labels": [],
+                "cities": [],
+            },
+            "markers": [],
+        }
+        with patch.object(render_html, "_data_uri",
+                          return_value="data:image/png;base64,eA=="):
+            svg = render_html.draw_map(layout_doc, tok)
+
+        self.assertIn(f'stroke="{tok["map_style"]["admin2"]}"', svg)
+        self.assertIn(tok["map_style"]["admin2_dash"].replace(",", " "), svg)
+
 
 class TitleLayoutTests(unittest.TestCase):
     def test_korean_title_uses_one_inline_rich_text_box(self):
@@ -126,6 +231,28 @@ class TitleLayoutTests(unittest.TestCase):
         self.assertAlmostEqual(title["w"], 0.31860, places=5)
         self.assertAlmostEqual(title["h"], 0.23744, places=5)
         self.assertEqual(title["runs"][0]["size"], 14.11)
+
+    def test_long_korean_title_expands_outline_and_keeps_type_scale(self):
+        tok = design_tokens()
+        title = layout._title_layout("과테말라시티", "Guatemala City", "ko", tok)
+        box = title["box"]
+        combined = sum(
+            layout.text_width(run["text"], run["size"])
+            for run in title["runs"]
+        )
+        available = box["x"] + box["w"] - title["x"] - 0.04
+
+        self.assertGreater(box["w"], tok["title"]["box"]["w"])
+        self.assertEqual(title["runs"][0]["size"], tok["title"]["text"]["size_ko"])
+        self.assertEqual(title["runs"][1]["size"], tok["title"]["text"]["size_en"])
+        self.assertLessEqual(combined, available + 0.001)
+
+    def test_long_english_title_uses_remaining_outline_width(self):
+        tok = design_tokens()
+        title = layout._title_layout("과테말라시티", "Guatemala City", "en", tok)
+
+        self.assertGreater(title["w"], 1.3)
+        self.assertEqual(title["runs"][0]["size"], tok["title"]["text"]["size_en_only"])
 
     def test_html_title_flows_runs_inline_without_fixed_country_offset(self):
         tok = design_tokens()

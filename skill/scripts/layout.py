@@ -56,7 +56,39 @@ REGION_EN = {
 
 # ─────────────────────────────── 투영 ───────────────────────────────
 
-TILE_PX_PER_IN = 130      # 타일 배경을 굽는 해상도 (인치당 CSS 픽셀)
+TILE_PX_PER_IN = 130       # 표준 지도: 인치당 CSS 픽셀
+CITY_TILE_PX_PER_IN = 650  # 도시 상세: z12 생활도로를 받기 위한 5배 타일 밀도
+MAP_DENSITIES = {"standard", "city"}
+THIN_LINE_ZOOM = 8.5       # 전국 범위: 표식을 가리지 않도록 선을 가늘게
+FULL_LINE_ZOOM = 11.5      # 도시 범위: 과테말라시티 참조본의 굵기를 그대로 유지
+
+
+def choose_map_density(doc: dict) -> str:
+    """지도 범위에 맞는 실제 타일 밀도를 고른다.
+
+    국가 전체와 도시·시도급 확대 지도 모두 과테말라시티 참조본과 같은 5배 타일
+    밀도를 기본으로 쓴다. 경량 지도가 꼭 필요할 때만 입력에서 `standard`로 낮춘다.
+    """
+    requested = str(doc.get("map_density", "city")).strip().lower()
+    if requested not in MAP_DENSITIES:
+        raise ValueError("map_density는 'standard' 또는 'city'여야 합니다")
+    return requested
+
+
+def tile_line_scale(proj: "Projection") -> float:
+    """상세도는 유지하되 축척이 넓을수록 배경 선만 가늘게 한다.
+
+    5배 캔버스를 그대로 축소하면 도시 지도에서는 적정한 선 굵기가 전국 지도에서
+    도로망 덩어리로 보인다. z8.5 이하에서는 보정 굵기의 40%, z11.5 이상에서는
+    100%를 쓰고 그 사이는 선형 보간한다. 타일 zoom과 피처 수는 건드리지 않는다.
+    """
+    density_scale = max(1.0, proj.px_per_in / TILE_PX_PER_IN)
+    if density_scale <= 1.0:
+        return 1.0
+    zoom = proj.view["zoom"]
+    t = min(1.0, max(0.0, (zoom - THIN_LINE_ZOOM)
+                         / (FULL_LINE_ZOOM - THIN_LINE_ZOOM)))
+    return round(density_scale * (0.40 + 0.60 * t), 3)
 
 
 class Projection:
@@ -66,11 +98,12 @@ class Projection:
     마스크로 눌러 대상국만 밝게 남긴다(원본 샘플의 표현).
     """
 
-    def __init__(self, bbox: list, frame: dict, pad_ratio: float = 0.04):
+    def __init__(self, bbox: list, frame: dict, pad_ratio: float = 0.04,
+                 px_per_in: int = TILE_PX_PER_IN):
         import basemap_tiles as bt
         self.frame = dict(frame)
         self.bbox = list(bbox)
-        self.px_per_in = TILE_PX_PER_IN
+        self.px_per_in = px_per_in
         self.w_px = max(int(round(frame["w"] * self.px_per_in)), 64)
         self.h_px = max(int(round(frame["h"] * self.px_per_in)), 64)
         self.view = bt.fit_view(bbox, self.w_px, self.h_px, pad_ratio)
@@ -251,7 +284,7 @@ def _title_layout(country_ko: str, country_en: str, lang: str, tok: dict) -> dic
     글자가 달라진다.
     """
     title, text = tok["title"], tok["title"]["text"]
-    box = title["box"]
+    box, pin = title["box"], title["pin"]
     if lang == "ko":
         # 피지(2글자)는 샘플 실측 폭을 그대로 쓴다. 더 긴 국명은 같은 중심을
         # 유지하며 글자 실측 폭만큼 넓히고, 박스 안쪽 한계를 넘을 때만 축소한다.
@@ -263,7 +296,29 @@ def _title_layout(country_ko: str, country_en: str, lang: str, tok: dict) -> dic
         w = min(natural_w, box["w"] - 0.12)
         x = box["x"] + text["dx_ko"] if abs(w - text["w_ko"]) < 1e-6 \
             else box["x"] + box["w"] / 2 - w / 2
-        main_size = _fit_font(country_ko, text["size_ko"], w - 0.04155)
+        main_size = text["size_ko"]
+        en_size = text["size_en"]
+        title_box = None
+        # 텍스트 상자는 PowerPoint에서 실제 글자 폭만큼 오른쪽으로 자동 확장된다.
+        # 짧은 `피지 Fiji`는 원본 좌표를 그대로 유지한다. 시·도/도시명처럼 긴
+        # 조합은 글자를 작게 만들지 말고 상단 외곽선과 텍스트 상자를 넓힌다.
+        combined = (text_width(f"{country_ko} ", main_size)
+                    + text_width(country_en, en_size))
+        left_min = pin["x"] + pin["w"] + 0.04
+        available = box["x"] + box["w"] - max(x, left_min) - 0.04
+        if combined > available:
+            x = left_min
+            # 근사 폭보다 10% 여유를 둬 PowerPoint의 실제 Malgun Gothic 폭과
+            # 음수 자간을 적용한 뒤에도 한 줄을 보장한다.
+            desired_right = x + combined * 1.10 + 0.08
+            expanded_w = min(max(box["w"], desired_right - box["x"]), 4.20)
+            title_box = {**box, "w": round(expanded_w, 5)}
+            available = title_box["x"] + title_box["w"] - x - 0.04
+            if combined > available:
+                title_scale = available / combined
+                main_size = round(main_size * title_scale, 2)
+                en_size = round(en_size * title_scale, 2)
+            w = available
         return {
             "mode": "inline_runs",
             "x": round(x, 5),
@@ -272,6 +327,7 @@ def _title_layout(country_ko: str, country_en: str, lang: str, tok: dict) -> dic
             "h": text["h_ko"],
             "paragraph_margin": text["paragraph_margin"],
             "html_en_dy": text["html_en_dy"],
+            **({"box": title_box} if title_box else {}),
             "runs": [
                 {
                     "text": f"{country_ko} ",
@@ -282,7 +338,7 @@ def _title_layout(country_ko: str, country_en: str, lang: str, tok: dict) -> dic
                 },
                 {
                     "text": country_en,
-                    "size": _fit_font(country_en, text["size_en"], w - 0.04),
+                    "size": en_size,
                     "spacing": text["spacing"],
                     "complex_font": "Arial Narrow",
                 },
@@ -294,6 +350,10 @@ def _title_layout(country_ko: str, country_en: str, lang: str, tok: dict) -> dic
         # 샘플의 0.008in 좌측 보정은 문단 왼쪽 여백과 함께 시각 중심을 맞춘다.
         x = box["x"] + text["dx_en"] if abs(w - text["w_en"]) < 1e-6 \
             else box["x"] + box["w"] / 2 - w / 2 - 0.00808
+        if natural_w > text["w_en"]:
+            # 긴 영문명은 자연폭 딱 맞춤 상자에서 PowerPoint가 마지막 단어를
+            # 줄바꿈할 수 있으므로 외곽선 안 남은 폭을 모두 텍스트 상자에 준다.
+            w = box["x"] + box["w"] - x - 0.04
         return {
             "mode": "single_run",
             "x": round(x, 5),
@@ -602,7 +662,10 @@ def compute(doc: dict, lang: str = "ko", index: int = 1,
 
 def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) -> dict:
     gap = tok["card"]["gap"]
-    proj = Projection(doc.get("map_bbox") or base["bbox"], frame)
+    density = choose_map_density(doc)
+    tile_ppi = CITY_TILE_PX_PER_IN if density == "city" else TILE_PX_PER_IN
+    proj = Projection(doc.get("map_bbox") or base["bbox"], frame,
+                      px_per_in=tile_ppi)
 
     # 1) 카드 생성 + 마커 좌표
     cards, markers, warnings = [], [], []
@@ -711,7 +774,8 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) ->
         "region": (doc.get("region", "") if lang == "ko" else
                    (doc.get("region_en")
                     or REGION_EN.get(doc.get("region", ""), doc.get("region", "")))),
-        "map": {"frame": frame, "content": proj.content, "projection": proj.as_dict(),
+        "map": {"frame": frame, "content": proj.content,
+                "density": density, "projection": proj.as_dict(),
                 "tiles": _tile_background(base, proj, frame),
                 "land": proj.rings(base["land"]),
                 "neighbors": [{"name": n["name"], "rings": proj.rings(n["rings"])}
@@ -801,7 +865,9 @@ def _tile_background(base: dict, proj: "Projection", frame: dict):
     Chrome 이 없으면 조용히 벡터 배경으로 떨어진다.
     """
     import basemap_tiles as bt
-    key = (f'{base["iso3"]}_z{proj.view["zoom"]:.3f}'
+    capture_scale = 1 if proj.px_per_in >= CITY_TILE_PX_PER_IN else 2
+    key = (f'{base["iso3"]}_s{bt.STYLE_VERSION}_dpr{capture_scale}'
+           f'_z{proj.view["zoom"]:.3f}'
            f'_c{proj.view["center"][0]:.3f}_{proj.view["center"][1]:.3f}'
            f'_{proj.w_px}x{proj.h_px}.png')
     out = GEO_CACHE / "tiles" / key
@@ -810,17 +876,20 @@ def _tile_background(base: dict, proj: "Projection", frame: dict):
     try:
         import cdp
         tok = design_tokens()
-        html, _ = bt.build_html(proj.bbox, proj.w_px, proj.h_px, tok)
+        line_scale = tile_line_scale(proj)
+        html, _ = bt.build_html(proj.bbox, proj.w_px, proj.h_px, tok,
+                                line_scale=line_scale)
         hp = out.with_suffix(".html")
         hp.parent.mkdir(parents=True, exist_ok=True)
         hp.write_text(html, encoding="utf-8")
-        cdp.shot(hp.resolve().as_uri(), out, proj.w_px, proj.h_px, 2,
+        cdp.shot(hp.resolve().as_uri(), out, proj.w_px, proj.h_px, capture_scale,
                  ready_js="document.title==='MAP_READY'", wait=90)
         if out.stat().st_size < 20000:
             raise RuntimeError("배경이 비었습니다")
         log(f"  · 타일 배경 {out.stat().st_size//1024}KB "
-            f"(zoom {proj.view['zoom']:.2f})")
-        return {"png": str(out), "w_px": proj.w_px, "h_px": proj.h_px}
+            f"(zoom {proj.view['zoom']:.2f} · 선굵기 {line_scale:.2f}×)")
+        return {"png": str(out), "w_px": proj.w_px, "h_px": proj.h_px,
+                "device_scale": capture_scale}
     except Exception as e:
         log(f"  ! 타일 배경 실패 ({e.__class__.__name__}: {e}) — 벡터 배경을 씁니다")
         return None
@@ -980,14 +1049,22 @@ def _fits(placed, mode, L, tok) -> bool:
 
 
 def _dedupe(markers: list) -> list:
-    seen, out = set(), []
+    """같은 지도 좌표에는 마커를 하나만 남긴다.
+
+    단일 대상 사업과 다중 대상 사업이 같은 도시를 공유하면 빨간 점과 초록 원이
+    겹칠 수 있다. 이때는 해당 도시만을 직접 대상으로 하는 단일 대상 점을 우선한다.
+    다중 대상 사업의 범위는 나머지 초록 원과 카드의 원형 표시 지역 주석에 남는다.
+    """
+    by_coord, order = {}, []
     for m in markers:
-        k = (round(m["x"], 3), round(m["y"], 3), m.get("marker_kind", "point"))
-        if k in seen:
-            continue
-        seen.add(k)
-        out.append(m)
-    return out
+        k = (round(m["x"], 3), round(m["y"], 3))
+        if k not in by_coord:
+            by_coord[k] = m
+            order.append(k)
+        elif (m.get("marker_kind", "point") == "point"
+              and by_coord[k].get("marker_kind", "point") != "point"):
+            by_coord[k] = m
+    return [by_coord[k] for k in order]
 
 
 def _legend(tok: dict, lang: str) -> dict:
