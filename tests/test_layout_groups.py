@@ -207,6 +207,18 @@ class CityBasemapTests(unittest.TestCase):
         self.assertIn(tok["map_style"]["admin2_dash"].replace(",", " "), svg)
 
 
+class CreditTests(unittest.TestCase):
+    def test_tile_credit_follows_slide_language(self):
+        tok = design_tokens()
+        base = {"map": {"tiles": {"png": "/tmp/map.png"}}}
+
+        ko = render_html.draw_credit({**base, "lang": "ko"}, tok)
+        en = render_html.draw_credit({**base, "lang": "en"}, tok)
+
+        self.assertIn("지도 타일 © OpenStreetMap contributors", ko)
+        self.assertIn("Map tiles © OpenStreetMap contributors", en)
+
+
 class TitleLayoutTests(unittest.TestCase):
     def test_korean_title_uses_one_inline_rich_text_box(self):
         tok = design_tokens()

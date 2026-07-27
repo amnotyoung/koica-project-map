@@ -71,7 +71,7 @@ def _place_guess(group_label: str) -> str:
     """그룹 라벨 → `place` 후보. `키체, 케찰테낭고` 처럼 쉼표로 묶인 건 `/` 로 잇는다."""
     s = re.sub(r"\s*\((진행|종료|국가)\)\s*$", "", group_label).strip()
     parts = [p.strip() for p in s.split(",") if p.strip()]
-    return "/".join(parts)
+    return "/".join(dict.fromkeys(parts))
 
 
 def _period(de: dict) -> str:
