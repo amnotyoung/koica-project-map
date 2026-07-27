@@ -205,14 +205,16 @@ def draw_cards(L: dict, tok: dict) -> str:
     out = []
     for c in L["cards"]:
         x, y = c["x"], c["y"]
-        out.append(f'<text x="{x:.4f}" y="{y + cd["place"]["h"]*0.72:.4f}" '
-                   f'font-size="{cd["place"]["size"]*PT:.5f}" font-weight="700" '
-                   f'fill="{col["heading"]}" paint-order="stroke" stroke="#FFFFFF" '
-                   f'stroke-width="{0.026:.4f}" stroke-linejoin="round">{esc(c["place"])}</text>')
+        body_dy = c.get("body_dy", cd["name"]["dy"])
+        if c.get("show_place", True):
+            out.append(f'<text x="{x:.4f}" y="{y + cd["place"]["h"]*0.72:.4f}" '
+                       f'font-size="{c.get("place_font", cd["place"]["size"])*PT:.5f}" font-weight="700" '
+                       f'fill="{col["heading"]}" paint-order="stroke" stroke="#FFFFFF" '
+                       f'stroke-width="{0.026:.4f}" stroke-linejoin="round">{esc(c["place"])}</text>')
         # 분야 배지
         bx = x + bd["dx"]
         for k in c["badges"]:
-            by = y + bd["dy"]
+            by = y + body_dy + bd["dy"] - cd["name"]["dy"]
             out.append(f'<rect x="{bx:.4f}" y="{by:.4f}" width="{bd["w"]:.4f}" '
                        f'height="{bd["h"]:.4f}" fill="{col["badge_bg"]}"/>')
             out.append(f'<text x="{bx + bd["w"]/2:.4f}" y="{by + bd["h"]*0.76:.4f}" '
@@ -221,7 +223,7 @@ def draw_cards(L: dict, tok: dict) -> str:
             bx += bd["w"] + bd["gap"]
         # 사업명 — 지시선이 글자를 관통하므로 흰 테두리를 깔아 가독성을 지킨다
         tx = x + cd["name"]["dx"]
-        ty = y + cd["name"]["dy"] + c["line_h"] * 0.75
+        ty = y + body_dy + c["line_h"] * 0.75
         for i, line in enumerate(c["lines"]):
             lx = tx if i == 0 else x + cd["name"]["dx"]
             out.append(f'<text x="{lx:.4f}" y="{ty:.4f}" font-size="{c["font"]*PT:.5f}" '
@@ -271,30 +273,60 @@ def pin_path(cx: float, cy: float, r: float, tip: float) -> str:
 def draw_title(L: dict, tok: dict) -> str:
     t, col = tok["title"], tok["color"]
     p, b = t["pin"], t["box"]
-    ko, en = L["country"]["ko"], L["country"]["en"]
     roman = _roman(L.get("index", 1))
-    size = t["text"]["size_ko"] * PT
-    r_in = p.get("inner_d", p["w"] * 0.82) / 2          # 흰 원 반지름
     cx, cy, r, tip = pin_geometry(p)
-    out = [
-        f'<rect x="{b["x"]:.4f}" y="{b["y"]:.4f}" width="{b["w"]:.4f}" height="{b["h"]:.4f}" '
-        f'fill="none" stroke="{col["region_tab"]}" stroke-width="{1.2*PT:.5f}"/>',
+    line_w = b.get("line_w", 1.2)
+    # 원본의 로마숫자 텍스트박스는 핀보다 오른쪽으로 넓지만, 실제 글자는 핀
+    # 중심에 놓인다. 텍스트박스 중심을 쓰면 HTML에서 `II`가 오른쪽으로 밀린다.
+    label_cx = p["x"] + p["w"] / 2
+    label_cy = p["label_y"] + p["label_h"] / 2
+    out = []
+    spec = L.get("title")
+    if spec and spec.get("runs"):
+        fg = col.get("title", col["heading"])
+        x = spec["x"] + spec.get("paragraph_margin", 8145) / 914400
+        first = spec["runs"][0]
+        if spec.get("mode") == "inline_runs" and len(spec["runs"]) > 1:
+            second = spec["runs"][1]
+            out.append(
+                f'<text x="{x:.4f}" y="{spec["y"]:.4f}" '
+                f'fill="{fg}" style="font-family: Malgun Gothic, 맑은 고딕, sans-serif; '
+                f'font-weight: 700" dominant-baseline="hanging">'
+                f'<tspan font-size="{first["size"]*PT:.5f}">{esc(first["text"])}</tspan>'
+                f'<tspan font-size="{second["size"]*PT:.5f}" '
+                f'dy="{spec.get("html_en_dy", 0.055):.4f}">{esc(second["text"])}</tspan>'
+                f'</text>'
+            )
+        else:
+            out.append(
+                f'<text x="{x:.4f}" y="{spec["y"]:.4f}" '
+                f'font-size="{first["size"]*PT:.5f}" fill="{fg}" '
+                f'style="font-family: Malgun Gothic, 맑은 고딕, sans-serif; font-weight: 700" '
+                f'dominant-baseline="hanging">{esc(first["text"])}</text>'
+            )
+    else:  # 예전 layout.json 호환
+        ko, en = L["country"]["ko"], L["country"]["en"]
+        text = ko if L["lang"] == "ko" else en
+        out.append(f'<text x="{b["x"]+0.69:.4f}" y="{b["y"]+b["h"]/2:.4f}" '
+                   f'font-size="{14.11*PT:.5f}" fill="{col["heading"]}" font-weight="700" '
+                   f'dominant-baseline="central">{esc(text)}</text>')
+    # 원본 z-order: 제목 텍스트 → 박스 → 물방울 → 흰 타원 → 로마숫자.
+    out.extend([
+        f'<path d="M{b["x"]:.4f},{b["y"]:.4f} '
+        f'H{b["x"]+b["w"]:.4f} V{b["y"]+b["h"]:.4f} '
+        f'H{b["x"]:.4f} Z" fill="none" stroke="{col["region_tab"]}" '
+        f'stroke-width="{line_w*PT:.5f}"/>',
         # 지도 핀 — 보라 물방울 + 흰 원 + 로마숫자 (원본은 도형 3개다)
         f'<path d="{pin_path(cx, cy, r, tip)}" fill="{col["region_tab"]}"/>',
-        f'<circle cx="{cx:.4f}" cy="{cy:.4f}" r="{r_in:.4f}" fill="#FFFFFF"/>',
-        f'<text x="{cx:.4f}" y="{cy:.4f}" font-size="{p.get("label_size", 8.98)*PT:.5f}" '
+        f'<ellipse cx="{p["inner_x"]+p["inner_w"]/2:.4f}" '
+        f'cy="{p["inner_y"]+p["inner_h"]/2:.4f}" '
+        f'rx="{p["inner_w"]/2:.4f}" ry="{p["inner_h"]/2:.4f}" fill="#FFFFFF"/>',
+        f'<text x="{label_cx:.4f}" y="{label_cy:.4f}" '
+        f'font-size="{p.get("label_size", 8.98)*PT:.5f}" '
         f'fill="{col["region_tab"]}" text-anchor="middle" '
+        f'style="font-family: Georgia, serif; font-weight: 700" '
         f'dominant-baseline="central">{roman}</text>',
-    ]
-    if L["lang"] == "ko":
-        out.append(f'<text x="{b["x"]+t["text"]["dx"]:.4f}" y="{b["y"]+b["h"]/2:.4f}" '
-                   f'font-size="{size:.5f}" fill="{col["heading"]}" '
-                   f'dominant-baseline="central">{esc(ko)}'
-                   f'<tspan font-size="{t["text"]["size_en"]*PT:.5f}" dx="0.06">{esc(en)}</tspan></text>')
-    else:
-        out.append(f'<text x="{b["x"]+t["text"]["dx"]:.4f}" y="{b["y"]+b["h"]/2:.4f}" '
-                   f'font-size="{size:.5f}" fill="{col["heading"]}" '
-                   f'dominant-baseline="central">{esc(en)}</text>')
+    ])
     return "\n".join(out)
 
 
@@ -313,8 +345,10 @@ def draw_region_tab(L: dict, tok: dict) -> str:
         return ""
     r, col = tok["region_tab"], tok["color"]
     cx, cy = r["x"] + r["w"] / 2, r["y"] + r["h"] / 2
-    return (f'<rect x="{r["x"]:.4f}" y="{r["y"]:.4f}" width="{r["w"]:.4f}" '
-            f'height="{r["h"]:.4f}" fill="{col["region_tab_bg"]}"/>'
+    return (f'<rect x="{r.get("rail_x", r["x"]):.4f}" '
+            f'y="{r.get("rail_y", r["y"]):.4f}" '
+            f'width="{r.get("rail_w", r["w"]):.4f}" '
+            f'height="{r.get("rail_h", r["h"]):.4f}" fill="{col["region_tab_bg"]}"/>'
             f'<text x="{cx:.4f}" y="{cy:.4f}" font-size="{r["size"]*PT:.5f}" '
             f'fill="{col["region_tab"]}" text-anchor="middle" '
             f'transform="rotate(90 {cx:.4f} {cy:.4f})">{esc(L["region"])}</text>')
@@ -347,7 +381,7 @@ def draw_legend(L: dict, tok: dict) -> str:
                 ly += fs
     pn = lg["page_num"]
     out.append(f'<text x="{pn["x"]:.4f}" y="{pn["y"]:.4f}" font-size="{pn["size"]*PT:.5f}" '
-               f'fill="{col["body"]}">{L.get("index", 1)}</text>')
+               f'fill="{col["body"]}">{L.get("index", 1):02d}</text>')
     return "\n".join(out)
 
 

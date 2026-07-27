@@ -102,7 +102,13 @@ def country_aspect(bbox: list) -> float:
     return ((lon1 - lon0) * cos) / max(lat1 - lat0, 1e-6)
 
 
-def choose_mode(doc: dict, tok: dict, lang: str) -> str:
+def _is_nationwide(parts: list) -> bool:
+    """빈 해석 결과는 전국사업이 아니다 (`all([])`의 참값을 그대로 쓰지 않는다)."""
+    return bool(parts) and all(part.get("kind") == "nationwide" for part in parts)
+
+
+def choose_mode(doc: dict, tok: dict, lang: str,
+                resolved: dict | None = None) -> str:
     """레이아웃 A / B 선택 — **카드가 한 열에 들어가는가**로 갈린다.
 
     국가 종횡비가 아니다. 샘플에서 네팔(bbox 1.77)은 A, 동티모르(2.35)는 B인데
@@ -110,8 +116,38 @@ def choose_mode(doc: dict, tok: dict, lang: str) -> str:
     """
     col = tok["layout"]["B"]["right_col"]
     gap = tok["card"]["gap"]
-    cards = [build_card(p, tok, lang, 1.0) for p in doc["projects"]]
-    need = sum(c["h"] for c in cards) + gap * max(len(cards) - 1, 0)
+    cards = []
+    if resolved:
+        country_en = doc.get("country_en", "")
+        for rec, rp in zip(doc["projects"], resolved["places"]):
+            card = build_card(
+                rec, tok, lang, 1.0,
+                place=_place_label(rec, rp, lang, country_en),
+            )
+            valid = [part for part in rp["parts"]
+                     if part.get("ok") and part.get("kind") != "nationwide"]
+            marker_kind = "multi" if len(valid) >= MULTI_SITE_MIN else "point"
+            card["points"] = [
+                {"lon": part["lon"], "lat": part["lat"],
+                 "marker_kind": marker_kind}
+                for part in valid
+            ]
+            card["nationwide"] = _is_nationwide(rp["parts"])
+            cards.append(card)
+    else:
+        # 좌표를 모르면 같은 표시명이 실제 같은 장소인지 판단할 수 없다. 임의로
+        # 합쳐 높이를 과소계산하지 않고 각 사업을 보수적으로 별도 그룹으로 둔다.
+        for i, rec in enumerate(doc["projects"]):
+            card = build_card(rec, tok, lang, 1.0)
+            card.update({
+                "points": [{"x": i, "y": 0, "marker_kind": "point"}],
+                "nationwide": False,
+            })
+            cards.append(card)
+    # 같은 지명·같은 좌표의 사업은 한 장소 블록으로 쌓인다. 반복 헤딩이 빠지는
+    # 만큼 실제 높이가 줄어드는데, 여기서도 최종 배치와 같은 그룹 키를 써야 한다.
+    groups = _group_cards(cards, tok)
+    need = sum(g["h"] for g in groups) + gap * max(len(groups) - 1, 0)
     return "B" if need <= (col["y1"] - col["y0"]) else "A"
 
 
@@ -182,17 +218,193 @@ def build_card(proj_rec: dict, tok: dict, lang: str, scale: float,
     lines = wrap_text(name, c["name"]["w"], size, first_indent=indent)
     lh = c["name"]["line_h"] * scale
     place = place if place is not None else proj_rec.get("place", "")
+    place_font = _fit_font(place, c["place"]["size"] * scale, c["name"]["w"])
     return {
         "place": place,
+        "place_font": round(place_font, 2),
         "badges": badges,
         "text": name,
         "lines": lines,
         "w": c["name"]["w"] + c["name"]["dx"],
         "h": c["name"]["dy"] + len(lines) * lh,
+        "body_dy": c["name"]["dy"],
         "line_h": round(lh, 4),
         "font": round(size, 2),
-        "place_w": round(text_width(place, c["place"]["size"] * scale), 4),
+        "place_w": round(text_width(place, place_font), 4),
     }
+
+
+def _fit_font(text: str, preferred: float, max_width: float) -> float:
+    width = text_width(text, preferred)
+    if width <= max_width or width <= 0:
+        return preferred
+    return round(preferred * max_width / width, 2)
+
+
+def _title_layout(country_ko: str, country_en: str, lang: str, tok: dict) -> dict:
+    """두 렌더러가 공유하는 국가 제목 텍스트 배치.
+
+    인간 작성본의 국문 제목은 `피지`와 `Fiji`를 별도 상자나 별도 줄에 둔 것이
+    아니다. 한 텍스트 상자의 같은 문단에 크기가 다른 두 런을 연속해서 넣는다.
+    LibreOffice는 이를 잘못 줄바꿈하지만 Microsoft PowerPoint에서는 한 줄이다.
+    이 구조와 한글용 East Asian 글꼴 지정이 없으면 PowerPoint for Mac에서 국문
+    글자가 달라진다.
+    """
+    title, text = tok["title"], tok["title"]["text"]
+    box = title["box"]
+    if lang == "ko":
+        # 피지(2글자)는 샘플 실측 폭을 그대로 쓴다. 더 긴 국명은 같은 중심을
+        # 유지하며 글자 실측 폭만큼 넓히고, 박스 안쪽 한계를 넘을 때만 축소한다.
+        natural_w = max(
+            text["w_ko"],
+            text_width(country_ko, text["size_ko"]) + 0.04155,
+            text_width(country_en, text["size_en"]) + 0.10,
+        )
+        w = min(natural_w, box["w"] - 0.12)
+        x = box["x"] + text["dx_ko"] if abs(w - text["w_ko"]) < 1e-6 \
+            else box["x"] + box["w"] / 2 - w / 2
+        main_size = _fit_font(country_ko, text["size_ko"], w - 0.04155)
+        return {
+            "mode": "inline_runs",
+            "x": round(x, 5),
+            "y": text["y_ko"],
+            "w": round(w, 5),
+            "h": text["h_ko"],
+            "paragraph_margin": text["paragraph_margin"],
+            "html_en_dy": text["html_en_dy"],
+            "runs": [
+                {
+                    "text": f"{country_ko} ",
+                    "size": main_size,
+                    "spacing": text["spacing"],
+                    "baseline": text["baseline_ko"],
+                    "complex_font": "Batang",
+                },
+                {
+                    "text": country_en,
+                    "size": _fit_font(country_en, text["size_en"], w - 0.04),
+                    "spacing": text["spacing"],
+                    "complex_font": "Arial Narrow",
+                },
+            ],
+        }
+    else:
+        natural_w = max(text["w_en"], text_width(country_en, text["size_en_only"]) * 0.81)
+        w = min(natural_w, box["w"] - 0.18)
+        # 샘플의 0.008in 좌측 보정은 문단 왼쪽 여백과 함께 시각 중심을 맞춘다.
+        x = box["x"] + text["dx_en"] if abs(w - text["w_en"]) < 1e-6 \
+            else box["x"] + box["w"] / 2 - w / 2 - 0.00808
+        return {
+            "mode": "single_run",
+            "x": round(x, 5),
+            "y": text["y_en"],
+            "w": round(w, 5),
+            "h": text["h_en"],
+            "paragraph_margin": text["paragraph_margin"],
+            "runs": [{
+                "text": country_en,
+                # text_width()는 실제 Malgun Gothic 라틴 글리프보다 약 19% 넓게
+                # 추정하므로 샘플의 14.11pt가 불필요하게 축소되지 않게 보정한다.
+                "size": _fit_font(country_en, text["size_en_only"], w / 0.81),
+                "spacing": text["spacing"],
+                "complex_font": "Arial Narrow",
+            }],
+        }
+
+
+def _place_group_key(card: dict) -> tuple:
+    """같은 지명·같은 좌표의 사업을 한 장소 그룹으로 묶는 안정 키.
+
+    표시명이 같아도 해석 좌표가 다르면 합치지 않는다. 반대로 같은 지점의 사업은
+    입력에서 떨어져 있어도 한 블록이 된다. 전국사업은 좌표가 없으므로 표시명으로
+    묶는다.
+    """
+    place = " ".join(str(card.get("place", "")).split()).casefold()
+    coords = tuple(sorted(
+        (round(float(p.get("lon", p.get("x", 0))), 5),
+         round(float(p.get("lat", p.get("y", 0))), 5),
+         p.get("marker_kind", "point"))
+        for p in card.get("points", [])
+    ))
+    return place, coords, bool(card.get("nationwide"))
+
+
+def _dedupe_points(points: list) -> list:
+    seen, out = set(), []
+    for p in points:
+        key = (round(float(p.get("x", 0)), 4), round(float(p.get("y", 0)), 4),
+               p.get("marker_kind", "point"))
+        if key not in seen:
+            seen.add(key)
+            out.append(p)
+    return out
+
+
+def _group_cards(cards: list, tok: dict) -> list:
+    """프로젝트 카드를 장소 블록으로 묶는다.
+
+    인간 작성본은 같은 장소명을 한 번만 쓰고 그 아래에 여러 사업을 이어 붙인다.
+    장소 블록은 슬롯·정렬·지시선의 단위이고, 개별 사업 카드는 편집성을 위해 최종
+    layout.json 에 다시 납작하게 저장한다.
+    """
+    by_key, groups = {}, []
+    for card in cards:
+        key = _place_group_key(card)
+        group = by_key.get(key)
+        if group is None:
+            group = {
+                "group_key": "|".join((key[0], repr(key[1]), str(key[2]))),
+                "place": card["place"],
+                "place_w": card["place_w"],
+                "points": [],
+                "nationwide": bool(card.get("nationwide")),
+                "no_leader": False,
+                "items": [],
+                "w": card["w"],
+            }
+            by_key[key] = group
+            groups.append(group)
+        group["items"].append(card)
+        group["points"].extend(card.get("points", []))
+        group["no_leader"] = group["no_leader"] or bool(card.get("no_leader"))
+        group["w"] = max(group["w"], card["w"])
+
+    name_dy = tok["card"]["name"]["dy"]
+    gap = tok["card"]["gap"]
+    for group in groups:
+        group["points"] = _dedupe_points(group["points"])
+        rows, height = [], 0.0
+        for i, source in enumerate(group["items"]):
+            row = dict(source)
+            row["group_key"] = group["group_key"]
+            row["show_place"] = i == 0
+            # 첫 사업만 지명 헤딩 아래에 놓고, 뒤 사업은 헤딩 자리를 없애 바로 잇는다.
+            row["body_dy"] = name_dy if i == 0 else 0.0
+            row["h"] = round(source["h"] - name_dy + row["body_dy"], 4)
+            rows.append(row)
+            height += row["h"]
+            if i < len(group["items"]) - 1:
+                height += gap
+        group["items"] = rows
+        group["h"] = round(height, 4)
+    return groups
+
+
+def _flatten_groups(groups: list, gap: float) -> list:
+    """배치된 장소 그룹을 렌더러용 개별 사업 카드로 되돌린다."""
+    cards = []
+    for group_index, group in enumerate(groups):
+        y = group["y"]
+        group["first_card"] = len(cards)
+        for item in group["items"]:
+            card = dict(item)
+            card.update({
+                "x": group["x"], "y": round(y, 4), "side": group["side"],
+                "group_index": group_index,
+            })
+            cards.append(card)
+            y += card["h"] + gap
+    return cards
 
 
 # ─────────────────────────────── 슬롯 ───────────────────────────────
@@ -271,9 +483,12 @@ def _card_text_boxes(placed: list, tok: dict) -> list:
     nm = tok["card"]["name"]
     boxes = []
     for i, c in enumerate(placed):
-        boxes.append((i, (c["x"] - 0.01, c["y"], c["x"] + c["place_w"], c["y"] + 0.14)))
+        if c.get("show_place", True):
+            boxes.append((i, (c["x"] - 0.01, c["y"],
+                              c["x"] + c["place_w"], c["y"] + 0.14)))
         x0 = c["x"] + nm["dx"]
-        boxes.append((i, (x0, c["y"] + nm["dy"] - 0.02, x0 + nm["w"], c["y"] + c["h"])))
+        body_y = c["y"] + c.get("body_dy", nm["dy"])
+        boxes.append((i, (x0, body_y - 0.02, x0 + nm["w"], c["y"] + c["h"])))
     return boxes
 
 
@@ -360,7 +575,7 @@ def compute(doc: dict, lang: str = "ko", index: int = 1,
         geo_prepare.build(country, detail, False)
         base = read_json(bp)
 
-    mode = choose_mode(doc, tok, lang)
+    mode = choose_mode(doc, tok, lang, resolved)
     L = tok["layout"][mode]
     map_bbox = doc.get("map_bbox") or base["bbox"]
     log(f'[{iso3}] {base["name_ko"]} 사업 {len(doc["projects"])}건 '
@@ -414,7 +629,7 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) ->
                         "lat": part["lat"], "level": part.get("level", ""),
                         "source": part.get("source", ""),
                         "coord_source": part.get("coord_source", "")})
-        card["nationwide"] = all(p.get("kind") == "nationwide" for p in rp["parts"])
+        card["nationwide"] = _is_nationwide(rp["parts"])
         card["points"] = pts
         markers.extend(pts)
         cards.append(card)
@@ -423,38 +638,37 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) ->
 
     _mark_multi_site_note(cards, lang)
 
-    linked = [c for c in cards if c["points"]]
-    free = [c for c in cards if not c["points"]]      # 전국사업 — 지시선 없음
+    groups = _group_cards(cards, tok)
 
     # 2) 슬롯 배분 — 좌측열이 넘치면 하단행으로 흘린다
-    avg_h = sum(c["h"] for c in cards) / max(len(cards), 1)
+    avg_h = sum(g["h"] for g in groups) / max(len(groups), 1)
     if mode == "A":
         cap_left = column_capacity(L["left_col"]["y0"], L["left_col"]["y1"], avg_h, gap)
         pitch = tok["card"]["name"]["w"] + tok["card"]["name"]["dx"] + 0.22
         cap_bottom = max(1, int((L["bottom_row"]["x1"] - L["bottom_row"]["x0"]) // pitch))
-        n_bottom = max(0, min(len(cards) - cap_left, cap_bottom))
-        n_left = len(cards) - n_bottom
+        n_bottom = max(0, min(len(groups) - cap_left, cap_bottom))
+        n_left = len(groups) - n_bottom
         sides = ["left"] * n_left + ["bottom"] * n_bottom
     else:
         cap_left = column_capacity(L["right_col"]["y0"], L["right_col"]["y1"], avg_h, gap)
-        n_left, n_bottom = len(cards), 0
-        sides = ["right"] * len(cards)
+        n_left, n_bottom = len(groups), 0
+        sides = ["right"] * len(groups)
 
     # 3) 배정 — 핀이 열/행 중 가까운 쪽으로 가고, 같은 쪽 안에서는 좌표순으로 놓는다
     col_x = L["left_col"]["x"] if mode == "A" else L["right_col"]["x"]
     row_y = L["bottom_row"]["y"] if mode == "A" else tok["canvas"]["h_in"]
-    idx_linked = [i for i, c in enumerate(cards) if c["points"]]
-    idx_free = [i for i, c in enumerate(cards) if not c["points"]]
-    pins = [_card_pin(cards[i]) for i in idx_linked]
+    idx_linked = [i for i, g in enumerate(groups) if g["points"]]
+    idx_free = [i for i, g in enumerate(groups) if not g["points"]]
+    pins = [_card_pin(groups[i]) for i in idx_linked]
 
     side_pick = assign_sides(pins, col_x, row_y, n_bottom)
     col_idx = [idx_linked[i] for i, s in enumerate(side_pick) if s == "col"] + idx_free
     row_idx = [idx_linked[i] for i, s in enumerate(side_pick) if s == "row"]
-    col_pins = [_card_pin(cards[i]) for i in col_idx]
-    row_pins = [_card_pin(cards[i]) for i in row_idx]
+    col_pins = [_card_pin(groups[i]) for i in col_idx]
+    row_pins = [_card_pin(groups[i]) for i in row_idx]
     # 전국사업(핀 없음)은 열 맨 아래로
-    col_sorted = [col_idx[i] for i in order_for(col_pins, 1) if cards[col_idx[i]]["points"]] \
-        + [i for i in col_idx if not cards[i]["points"]]
+    col_sorted = [col_idx[i] for i in order_for(col_pins, 1) if groups[col_idx[i]]["points"]] \
+        + [i for i in col_idx if not groups[i]["points"]]
     row_sorted = [row_idx[i] for i in order_for(row_pins, 0)]
 
     assign = {}                                  # slot_index -> card_index
@@ -466,14 +680,15 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) ->
         + ["bottom"] * len(row_sorted)
     n_left = len(col_sorted)
 
-    placed = _materialize(assign, cards, sides, mode, L, gap, tok, frame)
-    _improve(placed, mode)
+    placed_groups = _materialize(assign, groups, sides, mode, L, gap, tok, frame)
+    _improve(placed_groups, mode)
+    placed = _flatten_groups(placed_groups, gap)
 
-    # 4) 지시선 · 결과 조립 — 글자가림 검사에서 자기 카드를 빼려면 소유 카드를 달아둔다
+    # 4) 지시선 · 결과 조립 — 같은 장소의 여러 사업은 헤딩과 지시선을 한 번만 쓴다.
     leaders = []
-    for i, p in enumerate(placed):
-        for ld in _leaders_of_card(p):
-            ld["card"] = i
+    for group in placed_groups:
+        for ld in _leaders_of_card(group):
+            ld["card"] = group["first_card"]
             leaders.append(ld)
     text_hits = count_text_hits(leaders, placed, tok)
     if text_hits:
@@ -483,14 +698,16 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) ->
     for o in outside:
         warnings.append(f"슬라이드 밖으로 나갑니다: {o}")
     fits = _fits(placed, mode, L, tok)
+    country_info = {"ko": doc.get("country_ko") or base["name_ko"],
+                    "en": doc.get("country_en") or base["name_en"],
+                    "iso3": base["iso3"]}
     doc_out = {
         "canvas": {"w": tok["canvas"]["w_in"], "h": tok["canvas"]["h_in"]},
         "lang": lang, "mode": mode, "index": index,
         # 영문명은 입력에서 덮어쓸 수 있다 — Natural Earth 는 'East Timor' 지만
         # KOICA 표기는 'Timor-Leste' 다.
-        "country": {"ko": doc.get("country_ko") or base["name_ko"],
-                    "en": doc.get("country_en") or base["name_en"],
-                    "iso3": base["iso3"]},
+        "country": country_info,
+        "title": _title_layout(country_info["ko"], country_info["en"], lang, tok),
         "region": (doc.get("region", "") if lang == "ko" else
                    (doc.get("region_en")
                     or REGION_EN.get(doc.get("region", ""), doc.get("region", "")))),
@@ -512,6 +729,7 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) ->
                             **dict(zip(("x", "y"), proj(c["lon"], c["lat"])))}
                            for c in base.get("cities", [])]},
         "cards": placed,
+        "place_group_count": len(placed_groups),
         "markers": _dedupe(markers),
         "leaders": leaders,
         "legend": legend,
