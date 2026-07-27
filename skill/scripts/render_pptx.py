@@ -20,7 +20,8 @@ from pathlib import Path
 from pptx import Presentation
 from pptx.dml.color import RGBColor
 from pptx.enum.shapes import MSO_CONNECTOR, MSO_SHAPE
-from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
+from pptx.enum.text import MSO_ANCHOR, MSO_AUTO_SIZE, PP_ALIGN
+from pptx.oxml.ns import qn
 from pptx.util import Emu, Inches, Pt
 
 from common import design_tokens, log, read_json
@@ -34,6 +35,42 @@ def I(v: float) -> Emu:
 
 def rgb(hex_: str) -> RGBColor:
     return RGBColor.from_string(hex_.lstrip("#").upper())
+
+
+def _set_typefaces(run, latin: str, east_asian: str | bool | None = None,
+                   complex_font: str | None = None) -> None:
+    """python-pptx가 빠뜨리는 East Asian/complex 글꼴 정보를 명시한다.
+
+    `font.name`만 설정하면 OOXML의 ``a:latin``만 생긴다. PowerPoint for Mac은
+    이 경우 한글을 다른 글꼴로 대체해 샘플보다 크고 낮게 렌더한다.
+    """
+    run.font.name = latin
+    rpr = run._r.get_or_add_rPr()
+    ea_face = latin if east_asian is None else (
+        None if east_asian is False else east_asian
+    )
+    for tag, face in (
+        ("latin", latin),
+        ("ea", ea_face),
+        ("cs", complex_font),
+    ):
+        if not face:
+            continue
+        child = rpr.find(qn(f"a:{tag}"))
+        if child is None:
+            child = rpr.makeelement(qn(f"a:{tag}"))
+            rpr.append(child)
+        child.set("typeface", face)
+
+
+def _set_run_metrics(run, spacing: int | None = None,
+                     baseline: int | None = None) -> None:
+    rpr = run._r.get_or_add_rPr()
+    if spacing is not None:
+        rpr.set("spc", str(spacing))
+    if baseline is not None:
+        rpr.set("baseline", str(baseline))
+    rpr.set("dirty", "0")
 
 
 # ─────────────────────────────── 지도 이미지 ───────────────────────────────
@@ -80,9 +117,72 @@ def textbox(slide, x, y, w, h, text, size, color, *, bold=False, align=PP_ALIGN.
         r.text = line
         r.font.size = Pt(size)
         r.font.bold = bold
-        r.font.name = font
+        _set_typefaces(r, font)
         r.font.color.rgb = rgb(color)
     return tb
+
+
+def template_runs_textbox(slide, spec: dict, color: str,
+                          font: str = "맑은 고딕"):
+    """샘플2의 한 문단 자동맞춤 리치텍스트 상자를 그대로 만든다."""
+    tb = slide.shapes.add_textbox(
+        I(spec["x"]), I(spec["y"]), I(spec["w"]), I(spec["h"])
+    )
+    tf = tb.text_frame
+    tf.word_wrap = True
+    tf.auto_size = MSO_AUTO_SIZE.SHAPE_TO_FIT_TEXT
+    tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = 0
+
+    # 샘플 OOXML은 anchor/alignment를 지정하지 않는다. add_textbox의 기본 anchor
+    # 속성을 제거해 PowerPoint가 같은 글꼴 기준선으로 배치하게 한다.
+    body_pr = tf._txBody.bodyPr
+    body_pr.set("vert", "horz")
+    body_pr.set("wrap", "square")
+    body_pr.set("rtlCol", "0")
+    body_pr.attrib.pop("anchor", None)
+
+    p = tf.paragraphs[0]
+    p_pr = p._p.get_or_add_pPr()
+    p_pr.attrib.pop("algn", None)
+    p_pr.set("marL", str(spec.get("paragraph_margin", 8145)))
+
+    for run_spec in spec["runs"]:
+        r = p.add_run()
+        r.text = run_spec["text"]
+        r.font.size = Pt(run_spec["size"])
+        r.font.bold = True
+        r.font.color.rgb = rgb(color)
+        _set_typefaces(
+            r,
+            font,
+            east_asian=run_spec.get("east_asian"),
+            complex_font=run_spec.get("complex_font"),
+        )
+        _set_run_metrics(
+            r,
+            spacing=run_spec.get("spacing"),
+            baseline=run_spec.get("baseline"),
+        )
+    return tb
+
+
+def template_roman_textbox(slide, p: dict, roman: str, color: str):
+    spec = {
+        "x": p["label_x"], "y": p["label_y"],
+        "w": p["label_w"], "h": p["label_h"],
+        "paragraph_margin": p.get("paragraph_margin", 8145),
+        "runs": [
+            {
+                "text": ch,
+                "size": p.get("label_size", 8.98),
+                "spacing": p.get("label_spacing", 58),
+                "complex_font": "Book Antiqua",
+                "east_asian": False,
+            }
+            for ch in roman
+        ],
+    }
+    return template_runs_textbox(slide, spec, color, font="Georgia")
 
 
 def flatten(shape):
@@ -148,24 +248,27 @@ def draw_slide(prs, L: dict, tok: dict, tmp: Path, layout_path: Path) -> None:
     bd = cd["badge"]
     for card in L["cards"]:
         x, y = card["x"], card["y"]
-        textbox(slide, x, y, cd["name"]["w"], cd["place"]["h"] * 1.4,
-                card["place"], cd["place"]["size"], col["heading"], bold=True)
+        body_dy = card.get("body_dy", cd["name"]["dy"])
+        if card.get("show_place", True):
+            textbox(slide, x, y, cd["name"]["w"], cd["place"]["h"] * 1.4,
+                    card["place"], card.get("place_font", cd["place"]["size"]),
+                    col["heading"], bold=True)
         bx = x + bd["dx"]
         for k in card["badges"]:
-            by = y + bd["dy"]
+            by = y + body_dy + bd["dy"] - cd["name"]["dy"]
             rect(slide, bx, by, bd["w"], bd["h"], col["badge_bg"])
             textbox(slide, bx, by, bd["w"], bd["h"], _sym(k), bd["size"],
                     col["badge_fg"], bold=True, align=PP_ALIGN.CENTER,
                     anchor=MSO_ANCHOR.MIDDLE)
             bx += bd["w"] + bd["gap"]
         # 줄바꿈은 layout.py 가 이미 정했다. 여기서 다시 흘리면 HTML 과 달라진다.
-        textbox(slide, x + cd["name"]["dx"], y + cd["name"]["dy"] - 0.015,
-                cd["name"]["w"], card["h"], card["lines"], card["font"],
+        textbox(slide, x + cd["name"]["dx"], y + body_dy - 0.015,
+                cd["name"]["w"], card["h"] - body_dy + 0.02, card["lines"], card["font"],
                 col["body"], spacing=0.92)
         # 다중 대상지 사업의 설명 — 그 카드 안에 붙는다 (원본과 동일)
         if card.get("note"):
             textbox(slide, x + cd["name"]["dx"],
-                    y + cd["name"]["dy"] - 0.015 + len(card["lines"]) * card["line_h"],
+                    y + body_dy - 0.015 + len(card["lines"]) * card["line_h"],
                     cd["name"]["w"], card["line_h"] * 1.3, card["note"], card["font"],
                     col["area_ring"], bold=True)
 
@@ -182,64 +285,105 @@ def _sym(k: str) -> str:
     return _SYMS.get(k, k)
 
 
-def map_pin(slide, p: dict, fill: str):
-    """지도 핀 — 자유형으로 그린다.
+_PIN_OUTER_PATH = [
+    (176911, 0), (129878, 6319), (87616, 24154), (51812, 51817),
+    (24151, 87622), (6318, 129882), (0, 176910), (1180, 197439),
+    (4632, 217276), (10222, 236291), (17818, 254355), (156095, 552310),
+    (159867, 560044), (167754, 565378), (176911, 565378), (335572, 255181),
+    (349069, 217736), (353822, 176910), (347502, 129882), (329667, 87622),
+    (302004, 51817), (266199, 24154), (223939, 6319), (176911, 0),
+]
 
-    MSO_SHAPE.TEAR 를 회전시키면 기울어진 달걀이 나와 원본과 전혀 다르다.
-    render_html.pin_path 와 같은 기하를 다각형으로 근사한다(작은 크기라 충분히 매끈).
-    """
-    import math
+_PIN_INNER_PATH = [
+    (145148, 0), (99270, 7401), (59425, 28009), (28005, 59434),
+    (7399, 99281), (0, 145160), (7399, 191040), (28005, 230887),
+    (59425, 262312), (99270, 282920), (145148, 290321), (191032, 282920),
+    (230880, 262312), (262303, 230887), (282909, 191040), (290309, 145160),
+    (282909, 99281), (262303, 59434), (230880, 28009), (191032, 7401),
+    (145148, 0),
+]
 
-    import render_html as rh
-    cx, cy, r, tip = rh.pin_geometry(p)
-    d = max(tip - cy, r * 1.05)
-    a = math.pi / 2 - math.asin(min(r / d, 0.999))     # 접점까지의 각
-    pts = [(cx, tip)]
-    steps = 48
-    a0 = math.atan2(r * math.cos(a), r * math.sin(a))  # 우측 접점의 각
-    for i in range(steps + 1):                          # 접점 → 위쪽 → 반대 접점
-        th = a0 - (2 * math.pi - 2 * a0) * i / steps
-        pts.append((cx + r * math.sin(th), cy + r * math.cos(th)))
-    ff = slide.shapes.build_freeform(I(pts[0][0]), I(pts[0][1]))
-    ff.add_line_segments([(I(x), I(y)) for x, y in pts[1:]], close=True)
+
+def _source_freeform(slide, x: float, y: float, w: float, h: float,
+                     points: list[tuple[int, int]], path_w: int, path_h: int,
+                     fill: str):
+    """샘플2 자유형의 꼭짓점을 그대로 재현한다."""
+    mapped = [
+        (x + px / path_w * w, y + py / path_h * h)
+        for px, py in points
+    ]
+    ff = slide.shapes.build_freeform(I(mapped[0][0]), I(mapped[0][1]))
+    ff.add_line_segments([(I(px), I(py)) for px, py in mapped[1:]], close=True)
     s = flatten(ff.convert_to_shape())
+    # 원본 path 좌표의 마지막 점이 path w/h보다 약간 안쪽이므로 xfrm은 실측
+    # 바운드로 다시 고정한다.
+    s.left, s.top, s.width, s.height = I(x), I(y), I(w), I(h)
     s.fill.solid()
     s.fill.fore_color.rgb = rgb(fill)
     s.line.fill.background()
     s.shadow.inherit = False
-    return cx, cy
+    return s
+
+
+def map_pin(slide, p: dict, fill: str):
+    """샘플2의 보라 물방울 자유형을 동일한 꼭짓점으로 그린다."""
+    return _source_freeform(
+        slide, p["x"], p["y"], p["w"], p["h"],
+        _PIN_OUTER_PATH, 354330, 565785, fill,
+    )
+
+
+def map_pin_inner(slide, p: dict):
+    """샘플2의 흰 내부 타원도 프리셋 원이 아닌 원본 자유형으로 그린다."""
+    return _source_freeform(
+        slide,
+        p["inner_x"], p["inner_y"], p["inner_w"], p["inner_h"],
+        _PIN_INNER_PATH, 290830, 290830, "FFFFFF",
+    )
+
+
+def outline_box(slide, x: float, y: float, w: float, h: float,
+                color: str, line_w: float):
+    """인간 작성본과 같은 자유형 사각 테두리."""
+    ff = slide.shapes.build_freeform(I(x), I(y))
+    ff.add_line_segments([
+        (I(x + w), I(y)),
+        (I(x + w), I(y + h)),
+        (I(x), I(y + h)),
+    ], close=True)
+    shape = flatten(ff.convert_to_shape())
+    shape.fill.background()
+    shape.line.color.rgb = rgb(color)
+    shape.line.width = Pt(line_w)
+    shape.shadow.inherit = False
+    return shape
 
 
 def draw_title(slide, L: dict, tok: dict) -> None:
     t, col = tok["title"], tok["color"]
     p, b = t["pin"], t["box"]
-    rect(slide, b["x"], b["y"], b["w"], b["h"], None, col["region_tab"], 1.2)
-    # 핀 = 보라 물방울 + 흰 원 + 로마숫자 (원본은 도형 3개다)
-    cx, cy = map_pin(slide, p, col["region_tab"])
-    ri = p.get("inner_d", p["w"] * 0.82) / 2
-    rect(slide, cx - ri, cy - ri, ri * 2, ri * 2, "FFFFFF", None, shape=MSO_SHAPE.OVAL)
-    textbox(slide, cx - ri, cy - ri, ri * 2, ri * 2, _roman(L.get("index", 1)),
-            p.get("label_size", 8.98), col["region_tab"],
-            align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
 
-    tb = slide.shapes.add_textbox(I(b["x"] + t["text"]["dx"]), I(b["y"]),
-                                  I(b["w"]), I(b["h"]))
-    tf = tb.text_frame
-    tf.word_wrap = False
-    tf.margin_left = tf.margin_top = tf.margin_bottom = 0
-    tf.vertical_anchor = MSO_ANCHOR.MIDDLE
-    para = tf.paragraphs[0]
-    if L["lang"] == "ko":
-        pairs = [(L["country"]["ko"], t["text"]["size_ko"]),
-                 ("  " + L["country"]["en"], t["text"]["size_en"])]
-    else:
-        pairs = [(L["country"]["en"], t["text"]["size_ko"])]
-    for text, size in pairs:
-        r = para.add_run()
-        r.text = text
-        r.font.size = Pt(size)
-        r.font.name = "맑은 고딕"
-        r.font.color.rgb = rgb(col["heading"])
+    # 원본 z-order: 제목 텍스트 → 박스 → 물방울 → 흰 타원 → 로마숫자.
+    # 박스를 먼저 그리면 긴 `ㅣ` 획이 아래선을 검게 덮어 사용자 눈에 겹침으로 보인다.
+    spec = L.get("title")
+    if spec and spec.get("runs"):
+        template_runs_textbox(
+            slide, spec, col.get("title", col["heading"]), font="맑은 고딕"
+        )
+    else:  # 예전 layout.json 호환
+        text = L["country"]["ko"] if L["lang"] == "ko" else L["country"]["en"]
+        textbox(slide, b["x"] + 0.69, b["y"], b["w"] - 0.7, b["h"],
+                text, 14.11, col["heading"], bold=True, anchor=MSO_ANCHOR.MIDDLE)
+
+    outline_box(slide, b["x"], b["y"], b["w"], b["h"],
+                col["region_tab"], b.get("line_w", 1.2))
+    # 핀 = 보라 물방울 + 흰 타원 + 별도 로마숫자 상자. 세 도형의 실측 좌표가
+    # 서로 다르므로 원 중심으로 재계산하지 않는다.
+    map_pin(slide, p, col["region_tab"])
+    map_pin_inner(slide, p)
+    template_roman_textbox(
+        slide, p, _roman(L.get("index", 1)), col["region_tab"]
+    )
 
 
 def _roman(n: int) -> str:
@@ -255,7 +399,8 @@ def draw_region_tab(slide, L: dict, tok: dict) -> None:
     if not L.get("region"):
         return
     r, col = tok["region_tab"], tok["color"]
-    rect(slide, r["x"], r["y"], r["w"], r["h"], col["region_tab_bg"])
+    rect(slide, r.get("rail_x", r["x"]), r.get("rail_y", r["y"]),
+         r.get("rail_w", r["w"]), r.get("rail_h", r["h"]), col["region_tab_bg"])
     tb = textbox(slide, r["x"] - (r["h"] - r["w"]) / 2, r["y"] + (r["h"] - r["w"]) / 2,
                  r["h"], r["w"], L["region"], r["size"], col["region_tab"],
                  align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
@@ -285,7 +430,7 @@ def draw_legend(slide, L: dict, tok: dict) -> None:
                     lg["swatch"] + 0.06, h, list(it["label"]), it["size"],
                     col["body"], align=PP_ALIGN.CENTER, spacing=0.9)
     pn = lg["page_num"]
-    textbox(slide, pn["x"], pn["y"] - 0.14, 0.3, 0.2, str(L.get("index", 1)),
+    textbox(slide, pn["x"], pn["y"] - 0.14, 0.3, 0.2, f'{L.get("index", 1):02d}',
             pn["size"], col["body"])
 
 
