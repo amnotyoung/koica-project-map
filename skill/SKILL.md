@@ -1,6 +1,6 @@
 ---
 name: koica-project-map
-description: KOICA 연도별 프로젝트맵(사업 위치 지도) 자동 생성 스킬. 사업 목록을 주면 지명→좌표 해석, 카드 배치, 지시선 라우팅을 자동 수행해 PPTX·PDF·HTML로 출력한다. 트리거 키워드 — "프로젝트맵 그려줘", "코이카 사업 지도", "국가별 사업현황 지도", "프로젝트맵 만들어줘", "사업 위치도", "koica-project-map 스킬로 ~". 사용자가 특정 국가의 KOICA 사업들을 지도 위에 카드·지시선으로 표시한 슬라이드를 원할 때 사용.
+description: KOICA 연도별 프로젝트맵(사업 위치 지도) 자동 생성 스킬. 국가 전체 또는 국가 내 특정 시·도·도시 범위에서 지명→좌표 해석, 상세 지도 생성, 카드 배치, 지시선 라우팅을 수행해 PPTX·PDF·HTML로 출력한다. 트리거 키워드 — "프로젝트맵 그려줘", "코이카 사업 지도", "국가별 사업현황 지도", "도시·시도 사업 지도", "프로젝트맵 만들어줘", "사업 위치도", "koica-project-map 스킬로 ~". 사용자가 KOICA 사업들을 지도 위에 카드·지시선으로 표시한 슬라이드를 원할 때 사용.
 ---
 
 # koica-project-map — KOICA 프로젝트맵 자동 생성
@@ -17,7 +17,8 @@ description: KOICA 연도별 프로젝트맵(사업 위치 지도) 자동 생성
 **(a) 사이트에서 받아 고르기 — 권장**
 
 ```bash
-python scripts/pick_projects.py --country 네팔 --year 2026 --out projects.json
+skill/.venv/bin/python skill/scripts/pick_projects.py \
+  --country 네팔 --year 2026 --out projects.json
 ```
 
 oda-map-lab 에서 그 국가 KOICA 사업을 **전부** 끌어와 브라우저 체크박스 UI 를 연다.
@@ -61,8 +62,15 @@ oda-map-lab 에서 그 국가 KOICA 사업을 **전부** 끌어와 브라우저 
 | `kind` | (선택) 지명 해석을 `point` / `area`로 강제. 마커 종류와는 무관 |
 | `place_en` | (선택) 영문 지명 직접 지정. 없으면 해석된 라틴 표기를 자동 사용 |
 | `country_en` | (선택) 국가 영문명. Natural Earth 표기가 KOICA 관례와 다를 때 (`East Timor` → `Timor-Leste`) |
-| `map_bbox` | (선택) `[서, 남, 동, 북]` 지도 범위. 외곽 섬 때문에 사업지가 너무 작아지는 섬나라에서만 사용 |
+| `map_bbox` | (선택) `[서, 남, 동, 북]` 지도 범위. 도시·시도급 확대 지도 또는 외곽 섬을 제외할 때 사용 |
+| `map_density` | (선택) `standard` / `city`, 기본 `city`. 국가 전체와 도시·시도 지도 모두 5배 타일 밀도와 상세 도로·철도·토지피복을 사용 |
 | `source_coord` | (자동) oda-map-lab 비폴백 좌표와 출처. 수집·수정 화면이 보존하며 직접 작성할 필요 없음 |
+
+**도시·시도급 지도는 `map_bbox`를 반드시 지정한다.** `map_density`는 보통 적지 않는다.
+국가 전체와 사용자 지정 범위 모두 과테말라시티 참조본 수준의 `city` 상세도가 기본이다.
+전국 범위에서는 같은 피처 상세도를 유지하되 도로·하천 선을 축척에 맞춰 자동으로
+가늘게 해 지시선과 사업 마커를 우선한다. 사용자가 단순화·경량 출력을 명시한 경우에만
+`standard`로 낮춘다.
 
 **같은 장소 사업은 입력에서 합치지 않는다.** 사업 레코드와 분야 배지는 각각 보존하고,
 배치 엔진이 같은 지명·같은 좌표를 하나의 장소 블록으로 묶는다. 출력에서는 지명 헤딩과
@@ -74,7 +82,8 @@ oda-map-lab 에서 그 국가 KOICA 사업을 **전부** 끌어와 브라우저 
 ### 2. 생성
 
 ```bash
-skill/.venv/bin/python scripts/make_map.py --input projects.json --outdir out --lang ko en
+skill/.venv/bin/python skill/scripts/make_map.py \
+  --input projects.json --outdir out --lang ko en
 ```
 
 지명 해석 → 배치 → HTML/PDF/PPTX 까지 한 번에 처리한다. 국가별 JSON 을 여러 개 넘기면
@@ -102,7 +111,8 @@ skill/.venv/bin/python scripts/make_map.py --input projects.json --outdir out --
 2. **그래도 안 되면 사용자에게 묻는다.** 추측해서 엉뚱한 곳에 찍지 말 것
 3. **좌표를 알면 사전에 등록** — 한 번 넣으면 계속 재사용된다
    ```bash
-   python scripts/resolve_places.py --country 네팔 --set 바디바스 85.90 27.07 --set-kind point
+   skill/.venv/bin/python skill/scripts/resolve_places.py \
+     --country 네팔 --set 바디바스 85.90 27.07 --set-kind point
    ```
 
 ### 4. 확인 · 조정
@@ -129,7 +139,8 @@ skill/.venv/bin/python scripts/make_map.py --input projects.json --outdir out --
   줄 수의 판정에 사용하지 않는다. OOXML에 한 문단·두 런·줄바꿈 없음이 있는지 검사하고,
   최종 기준은 Microsoft PowerPoint 표시다.
 
-**PowerPoint 자체 렌더 검증을 생략하지 않는다.**
+**PPTX를 생성한 요청에서는 PowerPoint 자체 렌더 검증을 생략하지 않는다.**
+사용자가 HTML·PDF·layout JSON만 요청해 PPTX를 만들지 않은 실행에는 적용하지 않는다.
 
 - macOS에 `/Applications/Microsoft PowerPoint.app`이 있으면 PPTX를 PowerPoint에서
   열어 PDF로 내보내고, `pdftoppm`으로 PNG를 만든 뒤 제목·카드·범례를 눈으로 확인한다.
@@ -167,7 +178,7 @@ skill/.venv/bin/python scripts/make_map.py --input projects.json --outdir out --
 - 사용자가 원하면 이번 생성에 사용한 **최종 입력 JSON**을 초안으로 편집 화면을 연다.
   원천 수집 초안을 다시 열어 수동 보정값을 잃지 않는다.
   ```bash
-  skill/.venv/bin/python scripts/pick_projects.py \
+  skill/.venv/bin/python skill/scripts/pick_projects.py \
     --draft <최종입력.json> --out <이름>_edited.json
   ```
 - 로그에 나온 로컬 URL을 브라우저에 열고, 기존 선택·지명·배지·국영문 사업명이 채워졌는지
@@ -181,7 +192,8 @@ skill/.venv/bin/python scripts/make_map.py --input projects.json --outdir out --
 있던 지점을 이번에 정밀화했다는 뜻이다. 사용자에게 알리고 원하면 파일을 만들어 준다.
 
 ```bash
-python scripts/contribute.py --layout out/<이름>_ko.layout.json --author "이름"
+skill/.venv/bin/python skill/scripts/contribute.py \
+  --layout out/<이름>_ko.layout.json --author "이름"
 ```
 
 `koica-contrib` 규격(schema v2) JSON 이 나온다. 국가폴백이던 지점은 `corrects` 로 묶여

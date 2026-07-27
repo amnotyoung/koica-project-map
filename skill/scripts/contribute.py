@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import shlex
 import sys
 import time
 from datetime import date
@@ -107,7 +108,12 @@ def suggest(layout_path: Path, country: str, n_points: int, n_fallback: int) -> 
     log(f"  {country} 사업 위치 {n_points}곳을 확인하셨습니다. 그중 {n_fallback}곳은")
     log(f"  oda-map-lab 에서 아직 **국가 중심점**으로만 표시되는 지점입니다.")
     log(f"  기여 파일을 만들려면:")
-    log(f"    python scripts/contribute.py --layout {layout_path} --author \"이름\"")
+    cmd = (
+        f"{shlex.quote(sys.executable)} "
+        f"{shlex.quote(str(Path(__file__).resolve()))} "
+        f"--layout {shlex.quote(str(layout_path))} --author \"이름\""
+    )
+    log(f"    {cmd}")
     log(f"  (파일만 만듭니다. 제출은 {CONTRIBUTOR_PAGE} 에서 직접 하세요)")
 
 
