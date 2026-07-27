@@ -56,6 +56,7 @@
     <b>지명은 원본 데이터의 그룹 라벨에서 뽑은 추정값입니다.</b> 실제 대상지와 다를 수 있으니
     확인해 주세요 — 여러 곳이면 <code>/</code> 로 잇고(<code>카트만두/부트왈</code>),
     주·군 단위면 끝에 <code>주</code>·<code>지역</code>을 붙이면 지명 해석에 반영됩니다.
+    국가 중심점 폴백 좌표는 사용하지 않고, 그 밖의 원천 좌표는 지명이 바뀌지 않을 때 사용합니다.
     마커는 행정단위와 무관하게 대상지 1곳이면 빨간 점, 2곳 이상이면 초록 원으로 표시됩니다.
   </div>
   <table>
@@ -88,6 +89,11 @@ document.getElementById('reg').value = DATA.region || '';
 
 function esc(s){ return (s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function money(v){ return v ? (v/1e8).toFixed(1) + '억' : ''; }
+function coordHint(r){
+  if (r.source_coord) return `원천 좌표 사용 · ${esc(r.source_coord.source)}`;
+  if (r._coord_source === '국가(폴백)') return '국가 중심점 제외 · 지명에서 좌표 재해석';
+  return '';
+}
 function updateCount(){
   document.getElementById('cnt').textContent =
     `${rows.filter(r=>r.selected).length} / ${rows.length} 건 선택`;
@@ -99,7 +105,8 @@ function render(){
       <td><input type="checkbox" class="sel" ${r.selected ? 'checked' : ''}>
           ${r._added ? '<button class="del" title="이 행 삭제">✕</button>' : ''}</td>
       <td><input type="text" class="place" value="${esc(r.place)}">
-          <div class="hint">${r._added ? '직접 추가' : esc(r._period||'')+' '+money(r._budget_krw)+' '+esc(r._aid||'')}</div></td>
+          <div class="hint">${r._added ? '직접 추가' : esc(r._period||'')+' '+money(r._budget_krw)+' '+esc(r._aid||'')}</div>
+          ${coordHint(r) ? `<div class="hint">${coordHint(r)}</div>` : ''}</td>
       <td><div class="badges">${BADGES.map(([k,ko]) => `
             <label class="${(r.badges||[]).includes(k)?'on':''}">
               <input type="checkbox" class="bg" data-k="${k}" ${(r.badges||[]).includes(k)?'checked':''}>${k}</label>`).join('')}</div>
@@ -159,7 +166,8 @@ document.getElementById('save').onclick = async () => {
         ...(r.name_en ? {name_en: r.name_en} : {}),
         ...(r.place === r._original_place && r.aliases ? {aliases: r.aliases} : {}),
         ...(r.place === r._original_place && r.kind ? {kind: r.kind} : {}),
-        ...(r.place === r._original_place && r.place_en ? {place_en: r.place_en} : {})
+        ...(r.place === r._original_place && r.place_en ? {place_en: r.place_en} : {}),
+        ...(r.place === r._original_place && r.source_coord ? {source_coord: r.source_coord} : {})
       }))
     })});
   document.querySelector('header').style.display='none';

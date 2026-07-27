@@ -411,7 +411,9 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) ->
             pts.append({"x": xy[0], "y": xy[1], "kind": part["kind"],
                         "marker_kind": marker_kind,
                         "name": part["matched"], "lon": part["lon"],
-                        "lat": part["lat"], "level": part.get("level", "")})
+                        "lat": part["lat"], "level": part.get("level", ""),
+                        "source": part.get("source", ""),
+                        "coord_source": part.get("coord_source", "")})
         card["nationwide"] = all(p.get("kind") == "nationwide" for p in rp["parts"])
         card["points"] = pts
         markers.extend(pts)
