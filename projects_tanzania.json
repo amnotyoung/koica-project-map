@@ -1,0 +1,359 @@
+{
+ "country": "탄자니아",
+ "country_en": "Tanzania",
+ "region": "아프리카",
+ "source": "https://oda-map-lab.pages.dev/generated/map-base.json",
+ "fetched_at": "2026-07-28",
+ "projects": [
+  {
+   "place": "모로고로",
+   "badges": [
+    "E"
+   ],
+   "name_ko": "탄자니아 모로고로 주 폴리텍대학 건립 및 기술교육훈련 사업('25-'30/1,950만불)",
+   "name_en": "Establishment of Morogoro Polytechnic College and Improving Provision of Technical and Vocational Education and Training in Tanzania",
+   "source_coord": {
+    "place": "모로고로",
+    "lat": -6.81616,
+    "lon": 37.66939,
+    "source": "도시"
+   }
+  },
+  {
+   "place": "다레살람",
+   "badges": [
+    "H"
+   ],
+   "name_ko": "탄자니아 다르에스살람 주 고위험 산모 및 신생아 관리 서비스 개선을 통한 통합적 모자보건 개선사업('25-'29/1,450만불)",
+   "name_en": "Project for Strengthening high-risk maternal and neonatal care services in Dar es salaam",
+   "source_coord": {
+    "place": "다레살람",
+    "lat": -6.82349,
+    "lon": 39.26951,
+    "source": "도시(음차)"
+   }
+  },
+  {
+   "place": "프와니",
+   "badges": [
+    "T"
+   ],
+   "name_ko": "탄자니아 프와니주 농촌지역 상수도 공급시설 구축 사업('25-'29/1,100만불)",
+   "name_en": "Project for Establishment of Water Supply System in Rural Areas of Pwani Region, Tanzania",
+   "source_coord": {
+    "place": "프와니",
+    "lat": -7.25,
+    "lon": 38.83333,
+    "source": "도시(음차)"
+   }
+  },
+  {
+   "place": "잔지바르",
+   "badges": [
+    "A"
+   ],
+   "name_ko": "탄자니아 잔지바르 향신료 가치사슬 개발사업('26-'30/1,000만불)",
+   "name_en": "Zanzibar Spice Value Chain Development Project"
+  },
+  {
+   "place": "도도마",
+   "badges": [
+    "E"
+   ],
+   "name_ko": "탄자니아 중학교 STEM 모델학교 구축을 통한 과학기술 중등교육 증진사업(`23-`27/1,000만불)",
+   "name_en": "Strengthening STEM Education in Tanzania",
+   "source_coord": {
+    "place": "도도마",
+    "lat": -6.17912,
+    "lon": 35.74682,
+    "source": "도시"
+   }
+  },
+  {
+   "place": "모로고로",
+   "badges": [
+    "H"
+   ],
+   "name_ko": "탄자니아 보건분야 공동재정지원 프로그램 3차사업('22-'25/900만불)",
+   "name_en": "Tanzania Health Basket Fund Program (Phase 3)",
+   "source_coord": {
+    "place": "모로고로",
+    "lat": -6.81616,
+    "lon": 37.66939,
+    "source": "도시"
+   }
+  },
+  {
+   "place": "프와니",
+   "badges": [
+    "H"
+   ],
+   "name_ko": "탄자니아 보건분야 공동재정지원 프로그램 3차사업('22-'25/900만불)",
+   "name_en": "Tanzania Health Basket Fund Program (Phase 3)",
+   "source_coord": {
+    "place": "프와니",
+    "lat": -7.25,
+    "lon": 38.83333,
+    "source": "도시(음차)"
+   }
+  },
+  {
+   "place": "다레살람",
+   "badges": [
+    "H"
+   ],
+   "name_ko": "탄자니아 보건분야 공동재정지원 프로그램 3차사업('22-'25/900만불)",
+   "name_en": "Tanzania Health Basket Fund Program (Phase 3)",
+   "source_coord": {
+    "place": "다레살람",
+    "lat": -6.82349,
+    "lon": 39.26951,
+    "source": "도시(음차)"
+   }
+  },
+  {
+   "place": "도도마",
+   "badges": [
+    "H"
+   ],
+   "name_ko": "탄자니아 보건분야 공동재정지원 프로그램 3차사업('22-'25/900만불)",
+   "name_en": "Tanzania Health Basket Fund Program (Phase 3)",
+   "source_coord": {
+    "place": "도도마",
+    "lat": -6.17912,
+    "lon": 35.74682,
+    "source": "도시"
+   }
+  },
+  {
+   "place": "키본도",
+   "badges": [
+    "H"
+   ],
+   "name_ko": "탄자니아 보건분야 공동재정지원 프로그램 3차사업('22-'25/900만불)",
+   "name_en": "Tanzania Health Basket Fund Program (Phase 3)",
+   "source_coord": {
+    "place": "키본도",
+    "lat": -4.07833,
+    "lon": 31.0089,
+    "source": "도시(음차)"
+   },
+   "place_en": "Kibondo"
+  },
+  {
+   "place": "므완자",
+   "badges": [
+    "H"
+   ],
+   "name_ko": "탄자니아 보건분야 공동재정지원 프로그램 3차사업('22-'25/900만불)",
+   "name_en": "Tanzania Health Basket Fund Program (Phase 3)",
+   "source_coord": {
+    "place": "므완자",
+    "lat": -2.51667,
+    "lon": 32.9,
+    "source": "도시(음차)"
+   },
+   "place_en": "Mwanza"
+  },
+  {
+   "place": "탕가",
+   "badges": [
+    "H"
+   ],
+   "name_ko": "탄자니아 보건분야 공동재정지원 프로그램 3차사업('22-'25/900만불)",
+   "name_en": "Tanzania Health Basket Fund Program (Phase 3)",
+   "source_coord": {
+    "place": "탕가",
+    "lat": -5.06893,
+    "lon": 39.09875,
+    "source": "도시(음차)"
+   }
+  },
+  {
+   "place": "싱기다",
+   "badges": [
+    "H"
+   ],
+   "name_ko": "탄자니아 보건분야 공동재정지원 프로그램 3차사업('22-'25/900만불)",
+   "name_en": "Tanzania Health Basket Fund Program (Phase 3)",
+   "source_coord": {
+    "place": "싱기다",
+    "lat": -4.81629,
+    "lon": 34.74358,
+    "source": "도시(음차)"
+   }
+  },
+  {
+   "place": "세렝게티",
+   "badges": [
+    "H"
+   ],
+   "name_ko": "탄자니아 보건분야 공동재정지원 프로그램 3차사업('22-'25/900만불)",
+   "name_en": "Tanzania Health Basket Fund Program (Phase 3)",
+   "source_coord": {
+    "place": "세렝게티",
+    "lat": -1.98342,
+    "lon": 34.71762,
+    "source": "도시(음차)"
+   }
+  },
+  {
+   "place": "바바티",
+   "badges": [
+    "H"
+   ],
+   "name_ko": "탄자니아 보건분야 공동재정지원 프로그램 3차사업('22-'25/900만불)",
+   "name_en": "Tanzania Health Basket Fund Program (Phase 3)",
+   "source_coord": {
+    "place": "바바티",
+    "lat": -4.21667,
+    "lon": 35.75,
+    "source": "도시(음차)"
+   }
+  },
+  {
+   "place": "키바하",
+   "badges": [
+    "H"
+   ],
+   "name_ko": "탄자니아 보건분야 공동재정지원 프로그램 3차사업('22-'25/900만불)",
+   "name_en": "Tanzania Health Basket Fund Program (Phase 3)",
+   "source_coord": {
+    "place": "키바하",
+    "lat": -6.76667,
+    "lon": 38.91667,
+    "source": "도시(음차)"
+   }
+  },
+  {
+   "place": "신양가",
+   "badges": [
+    "H"
+   ],
+   "name_ko": "탄자니아 보건분야 공동재정지원 프로그램 3차사업('22-'25/900만불)",
+   "name_en": "Tanzania Health Basket Fund Program (Phase 3)",
+   "source_coord": {
+    "place": "신양가",
+    "lat": -3.66393,
+    "lon": 33.42118,
+    "source": "도시(음차)"
+   }
+  },
+  {
+   "place": "버가모요",
+   "badges": [
+    "H"
+   ],
+   "name_ko": "탄자니아 보건분야 공동재정지원 프로그램 3차사업('22-'25/900만불)",
+   "name_en": "Tanzania Health Basket Fund Program (Phase 3)",
+   "source_coord": {
+    "place": "버가모요",
+    "lat": -6.44222,
+    "lon": 38.90422,
+    "source": "도시(음차)"
+   },
+   "place_en": "Bagamoyo"
+  },
+  {
+   "place": "키논도니",
+   "badges": [
+    "H"
+   ],
+   "name_ko": "탄자니아 보건분야 공동재정지원 프로그램 3차사업('22-'25/900만불)",
+   "name_en": "Tanzania Health Basket Fund Program (Phase 3)",
+   "source_coord": {
+    "place": "키논도니",
+    "lat": -6.71666,
+    "lon": 39.14437,
+    "source": "도시(음차)"
+   }
+  },
+  {
+   "place": "도도마",
+   "badges": [
+    "H"
+   ],
+   "name_ko": "탄자니아 도도마주 보건의료정보체계(GoT-HoMIS) 확산 사업('21-'25/620만불)",
+   "name_en": "Project for e-health system(GoT-HoMIS) expansion in the Dodoma Region of Tanzania",
+   "source_coord": {
+    "place": "도도마",
+    "lat": -6.17912,
+    "lon": 35.74682,
+    "source": "도시"
+   }
+  },
+  {
+   "place": "키본도",
+   "badges": [
+    "A"
+   ],
+   "name_ko": "WFP 탄자니아 난민 호스트 커뮤니티 내 영세농 농업가치사슬, 양성평등, 평화 강화 사업('22-'26/600만불)",
+   "name_en": "WFP Strengthening Agriculture Value Chain, Gender Equality and Peace in Refugee Hosting Districts in Tanzania",
+   "source_coord": {
+    "place": "키본도",
+    "lat": -3.58391,
+    "lon": 30.72134,
+    "source": "도시"
+   },
+   "place_en": "Kibondo"
+  },
+  {
+   "place": "잔지바르",
+   "badges": [
+    "A"
+   ],
+   "name_ko": "탄자니아 잔지바르 해양수산분야 가치사슬 구축 및 소득증대를 통한 여성 권익 강화 사업('23-'27/550만불)",
+   "name_en": "Women Empowerment in Integrated Maricutlure Value Chains in Zanzibar",
+   "source_coord": {
+    "place": "잔지바르",
+    "lat": -6.16649,
+    "lon": 39.20743,
+    "source": "도시"
+   }
+  },
+  {
+   "place": "전지역",
+   "badges": [
+    "T"
+   ],
+   "name_ko": "탄자니아 고속도로 마스터플랜 수립 및 고속도로 개발 역량강화 사업('25-'28/500만불)",
+   "name_en": "Project for Establishment of Tanzania National Expressway Master Plan and Enhancement of Human Resource Capacities"
+  },
+  {
+   "place": "도도마",
+   "badges": [
+    "H"
+   ],
+   "name_ko": "탄자니아 보건분야 공동재정지원 프로그램 4차사업('26-'28/500만불)",
+   "name_en": "Tanzania Health Basket Fund Program (Phase 4)"
+  },
+  {
+   "place": "다레살람",
+   "badges": [
+    "E"
+   ],
+   "name_ko": "탄자니아 학교 밖 청소년을 위한 포용적 교육사업(`22-`27/600만불)",
+   "name_en": "Integrated Programme for Out-of-School Adolescents in Tanzania",
+   "source_coord": {
+    "place": "다레살람",
+    "lat": -6.82349,
+    "lon": 39.26951,
+    "source": "도시(음차)"
+   }
+  },
+  {
+   "place": "도도마",
+   "badges": [
+    "T"
+   ],
+   "name_ko": "탄자니아 도도마주 유수율 제고 시범모델 구축 및 상수도 시설 개선사업('23-'26/382만불)",
+   "name_en": "Establishment of Model of Water Supply Facilities for Urban and Rural Areas in Tanzania(Dodoma City and Arusha Rural Areas)",
+   "source_coord": {
+    "place": "도도마",
+    "lat": -6.17912,
+    "lon": 35.74682,
+    "source": "도시"
+   }
+  }
+ ]
+}

@@ -403,8 +403,11 @@ def draw_notes(L: dict, tok: dict) -> str:
 
 
 def draw_credit(L: dict, tok: dict) -> str:
+    tile_credit = ("Map tiles © OpenStreetMap contributors"
+                   if L.get("lang") == "en"
+                   else "지도 타일 © OpenStreetMap contributors")
     src = ("Natural Earth · geoBoundaries (CC BY) · GeoNames (CC BY)"
-           + (" · 지도 타일 © OpenStreetMap contributors" if L["map"].get("tiles") else ""))
+           + (f" · {tile_credit}" if L["map"].get("tiles") else ""))
     return (f'<text x="0.22" y="{tok["canvas"]["h_in"]-0.16:.4f}" '
             f'font-size="{4.6*PT:.5f}" fill="#B4B4B4">{esc(src)}</text>')
 

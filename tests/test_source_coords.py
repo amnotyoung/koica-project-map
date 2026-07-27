@@ -30,6 +30,12 @@ def member(fid: str) -> dict:
 
 
 class FetchSourceCoordTests(unittest.TestCase):
+    def test_place_guess_removes_duplicate_group_labels(self):
+        self.assertEqual(
+            fetch_projects._place_guess("도도마, 도도마 (진행)"),
+            "도도마",
+        )
+
     def test_collect_keeps_nonfallback_and_drops_country_fallback(self):
         data = {
             "features": [
