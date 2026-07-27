@@ -7,8 +7,10 @@
 그룹 라벨을 그대로 옮긴 것이라 실제 대상지와 다를 수 있다(`룸비니` 그룹에 버르디야
 사업이 들어 있는 식). 반드시 pick_projects.py 로 사람이 확인·수정해야 한다.
 
-좌표는 가져오지 않는다. 이 데이터의 좌표는 43% 가 국가 중심점 폴백이라 쓸 수 없고,
-우리는 지명만 받아 resolve_places 로 다시 푼다.
+좌표는 `details.source` 를 함께 보고 선별한다. `국가(폴백)` 좌표는 버리고 지명에서
+다시 풀지만, 도시·도시(음차)·IATI 원본(공식좌표)은 `source_coord` 로 보존한다.
+여러 대상지를 한 점으로 묶은 그룹은 그 좌표만으로 모든 지점을 표현할 수 없으므로
+resolve_places 가 각 지명을 다시 푼다.
 """
 from __future__ import annotations
 
@@ -35,6 +37,7 @@ MAIN_BUDGET_KRW = 3_000_000_000     # 30억원. 봉사단·연수·소규모 민
 REGION_TAB = {"아시아": "아시아태평양", "오세아니아": "아시아태평양",
               "중남미": "중남미", "아프리카": "아프리카",
               "중동": "중동·CIS", "동구 및 CIS": "동구·CIS"}
+COUNTRY_FALLBACK = "국가(폴백)"
 
 
 def load_source(force: bool = False) -> dict:
@@ -76,6 +79,21 @@ def _period(de: dict) -> str:
     return f"{a}-{b}" if a and b else (a or b or "")
 
 
+def _trusted_source_coord(feature: dict, place: str) -> dict | None:
+    """국가 중심점 폴백이 아닌 유효한 WGS84 좌표만 보존한다."""
+    source = str(feature.get("details", {}).get("source") or "").strip()
+    if not source or source == COUNTRY_FALLBACK:
+        return None
+    try:
+        lat, lon = float(feature["lat"]), float(feature["lon"])
+    except (KeyError, TypeError, ValueError):
+        return None
+    if not (-90 <= lat <= 90 and -180 <= lon <= 180):
+        return None
+    return {"place": place, "lat": round(lat, 6), "lon": round(lon, 6),
+            "source": source}
+
+
 def collect(country: str, year: int | None, include_all: bool,
             force: bool = False) -> dict:
     data = load_source(force)
@@ -94,6 +112,8 @@ def collect(country: str, year: int | None, include_all: bool,
         other = "other" in f["layer"]
         m = re.search(r"·\s*(.+?)\s*$", f["name"]["ko"])
         place = _place_guess(m.group(1) if m else "")
+        coord_source = str(f.get("details", {}).get("source") or "").strip()
+        source_coord = _trusted_source_coord(f, place)
         for mem in f.get("members", []):
             de = mem.get("details", {})
             agency = str(de.get("agency") or "")
@@ -113,7 +133,7 @@ def collect(country: str, year: int | None, include_all: bool,
                     continue
             main = (de.get("aid") == MAIN_AID and "KOICA" in agency
                     and budget >= MAIN_BUDGET_KRW and not done and not other)
-            rows.append({
+            row = {
                 "selected": main,
                 "place": place,
                 "badges": [b for b in [_badge(de.get("sector", ""), sm)] if b],
@@ -128,7 +148,12 @@ def collect(country: str, year: int | None, include_all: bool,
                 "_done": done,
                 "_other": other,
                 "_id": fid,
-            })
+            }
+            if coord_source:
+                row["_coord_source"] = coord_source
+            if source_coord:
+                row["source_coord"] = dict(source_coord)
+            rows.append(row)
 
     rows.sort(key=lambda r: (not r["selected"], -r["_budget_krw"]))
     log(f'[{country}] KOICA 사업 {len(rows)}건 수집 '
