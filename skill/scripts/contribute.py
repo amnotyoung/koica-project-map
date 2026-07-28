@@ -3,7 +3,7 @@
     python contribute.py --layout out/nepal_ko.layout.json --author "홍길동"
 
 지도를 다 만들었다는 건 그 국가 사업들의 위치를 사람이 확인했다는 뜻이다.
-그 좌표는 원천 데이터의 약점(사업 지점 43%가 국가 중심점 폴백)을 그대로 메운다.
+그 좌표는 원천 데이터에서 `국가(폴백)`으로 남은 사업 지점을 정밀화한다.
 
 **전송하지 않는다.** koica-contrib 규격 JSON 을 파일로 만들 뿐이고, 제출은
 사용자가 직접 한다. 남의 서비스로 데이터를 보내는 일은 사람이 결정할 몫이다.
@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import shlex
 import sys
 import time
 from datetime import date
@@ -107,7 +108,12 @@ def suggest(layout_path: Path, country: str, n_points: int, n_fallback: int) -> 
     log(f"  {country} 사업 위치 {n_points}곳을 확인하셨습니다. 그중 {n_fallback}곳은")
     log(f"  oda-map-lab 에서 아직 **국가 중심점**으로만 표시되는 지점입니다.")
     log(f"  기여 파일을 만들려면:")
-    log(f"    python scripts/contribute.py --layout {layout_path} --author \"이름\"")
+    cmd = (
+        f"{shlex.quote(sys.executable)} "
+        f"{shlex.quote(str(Path(__file__).resolve()))} "
+        f"--layout {shlex.quote(str(layout_path))} --author \"이름\""
+    )
+    log(f"    {cmd}")
     log(f"  (파일만 만듭니다. 제출은 {CONTRIBUTOR_PAGE} 에서 직접 하세요)")
 
 

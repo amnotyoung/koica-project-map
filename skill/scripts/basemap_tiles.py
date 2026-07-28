@@ -26,6 +26,7 @@ MAPLIBRE_JS = "https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"
 MAPLIBRE_CSS = "https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css"
 GLYPHS = "https://tiles.versatiles.org/assets/glyphs/{fontstack}/{range}.pbf"
 TILE_SIZE = 512
+STYLE_VERSION = 5
 
 
 # ─────────────────────────────── Web Mercator ───────────────────────────────
@@ -62,7 +63,7 @@ def fit_view(bbox: list, w_px: float, h_px: float, pad: float = 0.04) -> dict:
 
 # ─────────────────────────────── 스타일 ───────────────────────────────
 
-def style_json(ms: dict) -> dict:
+def style_json(ms: dict, line_scale: float = 1.0) -> dict:
     """Shortbread 스키마용 최소 스타일.
 
     **지명 라벨은 그리지 않는다.** 타일의 `name` 은 현지 문자(中文·देवनागरी)라
@@ -84,6 +85,26 @@ def style_json(ms: dict) -> dict:
              "paint": {"background-color": ms["neighbor"]}},
             {"id": "land", "type": "fill", "source": "v", "source-layer": "land",
              "paint": {"fill-color": ms.get("tile_land", "#FFFFFF")}},
+            # 도시 상세 모드가 z12 이상 타일을 쓰면 토지피복을 아주 옅게 남긴다.
+            # 생활도로만 늘리면 흰 바탕에 선만 빽빽해져 오히려 읽기 어려워진다.
+            {"id": "land-forest", "type": "fill", "source": "v",
+             "source-layer": "land",
+             "filter": ["==", ["get", "kind"], "forest"],
+             "paint": {"fill-color": ms.get("forest", "#EEF3EC"),
+                       "fill-opacity": 0.75}},
+            {"id": "land-open", "type": "fill", "source": "v",
+             "source-layer": "land",
+             "filter": ["in", ["get", "kind"],
+                        ["literal", ["grass", "meadow", "orchard", "vineyard"]]],
+             "paint": {"fill-color": ms.get("open_land", "#F5F2E9"),
+                       "fill-opacity": 0.60}},
+            {"id": "land-developed", "type": "fill", "source": "v",
+             "source-layer": "land",
+             "filter": ["in", ["get", "kind"],
+                        ["literal", ["residential", "industrial", "commercial",
+                                     "retail", "garages", "railway"]]],
+             "paint": {"fill-color": ms.get("developed_land", "#F4EEEB"),
+                       "fill-opacity": 0.72}},
             {"id": "ocean", "type": "fill", "source": "v", "source-layer": "ocean",
              "paint": {"fill-color": ms["lake"]}},
             {"id": "water", "type": "fill", "source": "v", "source-layer": "water_polygons",
@@ -93,24 +114,43 @@ def style_json(ms: dict) -> dict:
              "filter": ["in", ["get", "kind"], ["literal", ["river", "canal", "stream"]]],
              "paint": {"line-color": river,
                        "line-width": ["interpolate", ["linear"], ["zoom"],
-                                      4, 0.5, 7, 1.1, 10, 2.2],
+                                      4, 0.5 * line_scale,
+                                      7, 1.1 * line_scale,
+                                      10, 2.2 * line_scale],
                        "line-opacity": 0.9}},
+            {"id": "rail", "type": "line", "source": "v", "source-layer": "streets",
+             "filter": ["in", ["get", "kind"],
+                        ["literal", ["rail", "narrow_gauge", "light_rail", "tram"]]],
+             "paint": {"line-color": ms.get("rail", "#B8AEAA"),
+                       "line-width": ["interpolate", ["linear"], ["zoom"],
+                                      8, 0.35 * line_scale,
+                                      12, 0.75 * line_scale],
+                       "line-opacity": 0.55}},
+            # z12부터 제공되는 주거·이면도로. 표준 국가지도(z<12)에는 나타나지
+            # 않고, 높은 타일 밀도로 굽는 도시 지도에서만 도로망을 촘촘하게 만든다.
+            {"id": "road-local", "type": "line", "source": "v",
+             "source-layer": "streets", "minzoom": 11.8,
+             "filter": ["in", ["get", "kind"],
+                        ["literal", ["unclassified", "residential", "busway"]]],
+             "paint": {"line-color": ms.get("road_local", "#EBC2BC"),
+                       "line-width": ["interpolate", ["linear"], ["zoom"],
+                                      12, 0.55 * line_scale,
+                                      14, 1.10 * line_scale],
+                       "line-opacity": 0.68}},
             # 도로 — 원본의 분홍 도로망
             {"id": "road-minor", "type": "line", "source": "v", "source-layer": "streets",
              "filter": ["in", ["get", "kind"], ["literal", ["secondary", "tertiary"]]],
              "paint": {"line-color": road,
-                       "line-width": ["interpolate", ["linear"], ["zoom"], 5, 0.4, 9, 1.4],
+                       "line-width": ["interpolate", ["linear"], ["zoom"],
+                                      5, 0.4 * line_scale, 9, 1.4 * line_scale],
                        "line-opacity": 0.8}},
             {"id": "road-major", "type": "line", "source": "v", "source-layer": "streets",
              "filter": ["in", ["get", "kind"],
                         ["literal", ["motorway", "trunk", "primary"]]],
              "paint": {"line-color": road,
-                       "line-width": ["interpolate", ["linear"], ["zoom"], 4, 0.9, 9, 2.8]}},
-            # 군 단위 경계 — 주 경계(admin_level 4)는 render_html 이 geoBoundaries 로 그린다
-            {"id": "adm6", "type": "line", "source": "v", "source-layer": "boundaries",
-             "filter": ["==", ["get", "admin_level"], 6],
-             "paint": {"line-color": ms["admin2"], "line-width": 0.4,
-                       "line-dasharray": [3, 3], "line-opacity": 0.55}},
+                       "line-width": ["interpolate", ["linear"], ["zoom"],
+                                      4, 0.9 * line_scale,
+                                      9, 2.8 * line_scale]}},
         ],
     }
 
@@ -133,10 +173,11 @@ map.on('idle', () => {{ document.title = 'MAP_READY'; }});
 """
 
 
-def build_html(bbox: list, w_px: int, h_px: int, tok: dict) -> tuple[str, dict]:
+def build_html(bbox: list, w_px: int, h_px: int, tok: dict,
+               line_scale: float = 1.0) -> tuple[str, dict]:
     view = fit_view(bbox, w_px, h_px)
     html = HTML.format(css=MAPLIBRE_CSS, js=MAPLIBRE_JS, w=w_px, h=h_px,
-                       style=json.dumps(style_json(tok["map_style"])),
+                       style=json.dumps(style_json(tok["map_style"], line_scale)),
                        center=json.dumps(view["center"]), zoom=view["zoom"])
     return html, view
 

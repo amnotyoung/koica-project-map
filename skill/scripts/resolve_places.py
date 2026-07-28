@@ -5,9 +5,10 @@
 
 해석 순서
     1) gazetteer.json 사용자 확정값        (최우선 — 한 번 고치면 계속 재사용)
-    2) GeoNames 도시  → 점(point)
-    3) ADM3 시/면     → 점(point)
-    4) ADM2 군 · ADM1 주 → 면(area, 초록 원)
+    2) oda-map-lab 비폴백 원천 좌표         (한 대상지이고 지명이 바뀌지 않은 경우)
+    3) GeoNames 도시  → 점(point)
+    4) ADM3 시/면     → 점(point)
+    5) ADM2 군 · ADM1 주 → 지명 해석상 면(area)
 
 한글 음차 지명은 hangul.loose_key 로 라틴 지명과 대조한다. 자세한 원리는 hangul.py 참고.
 `kind` 를 입력에서 명시하면 그 값이 우선한다 (사업이 지역 전체를 다루면 area).
@@ -16,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -35,6 +37,7 @@ AREA_SUFFIX = re.compile(r"\s*(주|도|군|구|현|지역|일원|전역|전지�
 
 LEVEL_KIND = {"city": "point", "ADM3": "point", "ADM2": "area", "ADM1": "area"}
 LEVEL_ORDER = ["city", "ADM3", "ADM2", "ADM1"]
+COUNTRY_FALLBACK = "국가(폴백)"
 
 
 # ─────────────────────────────── 사전 로딩 ───────────────────────────────
@@ -70,6 +73,33 @@ def load_gazetteer() -> dict:
 
 def save_gazetteer(g: dict) -> None:
     write_json(GAZETTEER, g, indent=2)
+
+
+def source_coord(entry: dict, raw: str, index: list, part_count: int) -> dict | None:
+    """지명이 그대로인 단일 대상지의 비폴백 원천 좌표를 검증한다.
+
+    oda-map-lab 의 한 feature 에 여러 지명이 묶여도 좌표는 하나뿐이다. 그 좌표를
+    모든 지점에 복제하면 다중 대상지 마커가 거짓이 되므로 단일 대상지에만 적용한다.
+    """
+    sc = entry.get("source_coord")
+    if not isinstance(sc, dict) or part_count != 1:
+        return None
+    source = str(sc.get("source") or "").strip()
+    if not source or source == COUNTRY_FALLBACK:
+        return None
+    if sc.get("place") and norm(str(sc["place"])) != norm(raw):
+        return None
+    try:
+        lat, lon = float(sc["lat"]), float(sc["lon"])
+    except (KeyError, TypeError, ValueError):
+        return None
+    if not (math.isfinite(lat) and math.isfinite(lon)
+            and -90 <= lat <= 90 and -180 <= lon <= 180):
+        return None
+    # 날짜변경선을 지나는 국가는 지리 캐시가 0~360 경도를 쓴다.
+    if lon < 0 and any(row[3] > 180 for row in index):
+        lon += 360
+    return {"lat": lat, "lon": lon, "coord_source": source}
 
 
 # ─────────────────────────────── 매칭 ───────────────────────────────
@@ -175,8 +205,10 @@ def resolve(country: str, entries: list, detail: str = "50m") -> dict:
                                    "source": "country"}]})
             continue
 
+        names = [p.strip() for p in body.split("/") if p.strip()]
+        trusted = source_coord(e, raw, index, len(names))
         parts = []
-        for name in [p.strip() for p in body.split("/") if p.strip()]:
+        for name in names:
             key = f"{iso3}:{norm(name)}"
             if key in gaz:                       # 사용자 확정값 최우선
                 g = dict(gaz[key])
@@ -184,6 +216,18 @@ def resolve(country: str, entries: list, detail: str = "50m") -> dict:
                 parts.append(g)
                 continue
             r = match_one(name, e.get("aliases"), index)
+            if trusted:
+                # 지명 매칭은 영문 표기·행정레벨을 얻는 데 계속 활용하되 좌표만
+                # 원천값으로 교체한다. 지명 매칭 실패도 신뢰 좌표가 있으면 해석 완료다.
+                if not r.get("ok"):
+                    r = {"ok": True, "matched": name, "level": "source",
+                         "kind": "point", "score": 1.0}
+                r.update({"lon": trusted["lon"], "lat": trusted["lat"],
+                          "source": "oda-map-lab",
+                          "coord_source": trusted["coord_source"]})
+                r["name"] = name
+                parts.append(r)
+                continue
             r["name"] = name
             r["source"] = "auto"
             parts.append(r)
@@ -240,7 +284,8 @@ def main() -> int:
                 entries.append(it)
             else:
                 entries.append({"place": it.get("place") or it.get("지명") or "",
-                                "aliases": it.get("aliases"), "kind": it.get("kind")})
+                                "aliases": it.get("aliases"), "kind": it.get("kind"),
+                                "source_coord": it.get("source_coord")})
     if not entries:
         ap.error("--places 또는 --input 중 하나가 필요합니다.")
 
