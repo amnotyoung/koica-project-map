@@ -90,3 +90,24 @@ HTML(미리보기·PDF)과 PPTX(편집용)가 그것만 소비한다. 렌더러�
 Natural Earth(퍼블릭 도메인) · [geoBoundaries](https://www.geoboundaries.org/)(CC BY) ·
 [GeoNames](https://www.geonames.org/)(CC BY) · 지도 타일 [versatiles](https://versatiles.org/)
 (© OpenStreetMap contributors, ODbL). 생성물 하단에 자동 표기된다.
+
+## 종속성 업데이트 자동화
+
+`oda-map-lab`의 CI가 성공하면 전달된 커밋을 다시 체크아웃해 `map-base`와
+기여 스키마 계약을 검증하고, 변경된 계약 잠금파일을 PR로 만든다. 매일
+실행되는 점검은 이벤트 누락을 보정한다. 허용된 저장소와 검증 경로는
+[`.github/dependencies.json`](.github/dependencies.json)에 고정되어 있다.
+
+저장소 관리자는 다음 Actions secret을 등록한다.
+
+- `DEPENDENCY_READ_TOKEN`: `oda-map-lab`의 **Contents: read**만 허용한
+  fine-grained personal access token
+- `DEPENDENCY_PR_TOKEN`: 이 저장소의 **Contents: write**와
+  **Pull requests: write**만 허용한 fine-grained personal access token.
+  자동 PR에서도 일반 CI를 시작하기 위해 사용한다.
+- `DEPENDENCY_DISPATCH_TOKEN`: `country-report-skill`에
+  `repository_dispatch`를 보낼 수 있도록 해당 저장소의 **Contents: write**만
+  허용한 fine-grained personal access token
+
+원천 저장소 이벤트와 별개로 Actions의 **Update repository dependencies**
+워크플로를 수동 실행할 수 있다.

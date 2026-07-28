@@ -1,0 +1,144 @@
+name: Update repository dependencies
+
+on:
+  repository_dispatch:
+    types: [dependency-updated]
+  workflow_dispatch:
+    inputs:
+      dependency:
+        description: "Allow-listed owner/repository; leave blank to check all"
+        required: false
+        type: string
+      ref:
+        description: "Branch, tag, or full SHA"
+        required: false
+        default: main
+        type: string
+  schedule:
+    - cron: "37 1 * * *"
+
+concurrency:
+  group: dependency-update-${{ github.event_name }}-${{ github.event.client_payload.source_repo || inputs.dependency || 'all' }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - id: matrix
+        name: Resolve allow-listed dependencies
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          DISPATCH_REPOSITORY: ${{ github.event.client_payload.source_repo }}
+          DISPATCH_SHA: ${{ github.event.client_payload.source_sha }}
+          DISPATCH_REF: ${{ github.event.client_payload.source_ref }}
+          MANUAL_REPOSITORY: ${{ inputs.dependency }}
+          MANUAL_REF: ${{ inputs.ref }}
+        run: |
+          args=(matrix)
+          if [[ "$EVENT_NAME" == "repository_dispatch" ]]; then
+            args+=(--repository "$DISPATCH_REPOSITORY")
+            args+=(--sha "$DISPATCH_SHA")
+            args+=(--ref "${DISPATCH_REF:-main}")
+          elif [[ "$EVENT_NAME" == "workflow_dispatch" && -n "$MANUAL_REPOSITORY" ]]; then
+            args+=(--repository "$MANUAL_REPOSITORY")
+            args+=(--ref "${MANUAL_REF:-main}")
+          fi
+          matrix="$(python tools/dependency_bot.py "${args[@]}")"
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+
+  update:
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    steps:
+      - name: Checkout koica-project-map
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.DEPENDENCY_PR_TOKEN }}
+
+      - name: Checkout dependency source
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ matrix.repository }}
+          ref: ${{ matrix.ref }}
+          token: ${{ secrets.DEPENDENCY_READ_TOKEN }}
+          path: ${{ matrix.checkout_path }}
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install test dependencies
+        run: python -m pip install -r requirements-test.txt
+
+      - id: sync
+        name: Validate contract and update pin
+        env:
+          EXPECTED_SHA: ${{ github.event_name == 'repository_dispatch' && matrix.ref || '' }}
+        run: |
+          args=(
+            update
+            --repository "${{ matrix.repository }}"
+            --source-dir "${{ matrix.checkout_path }}"
+            --ref "${{ matrix.source_ref }}"
+          )
+          if [[ "$EXPECTED_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            args+=(--sha "$EXPECTED_SHA")
+          fi
+          python tools/dependency_bot.py "${args[@]}"
+
+      - name: Test koica-project-map
+        if: steps.sync.outputs.changed == 'true'
+        run: |
+          python -m unittest discover -s tests -p "test_*.py"
+          python -m compileall -q skill/scripts tools
+
+      - name: Create dependency update PR
+        if: steps.sync.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.DEPENDENCY_PR_TOKEN }}
+          BRANCH: ${{ steps.sync.outputs.branch }}
+          SLUG: ${{ steps.sync.outputs.slug }}
+          SOURCE_SHA: ${{ steps.sync.outputs.source_sha }}
+          SOURCE_SHORT_SHA: ${{ steps.sync.outputs.source_short_sha }}
+          UPDATE_PATH: ${{ steps.sync.outputs.update_path }}
+        run: |
+          existing="$(gh pr list --state all --head "$BRANCH" --json url --jq '.[0].url // ""')"
+          if [[ -n "$existing" ]]; then
+            echo "Dependency PR already exists: $existing"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$BRANCH"
+          git add "$UPDATE_PATH"
+          git commit -m "Update $SLUG to $SOURCE_SHORT_SHA"
+          git push --set-upstream origin "$BRANCH"
+
+          body_file="$RUNNER_TEMP/dependency-pr.md"
+          {
+            echo "Automated dependency contract update."
+            echo
+            echo "- Dependency: \`${{ matrix.repository }}\`"
+            echo "- Source commit: \`$SOURCE_SHA\`"
+            echo "- ODA Map contract validation: passed"
+            echo "- Project-map tests: passed"
+          } > "$body_file"
+
+          gh pr create \
+            --base main \
+            --head "$BRANCH" \
+            --title "Update $SLUG to $SOURCE_SHORT_SHA" \
+            --body-file "$body_file"
