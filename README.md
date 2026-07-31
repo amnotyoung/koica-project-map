@@ -111,3 +111,12 @@ Natural Earth(퍼블릭 도메인) · [geoBoundaries](https://www.geoboundaries.
 
 원천 저장소 이벤트와 별개로 Actions의 **Update repository dependencies**
 워크플로를 수동 실행할 수 있다.
+
+## 라이선스
+
+[MIT 라이선스](LICENSE)를 따른다.
+
+지도 배경 타일은 [versatiles](https://versatiles.org/)에서 받아 쓰며 OpenStreetMap 기여자의
+자료다. 국가·행정경계 등 렌더링에 쓰는 외부 지리 자료는 각 출처의 조건을 그대로 유지한다.
+이 저장소가 그 조건을 바꾸지 않는다.
+
