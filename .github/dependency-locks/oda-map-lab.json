@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "amnotyoung/oda-map-lab",
   "source_ref": "main",
-  "source_sha": "8e347f70c90a66efddd2a863f7151d445d3571e5",
+  "source_sha": "d117ef2d6c3f77a858532ba593ea53f3a8d19d14",
   "contract": {
     "contributor_required_fields": [
       "author",
