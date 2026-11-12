@@ -501,6 +501,150 @@
         "lon": 106.88324
       },
       "_source_name_en": "Strengthen agricultural production capacity through the establishment of a sustainable year-round green houses in Ulaanbaatar, Mongolia"
+    },
+    {
+      "selected": true,
+      "place": "울란바토르·하르허린",
+      "badges": [
+        "T"
+      ],
+      "name_ko": "몽골 국토균형개발 및 울란바토르 지속가능한 도시화 지원사업 (570만불 / 2027년 9월까지 사업관리 용역)",
+      "name_en": "Balanced national development and sustainable urbanisation in Ulaanbaatar (USD 5.7m / project management through September 2027)",
+      "_period": "",
+      "_budget_krw": 7353000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "도시개발 및 관리",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2023020103096",
+      "id": "iati:KR-GOV-051-2023020103096",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 7353000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_period_review": {
+        "source_period": "2023-2026",
+        "title_period": [
+          2023,
+          2026
+        ],
+        "decision": "verified_activity_in_year"
+      },
+      "_coord_source": "도시(음차)",
+      "source_place": "울란바타르",
+      "_source_name_ko": "몽골 울란바토르 지속가능한 도시화 및 국토 균형 개발 지원사업('23-'26/570만불)",
+      "_source_name_en": "The Project for Supporting Balanced National Development in Mongolia and Sustainable Urbanization in Ulaanbaatar",
+      "verified_years": [
+        2027
+      ],
+      "place_en": "Ulaanbaatar and Kharkhorin",
+      "coverage": "site",
+      "sites": [
+        {
+          "place": "울란바토르",
+          "geonames_locality": {
+            "name": "Ulaanbaatar",
+            "id": 2028462,
+            "lat": 47.90771,
+            "lon": 106.88324
+          }
+        },
+        {
+          "place": "하르허린",
+          "geonames_locality": {
+            "name": "Kharkhorin",
+            "id": 7648891,
+            "lat": 47.19245,
+            "lon": 102.81349
+          }
+        }
+      ],
+      "scope_sources": [
+        "https://mas.smc.seoul.kr/attach/record/SEOUL/appendix/a11/A0070852.pdf",
+        "https://www.si.re.kr/atch/filePreview.do?cnncSn=2603060001&cnncTy=bbs&ordr=1",
+        "https://oda-map-lab.pages.dev/generated/map-base.json",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ]
+    },
+    {
+      "selected": true,
+      "place": "울란바토르",
+      "badges": [
+        "G"
+      ],
+      "name_ko": "몽골 관세청 위험관리 및 수하물 관리 선진화 사업 (2025–2028 / 560만불)",
+      "name_en": "Customs risk management and passenger baggage control in Mongolia (2025–2028 / USD 5.6m)",
+      "_period": "2025-2028",
+      "_budget_krw": 598000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "무역진흥",
+      "_stage": "집행중",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025010100178",
+      "id": "iati:KR-GOV-051-2025010100178",
+      "_source_info": {
+        "name": "KOICA IATI XML",
+        "reference_date": "2026-08-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "file": null
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 598000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "original": [
+          {
+            "value": 598000000.0,
+            "currency": "KRW"
+          }
+        ]
+      },
+      "_budget_period_only": true,
+      "_aid_source": "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+      "_period_review": {
+        "source_period": "2025-2026",
+        "title_period": null,
+        "decision": "verified_period",
+        "verified_period": "2025-2028"
+      },
+      "_coord_source": "IATI 원본(공식좌표)",
+      "source_place": "Ulaanbaatar",
+      "_source_name_ko": "Project for Advancement of Risk Management and Baggage Control of Mongolian Customs General Administration",
+      "_source_name_en": "Project for Advancement of Risk Management and Baggage Control of Mongolian Customs General Administration",
+      "verified_period": "2025-2028",
+      "coverage": "site",
+      "place_en": "Ulaanbaatar",
+      "geonames_locality": {
+        "name": "Ulaanbaatar",
+        "id": 2028462,
+        "lat": 47.90771,
+        "lon": 106.88324
+      },
+      "scope_sources": [
+        "https://www.koica.go.kr/bbs/koica_kr/151/388849/artclView.do",
+        "https://nebid.koica.go.kr/oep/elbi/inProgrsBidPblancDetail.do?P_PBLANC_NO=P2025-00161&P_PBLANC_ODR=1&resourceName=oep1010",
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ]
     }
   ],
   "map_languages": [

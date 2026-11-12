@@ -256,6 +256,69 @@
       "scope_label_en": "Smallholder farms in San Pedro",
       "_source_name_ko": "파라과이 소농의 기후변화 적응역량 강화사업",
       "_source_name_en": "Strengthening the capacities of small-scale farmers in sustainable adaptation to climate change"
+    },
+    {
+      "selected": true,
+      "place": "산로렌소",
+      "badges": [
+        "T"
+      ],
+      "name_ko": "파라과이 아순시온 국립대학교 ICT 혁신센터 설립 및 역량강화사업 (960만불 / 2027년 개소 예정)",
+      "name_en": "ICT capacity development and innovation centre at the National University of Asunción (USD 9.6m / opening planned for 2027)",
+      "_period": "",
+      "_budget_krw": 10848000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "비즈니스 정책 및 행정관리",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2022010100011",
+      "id": "iati:KR-GOV-051-2022010100011",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 10848000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_period_review": {
+        "source_period": "2022-2026",
+        "title_period": [
+          2022,
+          2026
+        ],
+        "decision": "verified_activity_in_year"
+      },
+      "_coord_source": "도시",
+      "source_place": "아순시온",
+      "_source_name_ko": "파라과이 아순시온 국립대학 ICT 혁신센터 설립을 통한 ICT 경쟁력 강화 사업('22-'26/960만불)",
+      "_source_name_en": "Project of ICT Capacity Building through Establishment of UNA ICT Innovation Center",
+      "verified_years": [
+        2027
+      ],
+      "place_en": "San Lorenzo",
+      "coverage": "site",
+      "geonames_locality": {
+        "name": "San Lorenzo",
+        "id": 3437056,
+        "lat": -25.33968,
+        "lon": -57.50879
+      },
+      "scope_sources": [
+        "https://www.una.py/una-y-koica-avanzan-en-la-planificacion-para-la-puesta-en-funcionamiento-del-centro-de-innovacion-tic",
+        "https://www.una.py/la-una-y-la-koica-afianzan-el-centro-de-innovacion-tic-paraguay-corea-de-cara-a-su-inauguracion",
+        "https://oda-map-lab.pages.dev/generated/map-base.json",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ]
     }
   ],
   "map_languages": [
