@@ -25,6 +25,7 @@ import time
 from datetime import date
 from pathlib import Path
 
+import annual_portfolio
 import iati_aid
 from portfolio_selection import TITLE_PERIOD, project_key, reconcile_notices, title_period, year_decision
 from common import CACHE_DIR, REFERENCE_DIR, fetch, log, read_json, sector_map, write_json
@@ -293,7 +294,9 @@ def collect(country: str, year: int | None, include_all: bool,
                 rows.append(row)
 
     reconcile_notices(rows, notices, year, catalog_titles, seen)
-    for row in rows + period_candidates:
+    countries = {f["country"] for f in data["features"] if f.get("country")}
+    plan_audit, plan_candidates = annual_portfolio.add_plan(rows, period_candidates, country, year, countries, scopes)
+    for row in rows + period_candidates + plan_candidates:
         complete_card_metadata(row)
     for item in review:
         log(f'  · 기간 대조 {item["decision"]}: {item["name"]}')
@@ -302,7 +305,7 @@ def collect(country: str, year: int | None, include_all: bool,
     rows.sort(key=lambda r: (not r["selected"], -(r["_budget_krw"] or 0)))
     log(f'[{country}] KOICA 사업 {len(rows)}건 수집 '
         f'· 국별협력사업 후보 {sum(1 for r in rows if r["selected"])}건 기본 선택')
-    extra = {}
+    extra = {"annual_plan_audit":plan_audit, "annual_plan_candidates":plan_candidates}
     if review_partners:
         domestic = {fid.partition("@")[0] for fid in seen if fid}
         confirmed = {fid for row in rows for fid in row.get("partner_activity_ids", [])}

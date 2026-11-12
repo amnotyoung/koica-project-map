@@ -15,6 +15,9 @@ def source_notes(L):
         details.append(f"사업 데이터 판본: {source['build_id']}")
     for card in L["cards"]:
         provenance = card.get("provenance", {})
+        for entry in provenance.get("_annual_plan", []):
+            basis = "확정액" if entry["basis"] == "confirmed" else "요구액"
+            details.append(f"{card['text']} · {entry['resolution']} {entry['page']}쪽 · 연간 {basis} {entry['annual_100m_krw']}억 원")
         if card.get("location_note"):
             details.append(f"{card['place']} · {card['text']} · {card['location_note']}")
         if provenance.get("_location_evidence"):
