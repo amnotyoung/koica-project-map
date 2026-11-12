@@ -26,7 +26,7 @@ MAPLIBRE_JS = "https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"
 MAPLIBRE_CSS = "https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css"
 GLYPHS = "https://tiles.versatiles.org/assets/glyphs/{fontstack}/{range}.pbf"
 TILE_SIZE = 512
-STYLE_VERSION = 5
+STYLE_VERSION = 7
 
 
 # ─────────────────────────────── Web Mercator ───────────────────────────────
@@ -63,7 +63,7 @@ def fit_view(bbox: list, w_px: float, h_px: float, pad: float = 0.04) -> dict:
 
 # ─────────────────────────────── 스타일 ───────────────────────────────
 
-def style_json(ms: dict, line_scale: float = 1.0) -> dict:
+def style_json(ms: dict, line_scale: float = 1.0, profile: str = "atlas") -> dict:
     """Shortbread 스키마용 최소 스타일.
 
     **지명 라벨은 그리지 않는다.** 타일의 `name` 은 현지 문자(中文·देवनागरी)라
@@ -73,7 +73,7 @@ def style_json(ms: dict, line_scale: float = 1.0) -> dict:
     """
     road = ms.get("road", "#EFC7C0")
     river = ms["river"]
-    return {
+    style = {
         "version": 8,
         # symbol 레이어를 쓰지 않으므로 glyphs 는 필요 없지만, 스타일을 손볼 때
         # 텍스트를 켜면 없이는 통째로 백지가 되므로 남겨둔다.
@@ -82,7 +82,7 @@ def style_json(ms: dict, line_scale: float = 1.0) -> dict:
                           "minzoom": 0, "maxzoom": 14, "attribution": "© OpenStreetMap"}},
         "layers": [
             {"id": "bg", "type": "background",
-             "paint": {"background-color": ms["neighbor"]}},
+             "paint": {"background-color": ms.get("tile_land", "#FFFFFF")}},
             {"id": "land", "type": "fill", "source": "v", "source-layer": "land",
              "paint": {"fill-color": ms.get("tile_land", "#FFFFFF")}},
             # 도시 상세 모드가 z12 이상 타일을 쓰면 토지피복을 아주 옅게 남긴다.
@@ -106,7 +106,7 @@ def style_json(ms: dict, line_scale: float = 1.0) -> dict:
              "paint": {"fill-color": ms.get("developed_land", "#F4EEEB"),
                        "fill-opacity": 0.72}},
             {"id": "ocean", "type": "fill", "source": "v", "source-layer": "ocean",
-             "paint": {"fill-color": ms["lake"]}},
+             "paint": {"fill-color": ms.get("ocean", ms["lake"])}},
             {"id": "water", "type": "fill", "source": "v", "source-layer": "water_polygons",
              "paint": {"fill-color": ms["lake"]}},
             # 하천 — 원본 샘플의 파란 물줄기
@@ -117,7 +117,7 @@ def style_json(ms: dict, line_scale: float = 1.0) -> dict:
                                       4, 0.5 * line_scale,
                                       7, 1.1 * line_scale,
                                       10, 2.2 * line_scale],
-                       "line-opacity": 0.9}},
+                       "line-opacity": 1.0}},
             {"id": "rail", "type": "line", "source": "v", "source-layer": "streets",
              "filter": ["in", ["get", "kind"],
                         ["literal", ["rail", "narrow_gauge", "light_rail", "tram"]]],
@@ -143,16 +143,20 @@ def style_json(ms: dict, line_scale: float = 1.0) -> dict:
              "paint": {"line-color": road,
                        "line-width": ["interpolate", ["linear"], ["zoom"],
                                       5, 0.4 * line_scale, 9, 1.4 * line_scale],
-                       "line-opacity": 0.8}},
+                       "line-opacity": 0.95}},
             {"id": "road-major", "type": "line", "source": "v", "source-layer": "streets",
              "filter": ["in", ["get", "kind"],
                         ["literal", ["motorway", "trunk", "primary"]]],
              "paint": {"line-color": road,
                        "line-width": ["interpolate", ["linear"], ["zoom"],
-                                      4, 0.9 * line_scale,
-                                      9, 2.8 * line_scale]}},
+                                      4, 0.5 * line_scale,
+                                      9, 1.6 * line_scale]}},
         ],
     }
+    if profile == "atlas":
+        style["layers"] = [layer for layer in style["layers"]
+                           if layer["id"] not in {"land-forest", "land-open", "land-developed"}]
+    return style
 
 
 HTML = """<!doctype html><meta charset="utf-8">
@@ -168,16 +172,17 @@ const map = new maplibregl.Map({{
   preserveDrawingBuffer:true
 }});
 // 타일이 다 그려지면 제목을 바꿔 렌더 완료를 알린다
-map.on('idle', () => {{ document.title = 'MAP_READY'; }});
+map.on('idle', () => {{ if (!(window.mapErrors || []).length && map.areTilesLoaded()) document.title = 'MAP_READY'; }});
+map.on('error', e => {{ window.mapErrors = (window.mapErrors || []).concat(String(e.error)); }});
 </script>
 """
 
 
 def build_html(bbox: list, w_px: int, h_px: int, tok: dict,
-               line_scale: float = 1.0) -> tuple[str, dict]:
+               line_scale: float = 1.0, profile: str = "atlas") -> tuple[str, dict]:
     view = fit_view(bbox, w_px, h_px)
     html = HTML.format(css=MAPLIBRE_CSS, js=MAPLIBRE_JS, w=w_px, h=h_px,
-                       style=json.dumps(style_json(tok["map_style"], line_scale)),
+                       style=json.dumps(style_json(tok["map_style"], line_scale, profile)),
                        center=json.dumps(view["center"]), zoom=view["zoom"])
     return html, view
 

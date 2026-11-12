@@ -101,7 +101,7 @@ def map_image(layout_path: Path, tmp: Path, scale: int = 3) -> tuple[Path, dict]
 # ─────────────────────────────── 도형 ───────────────────────────────
 
 def textbox(slide, x, y, w, h, text, size, color, *, bold=False, align=PP_ALIGN.LEFT,
-            font="맑은 고딕", anchor=MSO_ANCHOR.TOP, spacing=1.0):
+            font="맑은 고딕", anchor=MSO_ANCHOR.TOP, spacing=1.0, tracking_pt=0):
     tb = slide.shapes.add_textbox(I(x), I(y), I(w), I(h))
     tf = tb.text_frame
     tf.word_wrap = False
@@ -118,6 +118,8 @@ def textbox(slide, x, y, w, h, text, size, color, *, bold=False, align=PP_ALIGN.
         r.font.size = Pt(size)
         r.font.bold = bold
         _set_typefaces(r, font)
+        if tracking_pt:
+            _set_run_metrics(r, spacing=round(tracking_pt * 100))
         r.font.color.rgb = rgb(color)
     return tb
 
@@ -129,7 +131,7 @@ def template_runs_textbox(slide, spec: dict, color: str,
         I(spec["x"]), I(spec["y"]), I(spec["w"]), I(spec["h"])
     )
     tf = tb.text_frame
-    tf.word_wrap = True
+    tf.word_wrap = not spec.get("no_wrap", False)
     tf.auto_size = MSO_AUTO_SIZE.SHAPE_TO_FIT_TEXT
     tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = 0
 
@@ -137,7 +139,7 @@ def template_runs_textbox(slide, spec: dict, color: str,
     # 속성을 제거해 PowerPoint가 같은 글꼴 기준선으로 배치하게 한다.
     body_pr = tf._txBody.bodyPr
     body_pr.set("vert", "horz")
-    body_pr.set("wrap", "square")
+    body_pr.set("wrap", "none" if spec.get("no_wrap") else "square")
     body_pr.set("rtlCol", "0")
     body_pr.attrib.pop("anchor", None)
 
@@ -227,10 +229,11 @@ def draw_slide(prs, L: dict, tok: dict, tmp: Path, layout_path: Path) -> None:
     for ld in L["leaders"]:
         pts = ld.get("points") or [ld["from"], ld["to"]]
         for p, q in zip(pts, pts[1:]):
-            cn = slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT,
-                                            I(p[0]), I(p[1]), I(q[0]), I(q[1]))
+            cn = flatten(slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT,
+                                            I(p[0]), I(p[1]), I(q[0]), I(q[1])))
             cn.line.color.rgb = rgb(col["leader"])
             cn.line.width = Pt(tok["leader"]["w_pt"])
+            cn.shadow.inherit = False
 
     # 3) 마커
     mk = tok["marker"]
@@ -252,7 +255,7 @@ def draw_slide(prs, L: dict, tok: dict, tmp: Path, layout_path: Path) -> None:
         if card.get("show_place", True):
             textbox(slide, x, y, cd["name"]["w"], cd["place"]["h"] * 1.4,
                     card["place"], card.get("place_font", cd["place"]["size"]),
-                    col["heading"], bold=True)
+                    col["heading"], bold=True, tracking_pt=-.64)
         bx = x + bd["dx"]
         for k in card["badges"]:
             by = y + body_dy + bd["dy"] - cd["name"]["dy"]
@@ -262,19 +265,29 @@ def draw_slide(prs, L: dict, tok: dict, tmp: Path, layout_path: Path) -> None:
                     anchor=MSO_ANCHOR.MIDDLE)
             bx += bd["w"] + bd["gap"]
         # 줄바꿈은 layout.py 가 이미 정했다. 여기서 다시 흘리면 HTML 과 달라진다.
-        textbox(slide, x + cd["name"]["dx"], y + body_dy - 0.015,
-                cd["name"]["w"], card["h"] - body_dy + 0.02, card["lines"], card["font"],
-                col["body"], spacing=0.92)
+        # Use the same per-line positions as SVG; multiple badges indent only
+        # the first line. A single multiline box cannot express this reliably.
+        for line_index, line in enumerate(card["lines"]):
+            dx = (card.get("first_line_dx", cd["name"]["dx"])
+                  if line_index == 0 else cd["name"]["dx"])
+            textbox(slide, x + dx,
+                    y + body_dy - 0.015 + line_index * card["line_h"],
+                    cd["name"]["w"] - (dx - cd["name"]["dx"]),
+                    card["line_h"] * 1.4, line, card["font"], col["body"],
+                    tracking_pt=card.get("tracking_pt", 0))
         # 다중 대상지 사업의 설명 — 그 카드 안에 붙는다 (원본과 동일)
         if card.get("note"):
             textbox(slide, x + cd["name"]["dx"],
                     y + body_dy - 0.015 + len(card["lines"]) * card["line_h"],
                     cd["name"]["w"], card["line_h"] * 1.3, card["note"], card["font"],
-                    col["area_ring"], bold=True)
+                    card.get("note_color", col["area_ring"]), bold=True)
 
     draw_title(slide, L, tok)
     draw_region_tab(slide, L, tok)
     draw_legend(slide, L, tok)
+    import render_html
+    textbox(slide, .22, tok["canvas"]["h_in"]-.25, 11.3, .16,
+            render_html.credit_text(L), 4.8, "#929A9D")
     
 
 

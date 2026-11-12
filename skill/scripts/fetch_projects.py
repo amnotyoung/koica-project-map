@@ -148,6 +148,9 @@ def collect(country: str, year: int | None, include_all: bool,
                 "_done": done,
                 "_other": other,
                 "_id": fid,
+                "id": fid,
+                "_source_info": de.get("source_info", {}),
+                "_location_basis": "group-representative",
             }
             if coord_source:
                 row["_coord_source"] = coord_source
@@ -160,7 +163,9 @@ def collect(country: str, year: int | None, include_all: bool,
         f'· 국별협력사업 후보 {sum(1 for r in rows if r["selected"])}건 기본 선택')
     return {"country": country, "region": region, "year": year,
             "fetched_at": date.today().isoformat(),
-            "source": SOURCE, "projects": rows}
+            "source": SOURCE, "source_build_id": data.get("build_id"),
+            "use_gazetteer": False,
+            "location_status": "source-group-unverified", "projects": rows}
 
 
 def main() -> int:

@@ -56,7 +56,7 @@ class TitlePptxTests(unittest.TestCase):
         self.assertAlmostEqual(title.top / 914400, 0.52466, places=5)
         self.assertAlmostEqual(title.width / 914400, 0.68294, places=5)
         self.assertAlmostEqual(title.height / 914400, 0.25910, places=5)
-        self.assertTrue(title.text_frame.word_wrap)
+        self.assertFalse(title.text_frame.word_wrap)
 
         runs = title.text_frame.paragraphs[0].runs
         self.assertEqual([run.text for run in runs], ["피지 ", "Fiji"])

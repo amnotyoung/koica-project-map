@@ -31,11 +31,11 @@ GB_API = "https://www.geoboundaries.org/api/current/gbOpen/{iso3}/{lvl}/"
 GEONAMES_URL = "https://download.geonames.org/export/dump/cities500.zip"
 
 # 지도 단순화 허용오차(도). 국가 크기에 따라 조정된다.
-SIMPLIFY_BASE = 0.004
+SIMPLIFY_BASE = 0.001
 
 # basemap.json 형식 버전. 레이어를 추가하면 올린다 — 오래된 캐시를 쓰면
 # 하천·주 이름이 없는 밋밋한 지도가 조용히 나온다.
-BASEMAP_VERSION = 3
+BASEMAP_VERSION = 4
 
 
 # ─────────────────────────────── Natural Earth ───────────────────────────────

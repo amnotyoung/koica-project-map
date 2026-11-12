@@ -116,11 +116,11 @@ class PlaceGroupTests(unittest.TestCase):
 
 
 class CityBasemapTests(unittest.TestCase):
-    def test_city_density_is_default_for_every_map_extent(self):
+    def test_atlas_density_is_default_without_reference_dependency(self):
         city_doc = {"map_bbox": [-90.82, 14.30, -90.30, 14.78]}
 
-        self.assertEqual(layout.choose_map_density(city_doc), "city")
-        self.assertEqual(layout.choose_map_density({}), "city")
+        self.assertEqual(layout.choose_map_density(city_doc), "atlas")
+        self.assertEqual(layout.choose_map_density({}), "atlas")
 
     def test_density_can_be_explicitly_lowered(self):
         self.assertEqual(
@@ -172,7 +172,7 @@ class CityBasemapTests(unittest.TestCase):
         style = basemap_tiles.style_json({
             "neighbor": "#eee", "river": "#00f", "lake": "#def",
             "admin2": "#999",
-        }, line_scale=5.0)
+        }, line_scale=5.0, profile="city")
         ids = {layer["id"] for layer in style["layers"]}
 
         self.assertIn("road-local", ids)

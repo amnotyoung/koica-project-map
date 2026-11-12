@@ -145,7 +145,7 @@ def shot(url: str, out: Path, width: int, height: int, scale: int = 2,
                     pass
                 time.sleep(0.4)
             else:
-                log("  ! 렌더 완료 신호를 못 받아 현재 화면을 그대로 찍습니다")
+                raise TimeoutError("렌더 완료 신호를 받지 못했습니다. 불완전한 지도를 저장하지 않습니다")
         time.sleep(0.6)                      # 마지막 프레임이 합성될 여유
         res = ws.call("Page.captureScreenshot", {"format": "png",
                                                  "captureBeyondViewport": False},

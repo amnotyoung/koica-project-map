@@ -50,23 +50,11 @@ def run(inputs: list, outdir: Path, langs: list, formats: list,
 
     for idx, src in enumerate(inputs, 1):
         doc = read_json(src)
-        # 국문·영문을 함께 뽑을 때는 두 슬라이드가 짝으로 보이도록 폰트 배율을 맞춘다.
-        # 영문이 길어 축소되면 국문도 같이 줄인다 (design.md 판단 규칙 5).
-        pair_scale, probed = None, {}
-        if len(langs) > 1:
-            probed = {lg: layout_mod.compute(doc, lg, idx, detail) for lg in langs}
-            scales = [L["font_scale"] for L in probed.values()]
-            pair_scale = min(scales)
-            if len(set(scales)) > 1:
-                log(f"  · 언어별 배율이 달라 {pair_scale:.2f}배로 통일합니다")
-
-        for lang in langs:
-            stem = f'{Path(src).stem}_{lang}'
-            log(f"── {doc['country']} / {lang} ──")
-            # 배율 탐색 때 이미 만든 배치가 조건에 맞으면 다시 계산하지 않는다
-            L = probed.get(lang)
-            if L is None or L["font_scale"] != pair_scale:
-                L = layout_mod.compute(doc, lang, idx, detail, pair_scale)
+        for L in layout_mod.compute_pages(doc, langs, idx, detail):
+            lang = L["lang"]
+            suffix = f'_p{L["page"]:02d}' if L["pages"] > 1 else ""
+            stem = f'{Path(src).stem}_{lang}{suffix}'
+            log(f"── {doc['country']} / {lang} / {L['page']} of {L['pages']} ──")
             lp = write_json(outdir / f"{stem}.layout.json", L, indent=1)
             layouts.append(lp)
             log(f'  카드 {len(L["cards"])} · 마커 {len(L["markers"])} · 지시선 '
@@ -89,7 +77,8 @@ def run(inputs: list, outdir: Path, langs: list, formats: list,
                 if "pdf" in formats:
                     made["pdf"].append(export.to_pdf(html, outdir / f"{stem}.pdf"))
 
-    _suggest_contribution(layouts)
+    # Producing a map does not verify its inferred sites. Contributions require
+    # a separate, explicit location review.
 
     if "pptx" in formats:
         try:
@@ -98,7 +87,7 @@ def run(inputs: list, outdir: Path, langs: list, formats: list,
             log("  ! python-pptx 가 없어 PPTX 를 건너뜁니다. "
                 "skill/.venv/bin/python 으로 실행하세요.")
         else:
-            name = "project_map.pptx" if len(layouts) > 1 else f"{Path(inputs[0]).stem}.pptx"
+            name = "project_map.pptx" if len(inputs) > 1 else f"{Path(inputs[0]).stem}.pptx"
             made["pptx"].append(render_pptx.build(layouts, outdir / name))
     return made
 
@@ -128,20 +117,57 @@ def _suggest_contribution(layouts: list) -> None:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="KOICA 프로젝트맵 생성 (전 과정)")
-    ap.add_argument("--input", required=True, nargs="+", help="사업 목록 JSON (국가별)")
+    source = ap.add_mutually_exclusive_group(required=True)
+    source.add_argument("--input", nargs="+", help="사업 목록 JSON (국가별)")
+    source.add_argument("--country", nargs="+", help="공개 사업자료에서 국가별 KOICA 사업을 수집하여 생성")
+    ap.add_argument("--year", type=int, help="사업 기간에 포함되는 기준연도")
+    ap.add_argument("--include-unselected", action="store_true", help="30억원 이상 진행 프로젝트 외 KOICA 사업도 포함")
     ap.add_argument("--outdir", default="out")
-    ap.add_argument("--lang", nargs="+", default=["ko"], choices=["ko", "en"])
-    ap.add_argument("--formats", nargs="+", default=["html", "pdf", "pptx"],
+    ap.add_argument("--lang", nargs="+", default=None, choices=["ko", "en"])
+    ap.add_argument("--formats", nargs="+", default=None,
                     choices=ALL_FORMATS)
-    ap.add_argument("--detail", default="50m", choices=["10m", "50m", "110m"])
+    ap.add_argument("--reference-template", type=Path,
+                    help="검수한 로컬 참조 매니페스트. 원본 지도·도형을 유지하며 사업명을 재생성")
+    ap.add_argument("--detail", default="10m", choices=["10m", "50m", "110m"])
     ap.add_argument("--scale", type=int, default=2, help="PNG 배율 (2 = 192dpi)")
     ap.add_argument("--flat", action="store_true",
                     help="날짜 하위폴더 없이 outdir 에 바로 쓴다 (덮어쓰기)")
     a = ap.parse_args()
 
+    if a.reference_template:
+        if not a.input or len(a.input) != 1:
+            ap.error("참조 생성은 국가별 입력 1개와 그 국가의 매니페스트를 사용합니다")
+        if a.formats and a.formats != ["pptx"]:
+            ap.error("참조 생성은 PPTX를 보존합니다. PDF는 PowerPoint에서 내보내세요")
+        import reference_pptx
+        outdir = Path(a.outdir) if a.flat else stamped_dir(Path(a.outdir))
+        out = outdir / f"{Path(a.input[0]).stem}.pptx"
+        try:
+            report = reference_pptx.build(read_json(Path(a.input[0])),
+                                          a.reference_template, out, a.lang)
+        except (ValueError, OSError) as e:
+            ap.error(str(e))
+        write_json(out.with_suffix(".reference-report.json"), report, indent=2)
+        log(f"참조 생성 완료 → {out} ({report['slides']}장, 사업 {report['projects']}건)")
+        log("  원본 지도·편집 가능한 도형을 보존했습니다. PowerPoint에서 비교 검수하세요.")
+        return 0
+
     # 실행마다 out/<날짜_시각>/ 로 나눠 이전 산출물을 지키고, out/latest 로 최신을 가리킨다
     outdir = Path(a.outdir) if a.flat else stamped_dir(Path(a.outdir))
-    made = run([Path(p) for p in a.input], outdir, a.lang, a.formats,
+    if a.country:
+        import fetch_projects
+        inputs = []
+        for country in a.country:
+            doc = fetch_projects.collect(country, a.year, False)
+            if not a.include_unselected:
+                doc["projects"] = [p for p in doc["projects"] if p["selected"]]
+            if not doc["projects"]:
+                ap.error(f"{country}: 조건에 맞는 사업이 없습니다. 연도·선택 조건을 확인하세요")
+            inputs.append(write_json(outdir / "inputs" / f"{country}.json", doc, indent=2))
+    else:
+        inputs = [Path(p) for p in a.input]
+    made = run(inputs, outdir, a.lang or ["ko"],
+               a.formats or ["html", "pdf", "pptx"],
                a.detail, a.scale)
     log(f"\n생성 완료 → {outdir}")
     if not a.flat:

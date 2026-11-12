@@ -56,13 +56,14 @@ def draw_map(L: dict, tok: dict) -> str:
         s.append(f'<image x="{f["x"]:.4f}" y="{f["y"]:.4f}" width="{f["w"]:.4f}" '
                  f'height="{f["h"]:.4f}" preserveAspectRatio="none" '
                  f'href="{_data_uri(tiles["png"])}"/>')
-        outer = (f'M{f["x"]:.4f},{f["y"]:.4f} H{f["x"]+f["w"]:.4f} '
-                 f'V{f["y"]+f["h"]:.4f} H{f["x"]:.4f} Z')
-        s.append(f'<path d="{outer} {path_of(m["land"])}" fill-rule="evenodd" '
-                 f'fill="{ms["neighbor"]}" fill-opacity="{ms.get("mask_opacity", 0.8)}"/>')
+        # Mask neighboring land only. Masking the whole outside polygon also
+        # paints the ocean gray and makes island countries look landlocked.
+        for n in m["neighbors"]:
+            s.append(f'<path d="{path_of(n["rings"])}" fill="{ms["neighbor"]}" '
+                     f'fill-opacity="{ms.get("mask_opacity", .8)}"/>')
     else:
         s.append(f'<rect x="{f["x"]:.4f}" y="{f["y"]:.4f}" width="{f["w"]:.4f}" '
-                 f'height="{f["h"]:.4f}" fill="{ms["neighbor"]}"/>')
+                 f'height="{f["h"]:.4f}" fill="{ms.get("ocean", ms["lake"])}"/>')
         for n in m["neighbors"]:
             s.append(f'<path d="{path_of(n["rings"])}" fill="{ms["neighbor"]}" '
                      f'stroke="#D9D4D0" stroke-width="0.004"/>')
@@ -76,6 +77,17 @@ def draw_map(L: dict, tok: dict) -> str:
             s.append(f'<path d="{path_of(m["lakes"])}" fill="{ms["lake"]}" '
                      f'stroke="{ms["river"]}" stroke-width="{0.3*PT:.5f}"/>')
 
+    # Shortbread water_lines start at z9. At national scales, supplement with
+    # Natural Earth 10m rivers instead of silently losing the entire river net.
+    # https://shortbread-tiles.org/schema/1.1/#layer-water_lines
+    if tiles and m.get("projection", {}).get("zoom", 99) < 9 and m.get("rivers"):
+        d = " ".join("M" + " L".join(f"{p[0]:.4f},{p[1]:.4f}" for p in r)
+                     for r in m["rivers"] if len(r) > 1)
+        s.append(f'<clipPath id="countryclip"><path d="{path_of(m["land"])}"/></clipPath>')
+        s.append(f'<path d="{d}" fill="none" stroke="{ms["river"]}" '
+                 f'stroke-width="{ms["river_w"]*PT:.5f}" stroke-linecap="round" '
+                 f'clip-path="url(#countryclip)"/>')
+
     # 공개 VersaTiles Shortbread 경계는 admin 2/4로 제한되어 시·군급 경계가 없다.
     # 타일 사용 여부와 무관하게 geoBoundaries ADM2를 위에 겹쳐 도시 구조를 보존한다.
     if m.get("admin2"):
@@ -85,7 +97,7 @@ def draw_map(L: dict, tok: dict) -> str:
                  f'opacity="0.85"/>')
 
     for n in m["neighbors"]:                       # 주변국 이름 (샘플의 CHINA/INDIA)
-        lab = _neighbor_label(n, f)
+        lab = _neighbor_label(n, f, m["land"])
         if lab:
             s.append(lab)
     # 국경 — 타일 배경이든 벡터든 대상국 윤곽은 또렷해야 한다
@@ -98,78 +110,131 @@ def draw_map(L: dict, tok: dict) -> str:
                  f'stroke-dasharray="{ms["admin1_dash"].replace(",", " ")}" '
                  f'opacity="0.7"/>')
 
-    # 주 이름은 사업 마커를 피한다 — 핀을 덮으면 지도의 본래 목적이 가려진다.
-    # 반대로 **도시 이름은 마커를 피하지 않는다.** 사업이 있는 도시(카트만두·포카라)의
-    # 이름이야말로 꼭 보여야 하고, 라벨은 점 오른쪽으로 비껴 찍혀 겹치지도 않는다.
-    marker_boxes = [(mk["x"] - 0.13, mk["y"] - 0.13, mk["x"] + 0.13, mk["y"] + 0.13)
-                    for mk in L.get("markers", [])]
-    placed = []
-    al = ms["admin1_label"]
-    for a in m.get("admin1_labels", []):
-        if a.get("area", 1) < al["min_area"]:
-            continue
-        w = len(a["name"]) * (al["size"] * PT * 0.62 + al["tracking"])
-        # 중심이 막히면 위아래로 조금씩 비켜본다. 그래도 안 되면 생략한다.
-        spot = None
-        for dx, dy in ((0, 0), (0, -0.17), (0, 0.17), (-0.22, 0), (0.22, 0),
-                       (0, -0.32), (0, 0.32)):
-            x, y = a["x"] + dx, a["y"] + dy
-            if not (f["x"] + 0.15 < x < f["x"] + f["w"] - 0.15
-                    and f["y"] + 0.1 < y < f["y"] + f["h"] - 0.1):
+    if "labels" in m:
+        s.append(draw_map_labels(m["labels"], ms))
+    else:
+        # 주 이름은 사업 마커를 피한다 — 핀을 덮으면 지도의 본래 목적이 가려진다.
+        # 반대로 **도시 이름은 마커를 피하지 않는다.** 사업이 있는 도시(카트만두·포카라)의
+        # 이름이야말로 꼭 보여야 하고, 라벨은 점 오른쪽으로 비껴 찍혀 겹치지도 않는다.
+        marker_boxes = [(mk["x"] - 0.13, mk["y"] - 0.13, mk["x"] + 0.13, mk["y"] + 0.13)
+                        for mk in L.get("markers", [])]
+        placed = []
+        al = ms["admin1_label"]
+        for a in m.get("admin1_labels", []):
+            if a.get("area", 1) < al["min_area"]:
                 continue
-            box = (x - w / 2, y - 0.06, x + w / 2, y + 0.06)
-            if not any(_overlap(box, b) for b in placed + marker_boxes):
-                spot = (x, y, box)
-                break
-        if not spot:
-            continue
-        x, y, box = spot
-        placed.append(box)
-        s.append(f'<text x="{x:.4f}" y="{y:.4f}" font-size="{al["size"]*PT:.5f}" '
-                 f'fill="{al["color"]}" text-anchor="middle" font-weight="700" '
-                 f'letter-spacing="{al["tracking"]:.4f}" paint-order="stroke" '
-                 f'stroke="#FFFFFF" stroke-width="0.014">{esc(a["name"])}</text>')
+            w = len(a["name"]) * (al["size"] * PT * 0.62 + al["tracking"])
+            # 중심이 막히면 위아래로 조금씩 비켜본다. 그래도 안 되면 생략한다.
+            spot = None
+            for dx, dy in ((0, 0), (0, -0.17), (0, 0.17), (-0.22, 0), (0.22, 0),
+                           (0, -0.32), (0, 0.32)):
+                x, y = a["x"] + dx, a["y"] + dy
+                if not (f["x"] + 0.15 < x < f["x"] + f["w"] - 0.15
+                        and f["y"] + 0.1 < y < f["y"] + f["h"] - 0.1):
+                    continue
+                box = (x - w / 2, y - 0.06, x + w / 2, y + 0.06)
+                if not any(_overlap(box, b) for b in placed + marker_boxes):
+                    spot = (x, y, box)
+                    break
+            if not spot:
+                continue
+            x, y, box = spot
+            placed.append(box)
+            s.append(f'<text x="{x:.4f}" y="{y:.4f}" font-size="{al["size"]*PT:.5f}" '
+                     f'fill="{al["color"]}" text-anchor="middle" font-weight="700" '
+                     f'letter-spacing="{al["tracking"]:.4f}" paint-order="stroke" '
+                     f'stroke="#FFFFFF" stroke-width="0.014">{esc(a["name"])}</text>')
 
-    cl = ms["city_label"]
-    shown = 0
-    for c in m.get("cities", []):
-        if shown >= ms.get("city_max", 46):
-            break
-        if not (f["x"] + 0.05 < c["x"] < f["x"] + f["w"] - 0.4
-                and f["y"] + 0.05 < c["y"] < f["y"] + f["h"] - 0.05):
-            continue
-        w = len(c["name"]) * cl["size"] * PT * 0.55
-        box = (c["x"] - 0.02, c["y"] - 0.045, c["x"] + 0.05 + w, c["y"] + 0.045)
-        if any(_overlap(box, b) for b in placed):
-            continue
-        placed.append(box)
-        shown += 1
-        s.append(f'<circle cx="{c["x"]:.4f}" cy="{c["y"]:.4f}" r="{ms["city_dot_r"]:.4f}" '
-                 f'fill="#FFFFFF" stroke="{ms["city_dot"]}" stroke-width="0.006"/>')
-        s.append(f'<text x="{c["x"]+0.045:.4f}" y="{c["y"]+0.028:.4f}" '
-                 f'font-size="{cl["size"]*PT:.5f}" fill="{cl["color"]}" '
-                 f'paint-order="stroke" stroke="#FFFFFF" stroke-width="0.016">'
-                 f'{esc(c["name"])}</text>')
+        cl = ms["city_label"]
+        shown = 0
+        for c in m.get("cities", []):
+            if shown >= ms.get("city_max", 46):
+                break
+            if not (f["x"] + 0.05 < c["x"] < f["x"] + f["w"] - 0.4
+                    and f["y"] + 0.05 < c["y"] < f["y"] + f["h"] - 0.05):
+                continue
+            w = len(c["name"]) * cl["size"] * PT * 0.55
+            box = (c["x"] - 0.02, c["y"] - 0.045, c["x"] + 0.05 + w, c["y"] + 0.045)
+            if any(_overlap(box, b) for b in placed):
+                continue
+            placed.append(box)
+            shown += 1
+            s.append(f'<circle cx="{c["x"]:.4f}" cy="{c["y"]:.4f}" r="{ms["city_dot_r"]:.4f}" '
+                     f'fill="#FFFFFF" stroke="{ms["city_dot"]}" stroke-width="0.006"/>')
+            s.append(f'<text x="{c["x"]+0.045:.4f}" y="{c["y"]+0.028:.4f}" '
+                     f'font-size="{cl["size"]*PT:.5f}" fill="{cl["color"]}" '
+                     f'paint-order="stroke" stroke="#FFFFFF" stroke-width="0.016">'
+                     f'{esc(c["name"])}</text>')
+    if m.get("locator"):
+        s.append(draw_locator(m["locator"], L["lang"]))
     s.append("</g>")
     return "\n".join(s)
+
+
+def draw_map_labels(labels, style):
+    parts=[]
+    for label in labels:
+        admin=label["kind"]=="admin"
+        if not admin and not label.get("bold"):
+            x,y=label["dot"]
+            parts.append(f'<circle cx="{x:.4f}" cy="{y:.4f}" r=".014" fill="#fff" stroke="#85817D" stroke-width=".004"/>')
+        family='Georgia, serif' if admin else 'Malgun Gothic, 맑은 고딕, sans-serif'
+        color=style["admin1_label"]["color"] if admin else style["city_label"]["color"]
+        anchor='middle' if admin else 'start'
+        parts.append(f'<text x="{label["x"]:.4f}" y="{label["y"]:.4f}" '
+                     f'font-size="{label["size"]*PT:.5f}" text-anchor="{anchor}" '
+                     f'style="font-family:{family}" font-weight="{700 if label.get("bold") else 400}" '
+                     f'fill="{color}" paint-order="stroke" stroke="#FFFFFF" stroke-width=".012">{esc(label["name"])}</text>')
+    return "\n".join(parts)
+
+
+def draw_locator(locator, lang):
+    f=locator["frame"]
+    parts=[f'<rect x="{f["x"]:.4f}" y="{f["y"]:.4f}" width="{f["w"]:.4f}" height="{f["h"]:.4f}" fill="#F2F8FA" stroke="#ADB5B8" stroke-width=".005"/>',
+           f'<path d="{path_of(locator["land"])}" fill="#D8E0DD" stroke="#879A99" stroke-width=".004"/>']
+    for point in locator["markers"]:
+        parts.append(f'<circle cx="{point["x"]:.4f}" cy="{point["y"]:.4f}" r=".017" fill="#ED1C24"/>')
+    label='국가 전체' if lang=='ko' else 'Country overview'
+    parts.append(f'<text x="{f["x"]+.04:.4f}" y="{f["y"]+.09:.4f}" font-size=".065" fill="#69777D">{label}</text>')
+    return "\n".join(parts)
 
 
 def _overlap(a, b) -> bool:
     return not (a[2] < b[0] or b[2] < a[0] or a[3] < b[1] or b[3] < a[1])
 
 
-def _neighbor_label(n: dict, f: dict):
+def _inside_rings(x, y, rings):
+    for ring in rings:
+        inside = False
+        for i, a in enumerate(ring):
+            b = ring[i-1]
+            if (a[1] > y) != (b[1] > y) and x < (b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0]:
+                inside = not inside
+        if inside:
+            return True
+    return False
+
+
+def _neighbor_label(n: dict, f: dict, target_land=None):
     """주변국 이름(샘플의 CHINA/INDIA).
 
     전체 중심은 대부분 화면 밖이라 쓸 수 없다. **프레임 안에 들어온 점들만** 모아
     그 중심에 찍는다."""
-    x0, y0 = f["x"] + 0.35, f["y"] + 0.28
-    x1, y1 = f["x"] + f["w"] - 0.35, f["y"] + f["h"] - 0.28
-    inside = [p for r in n["rings"] for p in r if x0 < p[0] < x1 and y0 < p[1] < y1]
+    name = n.get("name", "")
+    label_w = len(name) * 9.0 * PT * .72 + max(0, len(name)-1) * .025
+    margin = max(.35, label_w/2 + .05)
+    x0, y0 = f["x"] + margin, f["y"] + 0.28
+    x1, y1 = f["x"] + f["w"] - margin, f["y"] + f["h"] - 0.28
+    if x1 <= x0:
+        return None
+    inside = [[x0+(x1-x0)*i/8,y0+(y1-y0)*j/6] for i in range(9) for j in range(7)
+              if _inside_rings(x0+(x1-x0)*i/8,y0+(y1-y0)*j/6,n["rings"])
+              and not _inside_rings(x0+(x1-x0)*i/8,y0+(y1-y0)*j/6,target_land or [])]
     if len(inside) < 3 or not n.get("name"):
         return None
-    x = sum(p[0] for p in inside) / len(inside)
-    y = sum(p[1] for p in inside) / len(inside)
+    cx = sum(p[0] for p in inside) / len(inside)
+    cy = sum(p[1] for p in inside) / len(inside)
+    x,y=min(inside,key=lambda p:(p[0]-cx)**2+(p[1]-cy)**2)
     return (f'<text x="{x:.4f}" y="{y:.4f}" font-size="{9.0*PT:.5f}" fill="#C4BEB9" '
             f'text-anchor="middle" letter-spacing="0.025">{esc(n["name"])}</text>')
 
@@ -212,7 +277,7 @@ def draw_cards(L: dict, tok: dict) -> str:
         if c.get("show_place", True):
             out.append(f'<text x="{x:.4f}" y="{y + cd["place"]["h"]*0.72:.4f}" '
                        f'font-size="{c.get("place_font", cd["place"]["size"])*PT:.5f}" font-weight="700" '
-                       f'fill="{col["heading"]}" paint-order="stroke" stroke="#FFFFFF" '
+                       f'fill="{col["heading"]}" letter-spacing="{-0.64*PT:.5f}" paint-order="stroke" stroke="#FFFFFF" '
                        f'stroke-width="{0.026:.4f}" stroke-linejoin="round">{esc(c["place"])}</text>')
         # 분야 배지
         bx = x + bd["dx"]
@@ -225,18 +290,18 @@ def draw_cards(L: dict, tok: dict) -> str:
                        f'text-anchor="middle" font-weight="700">{esc(_sym(k))}</text>')
             bx += bd["w"] + bd["gap"]
         # 사업명 — 지시선이 글자를 관통하므로 흰 테두리를 깔아 가독성을 지킨다
-        tx = x + cd["name"]["dx"]
+        tx = x + c.get("first_line_dx", cd["name"]["dx"])
         ty = y + body_dy + c["line_h"] * 0.75
         for i, line in enumerate(c["lines"]):
             lx = tx if i == 0 else x + cd["name"]["dx"]
             out.append(f'<text x="{lx:.4f}" y="{ty:.4f}" font-size="{c["font"]*PT:.5f}" '
-                       f'fill="{col["body"]}" paint-order="stroke" stroke="#FFFFFF" '
+                       f'fill="{col["body"]}" letter-spacing="{c.get("tracking_pt", 0)*PT:.5f}" paint-order="stroke" stroke="#FFFFFF" '
                        f'stroke-width="{0.022:.4f}" stroke-linejoin="round">{esc(line)}</text>')
             ty += c["line_h"]
         # 다중 대상지 사업의 설명 — 그 카드 안에 붙는다 (원본과 동일)
         if c.get("note"):
             out.append(f'<text x="{x + cd["name"]["dx"]:.4f}" y="{ty:.4f}" '
-                       f'font-size="{c["font"]*PT:.5f}" fill="{col["area_ring"]}" '
+                       f'font-size="{c["font"]*PT:.5f}" fill="{c.get("note_color", col["area_ring"])}" '
                        f'font-weight="700" paint-order="stroke" stroke="#FFFFFF" '
                        f'stroke-width="{0.022:.4f}">{esc(c["note"])}</text>')
     return "\n".join(out)
@@ -402,12 +467,24 @@ def draw_notes(L: dict, tok: dict) -> str:
             f'{esc(" ".join(L["notes"]))}</text>')
 
 
-def draw_credit(L: dict, tok: dict) -> str:
+def credit_text(L: dict) -> str:
     tile_credit = ("Map tiles © OpenStreetMap contributors"
                    if L.get("lang") == "en"
                    else "지도 타일 © OpenStreetMap contributors")
     src = ("Natural Earth · geoBoundaries (CC BY) · GeoNames (CC BY)"
            + (f" · {tile_credit}" if L["map"].get("tiles") else ""))
+    if L.get("source", {}).get("projects"):
+        date = L["source"].get("retrieved_at", "")
+        src += f" · oda-map-lab ({date} 수집)" if L.get("lang") != "en" else f" · oda-map-lab (retrieved {date})"
+    if L.get("location_status") == "source-group-unverified":
+        src += " · 원천 대표위치: 사업지 확인 필요" if L.get("lang") != "en" else " · Source representative locations; sites need verification"
+    if L.get("pages", 1) > 1:
+        src += f" · {L['page']}/{L['pages']}"
+    return src
+
+
+def draw_credit(L: dict, tok: dict) -> str:
+    src = credit_text(L)
     return (f'<text x="0.22" y="{tok["canvas"]["h_in"]-0.16:.4f}" '
             f'font-size="{4.6*PT:.5f}" fill="#B4B4B4">{esc(src)}</text>')
 
@@ -427,7 +504,7 @@ def render(L: dict, layers: str = "all") -> str:
         draw_title(L, tok),
         draw_region_tab(L, tok),
         draw_legend(L, tok),
-        
+
         draw_credit(L, tok),
     ]
     body = "\n".join(parts)
@@ -437,6 +514,15 @@ def render(L: dict, layers: str = "all") -> str:
     tpl = (SKILL_DIR / "assets" / "template.html").read_text(encoding="utf-8")
     title = f'{L["country"]["ko"]} 프로젝트맵' if L["lang"] == "ko" \
         else f'{L["country"]["en"]} Project Map'
+    from text_metrics import font_path
+    font=font_path()
+    if font:
+        css=(f'<style>@font-face{{font-family:"맑은 고딕";src:url("{font.as_uri()}")}}'
+             f'@font-face{{font-family:"Malgun Gothic";src:url("{font.as_uri()}")}}</style>')
+        bold=font_path(True)
+        if bold:
+            css+=f'<style>@font-face{{font-family:"맑은 고딕";font-weight:700;src:url("{bold.as_uri()}")}}@font-face{{font-family:"Malgun Gothic";font-weight:700;src:url("{bold.as_uri()}")}}</style>'
+        tpl=tpl.replace('<div class="sheet">',css+'<div class="sheet">')
     return tpl.replace("{{TITLE}}", esc(title)).replace("{{SVG}}", svg)
 
 

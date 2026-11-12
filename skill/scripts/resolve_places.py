@@ -179,10 +179,32 @@ def harmonize_levels(parts: list) -> None:
                       "lon": alt["lon"], "lat": alt["lat"], "harmonized": True})
 
 
-def resolve(country: str, entries: list, detail: str = "50m") -> dict:
+def title_location_conflicts(entry: dict, parts: list, index: list) -> list:
+    """Flag a named city far from a source group's representative coordinate.
+
+    This is an inconsistency check, not an automatic relocation. The title may
+    mention an institution or a broader area, so a person must resolve the case.
+    """
+    if entry.get("_location_basis") != "group-representative":
+        return []
+    title = norm(entry.get("name_en", ""))
+    points = [p for p in parts if p.get("ok") and p.get("lon") is not None]
+    if not title or not points:
+        return []
+    found = set()
+    for label, canon, level, lon, lat, pop in index:
+        name = norm(label)
+        if level != "city" or len(name) < 5 or not re.search(r"(?<!\w)" + re.escape(name) + r"(?!\w)", title):
+            continue
+        if all(math.hypot((lon-p["lon"])*math.cos(math.radians(lat)),lat-p["lat"]) > .5 for p in points):
+            found.add(canon)
+    return sorted(found)
+
+
+def resolve(country: str, entries: list, detail: str = "50m", *, use_gazetteer: bool = True) -> dict:
     doc = ensure_country(country, detail)
     index = build_index(doc)
-    gaz = load_gazetteer()
+    gaz = load_gazetteer() if use_gazetteer else {}
     iso3 = doc["iso3"]
     out, unresolved = [], []
 
@@ -239,7 +261,9 @@ def resolve(country: str, entries: list, detail: str = "50m") -> dict:
             for p in parts:
                 if p.get("ok"):
                     p["kind"] = forced
+        conflicts = title_location_conflicts(e, parts, index)
         out.append({"query": raw, "label": raw, "parts": parts,
+                    "source_conflicts": conflicts,
                     "resolved": all(p.get("ok") for p in parts) and bool(parts)})
 
     return {"country": country, "iso3": iso3, "places": out,

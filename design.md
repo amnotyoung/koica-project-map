@@ -6,6 +6,11 @@
 - **이 문서** = 디자인 토큰 + 판단 규칙 (*무엇을* 그리나)
 - **`layout.py`** = 배치 계산 (*어떻게* 배치하나)
 
+인간 작성본은 외형과 가독성의 비교 기준이다. 기본 생성 경로는 원본 PPTX의
+지도 이미지나 도형을 읽지 않으며, 공개 사업·지리자료로 새 지도를 생성한다.
+`--reference-template`은 원본 재사용을 사용자가 명시한 경우에만 쓰는 별도 경로다.
+지시선 교차 수는 보조 지표이며, 카드와 지명의 가독성 및 장소별 관계를 함께 본다.
+
 배치 알고리즘을 이 문서에 산문으로 쓰지 말 것. 실행마다 해석이 달라져 결과가 흔들린다. 아래 `## 디자인 토큰`의 YAML 블록은 스크립트가 직접 파싱하므로 **문법을 유지**해야 한다.
 
 측정 근거: `ppt/slides/slide1.xml`(네팔·국문), `slide3.xml`(동티모르), `ppt/theme/theme1.xml`, `ppt/media/image1.jpg`. 좌표 단위는 인치(1in = 914,400 EMU).
@@ -100,7 +105,7 @@ legend:
 card:
   place: {h: 0.15, size: 8.98}             # 지명 헤딩
   badge: {w: 0.098, h: 0.096, dx: 0.0, dy: 0.267, size: 4.81, gap: 0.02}
-  name:  {w: 2.08, dx: 0.152, dy: 0.239, size: 7.7, line_h: 0.13, char_w: 0.107}
+  name:  {w: 2.08, dx: 0.152, dy: 0.239, size: 7.7, line_h: 0.13, char_w: 0.107, tracking_pt: -0.64}
   gap: 0.10                               # 카드 간 최소 여백
 
 marker:
@@ -130,17 +135,17 @@ map_style:
   land:        "#FFFFFF"   # 대상국 국토
   neighbor:    "#EEEAE7"   # 주변국·배경
   border:      "#231F20"   # 국경
-  border_w:    1.2
+  border_w:    0.75
   admin1:      "#C0504D"   # 주 경계 (점선)
-  admin1_w:    0.6
+  admin1_w:    0.4
   admin1_dash: "0.045,0.03"   # 인치 단위 — SVG user unit 이 1in 이다
   admin2:      "#C9A9A6"   # 군 경계 (더 옅게)
-  admin2_w:    0.3
+  admin2_w:    0.18
   admin2_dash: "0.018,0.02"
   admin1_label: {size: 6.4, color: "#CE7B3C", tracking: 0.014, min_area: 0.25}
-  river:       "#7CACCC"
+  river:       "#649CB8"
   river_w:     0.5
-  road:        "#E5A199"   # 타일 배경의 도로망 (원본 샘플의 분홍 도로)
+  road:        "#D49B8D"   # 작은 크기에서도 읽히는 도로망
   road_local:  "#E7B6B0"   # 도시 상세 모드의 주거·이면도로
   rail:        "#B8AEAA"   # 철도
   forest:      "#EEF3EC"   # 도시 상세 모드 토지피복
@@ -148,11 +153,12 @@ map_style:
   developed_land: "#F4EEEB" # 주거·상업·산업 지역
   tile_land:   "#FFFFFF"   # 타일 배경의 육지 — 국토를 희게 해야 도로가 도드라진다
   mask_opacity: 0.80       # 국토 밖을 덮는 정도
-  lake:        "#D6E7F2"
+  lake:        "#E7F3F7"
+  ocean:       "#EFF8FB"
   city_dot:    "#767676"
   city_dot_r:  0.018
   city_label:  {size: 5.5, color: "#3F3F3F"}
-  city_max:    46
+  city_max:    76
 ```
 
 ---
@@ -225,14 +231,17 @@ GeoNames·geoBoundaries 로 라틴 표기와 충돌 회피까지 처리해 직�
 투영은 **Web Mercator** 다. `layout.Projection` 이 MapLibre 와 같은 수식을 써야 핀이 맞는다.
 네트워크나 Chrome 이 없으면 조용히 Natural Earth 벡터 배경으로 되돌아간다.
 
-지도 밀도 기본값은 범위와 무관하게 `city`다. 같은 지리 범위를 5배 큰 CSS 캔버스에
-맞춰 상세 타일로 굽고 최종 프레임으로 축소하므로, 국가 전체와 도시·시도급 지도 모두
-과테말라시티 참조본 수준의 선명도와 해당 축척에서 제공되는 도로·철도·토지피복을 쓴다.
-전국 범위는 피처 수와 타일 zoom을 유지하되 선 굵기 보정을 도시 확대본의 40%까지
-낮춘다. z8.5 이하는 40%, z11.5 이상은 100%이며 그 사이는 선형 보간한다. 배경 도로가
-검정 지시선·빨간 점·초록 원보다 시각적으로 먼저 보여서는 안 된다.
-입력의 `map_density: standard`는 사용자가 단순화·경량 출력을 명시할 때만 사용한다.
-건물 폴리곤은 Shortbread에서 z14부터라 광역 도시권 한 장에는 넣지 않는다.
+지도 밀도 기본값은 `atlas`(520 CSS px/in, DPR 1)다. 국토는 흰색으로 유지하고,
+토지피복의 회색 얼룩을 제거한다. 도로·하천은 가늘어도 작은 출력에서 식별될 대비를
+유지한다. Shortbread 하천 선은 z9부터 제공되므로, 낮은 줌에서는 Natural Earth
+10m 수계를 함께 그린다. `city`는 650 CSS px/in와 토지피복·생활도로를 사용한다.
+`standard`는 경량 출력용이다. 실제 타일 스타일·범위·해상도를 캐시 키에 포함한다.
+
+글자는 설치된 글꼴과 본문 자간(-0.64pt)을 기준으로 측정한다. 여러 분야 배지가
+붙으면 첫 줄 시작점만 이동하며, HTML과 PPTX가 그 좌표를 공유한다. 글자를 줄여
+여러 사업을 한 장에 밀어 넣기 전에 자동 페이지 분할을 사용한다. PowerPoint 제목은
+`wrap=none`으로 한 줄을 명시한다. 원본의 좁은 상자와 `wrap=square`를 그대로
+모사하면 새 문구에서 영문 국가명이 아래로 떨어질 수 있기 때문이다.
 
 ### 마커
 | 한 사업의 대상지 수 | 마커 | 근거 |

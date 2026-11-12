@@ -24,11 +24,13 @@ import json
 import math
 import sys
 import unicodedata
+from copy import deepcopy
 from pathlib import Path
 
 from common import GEO_CACHE, design_tokens, log, read_json, write_json
 import geo_prepare
 import resolve_places
+from text_metrics import measure as measured_width
 
 MIN_FONT_SCALE = 0.85     # design.md 규칙 4 — 폰트는 15% 까지만 줄인다
 
@@ -58,7 +60,8 @@ REGION_EN = {
 
 TILE_PX_PER_IN = 130       # 표준 지도: 인치당 CSS 픽셀
 CITY_TILE_PX_PER_IN = 650  # 도시 상세: z12 생활도로를 받기 위한 5배 타일 밀도
-MAP_DENSITIES = {"standard", "city"}
+ATLAS_TILE_PX_PER_IN = 520  # 상세 지물을 유지하고 DPR=1로 출력 해상도 중복 확대를 피한다
+MAP_DENSITIES = {"standard", "city", "atlas"}
 THIN_LINE_ZOOM = 8.5       # 전국 범위: 표식을 가리지 않도록 선을 가늘게
 FULL_LINE_ZOOM = 11.5      # 도시 범위: 과테말라시티 참조본의 굵기를 그대로 유지
 
@@ -66,12 +69,11 @@ FULL_LINE_ZOOM = 11.5      # 도시 범위: 과테말라시티 참조본의 굵�
 def choose_map_density(doc: dict) -> str:
     """지도 범위에 맞는 실제 타일 밀도를 고른다.
 
-    국가 전체와 도시·시도급 확대 지도 모두 과테말라시티 참조본과 같은 5배 타일
-    밀도를 기본으로 쓴다. 경량 지도가 꼭 필요할 때만 입력에서 `standard`로 낮춘다.
+    전국 지도는 atlas, 명시적인 도시 범위는 city. 출력 해상도는 별도로 유지한다.
     """
-    requested = str(doc.get("map_density", "city")).strip().lower()
+    requested = str(doc.get("map_density", "atlas")).strip().lower()
     if requested not in MAP_DENSITIES:
-        raise ValueError("map_density는 'standard' 또는 'city'여야 합니다")
+        raise ValueError("map_density는 'standard', 'city', 'atlas'여야 합니다")
     return requested
 
 
@@ -83,6 +85,8 @@ def tile_line_scale(proj: "Projection") -> float:
     100%를 쓰고 그 사이는 선형 보간한다. 타일 zoom과 피처 수는 건드리지 않는다.
     """
     density_scale = max(1.0, proj.px_per_in / TILE_PX_PER_IN)
+    if proj.px_per_in == ATLAS_TILE_PX_PER_IN:
+        return round(density_scale * .40, 3)
     if density_scale <= 1.0:
         return 1.0
     zoom = proj.view["zoom"]
@@ -207,11 +211,19 @@ def wrap_text(s: str, width_in: float, size_pt: float, first_indent: float = 0.0
     for token in _tokens(s):
         avail = width_in - (first_indent if not lines else 0.0)
         trial = cur + token
-        if cur and text_width(trial, size_pt) > avail:
+        if cur and measured_width(trial, size_pt) > avail:
             lines.append(cur.rstrip())
             cur = token.lstrip() if token.strip() else ""
         else:
             cur = trial
+        # A long unbroken name/URL must not run outside its text box.
+        while measured_width(cur, size_pt) > (width_in - (first_indent if not lines else 0.0)):
+            available = width_in - (first_indent if not lines else 0.0)
+            cut = next((i for i in range(1, len(cur)+1)
+                        if measured_width(cur[:i], size_pt) > available), len(cur))
+            cut = max(1, cut-1)
+            lines.append(cur[:cut].rstrip())
+            cur = cur[cut:].lstrip()
     if cur.strip():
         lines.append(cur.rstrip())
     # 마지막 줄에 닫는 괄호만 떨어지면 앞줄에 붙인다 ('…1,200만불' / ')' 방지).
@@ -247,23 +259,31 @@ def build_card(proj_rec: dict, tok: dict, lang: str, scale: float,
     name = proj_rec.get(f"name_{lang}") or proj_rec.get("name_ko") or ""
     badges = proj_rec.get("badges") or []
     # 배지가 붙는 첫 줄만 배지 폭만큼 좁다
-    indent = len(badges) * (c["badge"]["w"] + c["badge"]["gap"])
+    badge_right = (c["badge"]["dx"] + len(badges) * c["badge"]["w"]
+                   + max(0, len(badges) - 1) * c["badge"]["gap"])
+    first_dx = max(c["name"]["dx"], badge_right + c["badge"]["gap"])
+    indent = first_dx - c["name"]["dx"]
     lines = wrap_text(name, c["name"]["w"], size, first_indent=indent)
     lh = c["name"]["line_h"] * scale
     place = place if place is not None else proj_rec.get("place", "")
-    place_font = _fit_font(place, c["place"]["size"] * scale, c["name"]["w"])
+    preferred = c["place"]["size"] * scale
+    place_font = preferred * min(1, c["name"]["w"] / max(measured_width(place, preferred, True), 1e-9))
     return {
         "place": place,
         "place_font": round(place_font, 2),
         "badges": badges,
         "text": name,
+        "project_id": proj_rec.get("id") or proj_rec.get("_id"),
+        "provenance": {k: proj_rec[k] for k in ("_source_info", "_coord_source", "source_coord") if k in proj_rec},
+        "tracking_pt": c["name"].get("tracking_pt", -0.64),
         "lines": lines,
+        "first_line_dx": round(first_dx, 4),
         "w": c["name"]["w"] + c["name"]["dx"],
         "h": c["name"]["dy"] + len(lines) * lh,
         "body_dy": c["name"]["dy"],
         "line_h": round(lh, 4),
         "font": round(size, 2),
-        "place_w": round(text_width(place, place_font), 4),
+        "place_w": round(measured_width(place, place_font, True), 4),
     }
 
 
@@ -321,6 +341,7 @@ def _title_layout(country_ko: str, country_en: str, lang: str, tok: dict) -> dic
             w = available
         return {
             "mode": "inline_runs",
+            "no_wrap": True,
             "x": round(x, 5),
             "y": text["y_ko"],
             "w": round(w, 5),
@@ -356,6 +377,7 @@ def _title_layout(country_ko: str, country_en: str, lang: str, tok: dict) -> dic
             w = box["x"] + box["w"] - x - 0.04
         return {
             "mode": "single_run",
+            "no_wrap": True,
             "x": round(x, 5),
             "y": text["y_en"],
             "w": round(w, 5),
@@ -619,51 +641,130 @@ def order_for(pins: list, axis: int) -> list:
 
 # ─────────────────────────────── 본체 ───────────────────────────────
 
-def compute(doc: dict, lang: str = "ko", index: int = 1,
-            detail: str = "50m", force_scale: float | None = None) -> dict:
-    """force_scale 을 주면 그 배율로 고정한다 — 국문·영문 슬라이드를 짝으로 맞출 때 쓴다
-    (design.md 판단 규칙 5)."""
-    tok = design_tokens()
-    country = doc["country"]
-    resolved = resolve_places.resolve(country, doc["projects"], detail)
-    iso3 = resolved["iso3"]
-    bp = GEO_CACHE / f"{iso3}_basemap.json"
+def prepare(doc: dict, detail: str = "50m") -> tuple:
+    """Resolve geography once, independently of reference slides or layout trials."""
+    resolved = resolve_places.resolve(doc["country"], doc["projects"], detail,
+                                      use_gazetteer=doc.get("use_gazetteer", True))
+    bp = GEO_CACHE / f"{resolved['iso3']}_basemap.json"
     base = read_json(bp) if bp.exists() else {}
-    # 레이어가 추가된 뒤라면 옛 캐시를 그대로 쓰면 하천·주 이름 없이 밋밋하게 나온다
-    if base.get("v", 0) < geo_prepare.BASEMAP_VERSION:
-        log(f"  · 지도 캐시가 옛 형식({base.get('v', 0)}) — 다시 만듭니다")
-        geo_prepare.build(country, detail, False)
+    if (base.get("v", 0) < geo_prepare.BASEMAP_VERSION
+            or base.get("source", {}).get("boundary") != f"Natural Earth {detail}"):
+        geo_prepare.build(doc["country"], detail, False)
         base = read_json(bp)
-
-    mode = choose_mode(doc, tok, lang, resolved)
-    L = tok["layout"][mode]
-    map_bbox = doc.get("map_bbox") or base["bbox"]
-    log(f'[{iso3}] {base["name_ko"]} 사업 {len(doc["projects"])}건 '
-        f'· 종횡비 {country_aspect(map_bbox):.2f} → 레이아웃 {mode}')
-
-    for attempt in range(3):
-        scale = force_scale if force_scale else (1.0 if attempt == 0 else MIN_FONT_SCALE)
-        shrink = 0.88 if attempt == 2 else 1.0     # 3차 시도에서 지도를 줄인다
-        frame = dict(L["map"])
-        if shrink < 1.0:
-            frame["w"] *= shrink
-            frame["h"] *= shrink
-        res = _try_layout(doc, resolved, base, tok, L, mode, lang, index,
-                          frame, scale)
-        if res["fits"]:
-            if attempt:
-                log(f"  · 넘침 대응: 폰트 {scale:.2f}배" + (f", 지도 {shrink:.2f}배" if shrink < 1 else ""))
-            return res
-        last = res
-    last["warnings"].append(
-        "카드가 슬라이드를 넘칩니다. 사업 수를 줄이거나 슬라이드를 분할하세요.")
-    return last
+    import cartography
+    extent, locator = cartography.extent(base, resolved, doc.get("map_bbox"))
+    framed = {**doc, "map_bbox": extent, "_locator": locator}
+    return framed, resolved, base
 
 
-def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) -> dict:
+def finish_background(result: dict, base: dict) -> None:
+    m = result["map"]
+    proj = Projection(m["bbox"], m["frame"], px_per_in=m["projection"]["px_per_in"])
+    m["tiles"] = _tile_background(base, proj, m["frame"])
+    if not m["tiles"]:
+        result["warnings"].append("타일 배경을 가져오지 못해 공개 벡터 지리자료로 대체했습니다")
+
+
+def compute(doc: dict, lang: str = "ko", index: int = 1,
+            detail: str = "50m", force_scale: float | None = None,
+            *, render_tiles: bool = True, prepared: tuple | None = None) -> dict:
+    tok = design_tokens()
+    doc, resolved, base = prepared or prepare(doc, detail)
+    preferred = doc.get("_mode") or choose_mode(doc, tok, lang, resolved)
+    modes = [preferred] if doc.get("_mode") else [preferred, "A" if preferred == "B" else "B"]
+    scales = [force_scale] if force_scale is not None else [1.0, .92, MIN_FONT_SCALE]
+    best = None
+    for scale in scales:
+        for mode in modes:
+            spec = tok["layout"][mode]
+            result = _try_layout(doc, resolved, base, tok, spec, mode, lang,
+                                 index, dict(spec["map"]), scale, render_tiles=False)
+            if result["fits"]:
+                if render_tiles:
+                    finish_background(result, base)
+                return result
+            if best is None or len(result["warnings"]) < len(best["warnings"]):
+                best = result
+    best["warnings"].append("이 사업 묶음은 한 장에 들어가지 않습니다. 자동 페이지 분할이 필요합니다")
+    if render_tiles:
+        finish_background(best, base)
+    return best
+
+
+def compute_pages(doc: dict, langs: list, index: int = 1, detail: str = "50m") -> list:
+    """Paginate whole place groups, splitting only groups larger than one page.
+
+    All languages share the same project membership on each page. Trial layouts
+    never download tiles. No record is dropped to make a page fit.
+    """
+    if not doc.get("projects"):
+        raise ValueError("선택된 사업이 없습니다")
+    framed, resolved, base = prepare(doc, detail)
+    # Group on geographic identity, not language-dependent display labels.
+    groups = {}
+    for i, (record, place) in enumerate(zip(doc["projects"], resolved["places"])):
+        coords = tuple(sorted((p.get("lon") or 0, p.get("lat") or 0, p.get("kind", ""))
+                              for p in place["parts"] if p.get("ok")))
+        key = (record.get("place", ""), coords)
+        groups.setdefault(key, []).append(i)
+
+    def trial(indices):
+        subset = {**framed, "projects": [doc["projects"][i] for i in indices]}
+        places = {**resolved, "places": [resolved["places"][i] for i in indices]}
+        prepared = (subset, places, base)
+        candidates = [compute(subset, lang, index, detail, 1.0, render_tiles=False,
+                              prepared=prepared) for lang in langs]
+        if len(indices) == 1 and not all(c["fits"] for c in candidates):
+            candidates = [compute(subset, lang, index, detail, render_tiles=False,
+                                  prepared=prepared) for lang in langs]
+        pair_scale = min(c["font_scale"] for c in candidates)
+        if (any(c["font_scale"] != pair_scale for c in candidates)
+                or len({c["mode"] for c in candidates}) > 1):
+            subset = {**subset, "_mode": "A" if any(c["mode"] == "A" for c in candidates) else "B"}
+            prepared = (subset, places, base)
+            candidates = [compute(subset, lang, index, detail, pair_scale,
+                                  render_tiles=False, prepared=prepared) for lang in langs]
+        return candidates if all(c["fits"] for c in candidates) else None
+
+    packed, current = [], []
+    for group in groups.values():
+        if trial(current + group):
+            current += group
+            continue
+        if current:
+            packed.append(current)
+            current = []
+        if trial(group):
+            current = group[:]
+            continue
+        for i in group:
+            if trial(current + [i]):
+                current.append(i)
+            else:
+                if current:
+                    packed.append(current)
+                current = [i]
+                if not trial(current):
+                    raise ValueError(f"단일 사업도 한 장에 들어가지 않습니다: {doc['projects'][i].get('name_ko', '')[:60]}")
+    if current:
+        packed.append(current)
+    assert sorted(i for page in packed for i in page) == list(range(len(doc["projects"])))
+    results = []
+    for page_index, indices in enumerate(packed, 1):
+        for result in trial(indices):
+            result.update({"page": page_index, "pages": len(packed),
+                           "input_indices": indices, "project_total": len(doc["projects"])})
+            finish_background(result, base)
+            results.append(result)
+    return results
+
+
+def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale,
+                render_tiles=True) -> dict:
     gap = tok["card"]["gap"]
     density = choose_map_density(doc)
-    tile_ppi = CITY_TILE_PX_PER_IN if density == "city" else TILE_PX_PER_IN
+    tile_ppi = {"city": CITY_TILE_PX_PER_IN, "standard": TILE_PX_PER_IN,
+                "atlas": ATLAS_TILE_PX_PER_IN}[density]
     proj = Projection(doc.get("map_bbox") or base["bbox"], frame,
                       px_per_in=tile_ppi)
 
@@ -680,7 +781,8 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) ->
         card = build_card(rec, tok, lang, scale, place=_place_label(rec, rp, lang, country_en))
         pts = []
         valid_parts = [part for part in rp["parts"]
-                       if part.get("ok") and part.get("kind") != "nationwide"]
+                       if part.get("ok") and part.get("kind") != "nationwide"
+                       and not rp.get("source_conflicts")]
         marker_kind = "multi" if len(valid_parts) >= MULTI_SITE_MIN else "point"
         for part in valid_parts:
             xy = proj(part["lon"], part["lat"])
@@ -694,6 +796,12 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) ->
                         "coord_source": part.get("coord_source", "")})
         card["nationwide"] = _is_nationwide(rp["parts"])
         card["points"] = pts
+        if rp.get("source_conflicts"):
+            card["note"] = "* 위치 확인 필요" if lang == "ko" else "* Location needs review"
+            card["note_color"] = "#A16A2D"
+            card["h"] += card["line_h"]
+            card["source_conflicts"] = rp["source_conflicts"]
+            warnings.append(f'위치 불일치: {rec.get("name_ko", "")[:35]} — 원천 {rp["query"]}, 사업명 {", ".join(rp["source_conflicts"])}. 마커 생략')
         markers.extend(pts)
         cards.append(card)
         if not rp["resolved"]:
@@ -760,7 +868,7 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) ->
     outside = check_bounds(placed, legend, tok)
     for o in outside:
         warnings.append(f"슬라이드 밖으로 나갑니다: {o}")
-    fits = _fits(placed, mode, L, tok)
+    fits = _fits(placed, mode, L, tok) and not outside and not text_hits
     country_info = {"ko": doc.get("country_ko") or base["name_ko"],
                     "en": doc.get("country_en") or base["name_en"],
                     "iso3": base["iso3"]}
@@ -776,7 +884,8 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) ->
                     or REGION_EN.get(doc.get("region", ""), doc.get("region", "")))),
         "map": {"frame": frame, "content": proj.content,
                 "density": density, "projection": proj.as_dict(),
-                "tiles": _tile_background(base, proj, frame),
+                "bbox": list(proj.bbox),
+                "tiles": _tile_background(base, proj, frame) if render_tiles else None,
                 "land": proj.rings(base["land"]),
                 "neighbors": [{"name": n["name"], "rings": proj.rings(n["rings"])}
                               for n in base["neighbors"]],
@@ -804,8 +913,20 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale) ->
         "font_scale": scale,
         "warnings": warnings,
         "fits": fits,
-        "source": base.get("source", {}),
+        "source": {**base.get("source", {}), "projects": doc.get("source"),
+                   "build_id": doc.get("source_build_id"), "retrieved_at": doc.get("fetched_at")},
+        "location_status": doc.get("location_status", ""),
+        "renderer": "geographic-data",
     }
+    if doc.get("_locator"):
+        lf = {"x": frame["x"]+.08, "y": frame["y"]+frame["h"]-1.15, "w": 1.65, "h": 1.05}
+        ip = Projection(base["bbox"], lf, px_per_in=130)
+        doc_out["map"]["locator"] = {"frame":lf, "land":ip.rings(base["land"]),
+            "markers":[dict(zip(("x","y"),ip(p["lon"],p["lat"]))) for p in markers]}
+    import cartography
+    doc_out["map"]["labels"] = cartography.place_labels(doc_out["map"],doc_out["markers"],leaders,tok)
+    from text_metrics import mode as metrics_mode
+    doc_out["font_metrics"] = metrics_mode()
     return doc_out
 
 
@@ -865,11 +986,16 @@ def _tile_background(base: dict, proj: "Projection", frame: dict):
     Chrome 이 없으면 조용히 벡터 배경으로 떨어진다.
     """
     import basemap_tiles as bt
-    capture_scale = 1 if proj.px_per_in >= CITY_TILE_PX_PER_IN else 2
-    key = (f'{base["iso3"]}_s{bt.STYLE_VERSION}_dpr{capture_scale}'
-           f'_z{proj.view["zoom"]:.3f}'
-           f'_c{proj.view["center"][0]:.3f}_{proj.view["center"][1]:.3f}'
-           f'_{proj.w_px}x{proj.h_px}.png')
+    import hashlib
+    capture_scale = 1 if proj.px_per_in >= ATLAS_TILE_PX_PER_IN else 2
+    tok = design_tokens()
+    line_scale = tile_line_scale(proj)
+    profile = "city" if proj.px_per_in >= CITY_TILE_PX_PER_IN else "atlas"
+    identity = {"bbox":proj.bbox, "width":proj.w_px, "height":proj.h_px,
+                "dpr":capture_scale, "style":bt.style_json(tok["map_style"],line_scale, profile),
+                "engine":bt.MAPLIBRE_JS}
+    signature = hashlib.sha256(json.dumps(identity,sort_keys=True).encode()).hexdigest()[:20]
+    key = f'{base["iso3"]}_s{bt.STYLE_VERSION}_{signature}.png'
     out = GEO_CACHE / "tiles" / key
     if out.exists() and out.stat().st_size > 20000:
         return {"png": str(out), "w_px": proj.w_px, "h_px": proj.h_px}
@@ -878,7 +1004,7 @@ def _tile_background(base: dict, proj: "Projection", frame: dict):
         tok = design_tokens()
         line_scale = tile_line_scale(proj)
         html, _ = bt.build_html(proj.bbox, proj.w_px, proj.h_px, tok,
-                                line_scale=line_scale)
+                                line_scale=line_scale, profile=profile)
         hp = out.with_suffix(".html")
         hp.parent.mkdir(parents=True, exist_ok=True)
         hp.write_text(html, encoding="utf-8")
@@ -926,11 +1052,13 @@ def _materialize(assign, cards, sides, mode, L, gap, tok, frame) -> list:
 
     placed = []
     y = col["y0"]
+    spare = col["y1"] - col["y0"] - sum(cards[ci]["h"] for _, ci in col_cards)
+    group_gap = max(gap, min(.48, spare / max(1, len(col_cards)-1)))
     for _, ci in col_cards:
         c = dict(cards[ci])
         c.update({"x": col["x"], "y": round(y, 4),
-                  "side": "right" if mode == "B" else "left"})
-        y += c["h"] + gap
+                  "side": "right" if mode == "B" else "left", "_gap": group_gap})
+        y += c["h"] + group_gap
         placed.append(c)
     if row_cards:
         n = len(row_cards)
@@ -947,6 +1075,8 @@ def _materialize(assign, cards, sides, mode, L, gap, tok, frame) -> list:
         c["anchor"] = anchor_of({"x": c["x"], "y": c["y"]}, c, c["side"])
         if c["side"] == "left":
             c["gutter"] = gutter
+        elif c["side"] == "right":
+            c["gutter"] = round(frame["x"] + frame["w"] + .06, 4)
     return placed
 
 
@@ -983,6 +1113,10 @@ def _leaders_of_card(card: dict) -> list:
         pts = [a]
         if gut is not None and a[0] < gut < t[0]:
             pts.append([gut, a[1]])
+        elif gut is not None and t[0] < gut < a[0]:
+            pts.append([gut, a[1]])
+        elif card.get("side") == "bottom" and t[1] < a[1] - .2:
+            pts.append([a[0], a[1]-.20])
         pts.append(t)
         out.append({"points": pts, "from": a, "to": t, "place": card["place"]})
     return out
@@ -1026,14 +1160,14 @@ def _restack(placed: list, side: str) -> None:
         for c in placed:
             if c["side"] == "bottom":
                 c["anchor"] = anchor_of(c, c, c["side"])
-                return
+        return
     col = sorted([c for c in placed if c["side"] == side], key=lambda c: c["y"])
     if not col:
         return
     y = min(c["y"] for c in col)
     for c in col:
         c["y"] = round(y, 4)
-        y += c["h"] + 0.10
+        y += c["h"] + c.get("_gap", .10)
         c["anchor"] = anchor_of(c, c, c["side"])
 
 

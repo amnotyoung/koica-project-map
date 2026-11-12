@@ -13,6 +13,50 @@ skill/.venv/bin/python skill/scripts/make_map.py --input nepal.json --outdir out
 만들고 나면 **정밀화한 위치를 oda-map-lab 에 돌려주라는 제안**이 뜬다.
 `contribute.py` 가 `koica-contrib` 규격 파일을 만들어 주고, 제출은 사용자가 직접 한다.
 
+## 국가별 범용 생성
+
+```bash
+skill/.venv/bin/python skill/scripts/make_map.py \
+  --country 네팔 동티모르 피지 우즈베키스탄 --year 2026 \
+  --outdir out --lang ko --formats html png pptx
+```
+
+원본 PPTX 없이 공개 사업 자료와 지리 데이터로 그린다. 기본 선택은 해당 연도에
+진행되는 KOICA 프로젝트 원조 중 30억원 이상이며, `--include-unselected`로
+그 밖의 KOICA 사업도 포함할 수 있다. 실제 사용한 입력 JSON을 산출 폴더의
+`inputs/`에 저장한다. 사업 수가 많으면 장소별 묶음을 유지하며 여러 장으로
+나누고, 한 장소의 사업만으로 한 장을 넘을 때만 그 묶음을 나눈다.
+
+- **출처 추적:** 사업별 원천 ID·자료 기준일·좌표 출처와 전체 데이터 build ID를
+  입력 및 layout JSON에 남긴다. 수집일은 원천 자료의 기준일과 구별한다.
+- **위치 신뢰도:** 원천 지도 그룹의 대표좌표는 개별 시설 좌표로 확정하지 않는다.
+  사업명에 명시된 도시와 대표위치가 멀리 떨어져 있으면 해당 사업의 마커를 생략하고
+  `위치 확인 필요`를 표시한다. 이 검사는 모든 위치 오류를 탐지하는 검증은 아니다.
+  공개 자료에서 직접 생성할 때는 과거 수동 지명 사전을 기본으로 사용하지 않는다.
+- **지도 표현:** Natural Earth 10m 경계와 geoBoundaries 행정경계, GeoNames 지명,
+  OSM/VersaTiles 도로·수계를 조합한다. 기본 `atlas` 스타일은 흰 국토와 선명한
+  수계·도로를 사용한다. 타일에 하천 선이 없는 z9 미만에서는 Natural Earth
+  수계를 보완한다. 타일 로딩 실패는 경고하고 공개 벡터 자료로 대체한다.
+- **범위와 라벨:** 도서국가는 주요 육지와 모든 사업 위치를 포함하는 범위를 계산하고
+  필요하면 국가 전체 위치도를 추가한다. 지명은 사업 위치를 우선하며 지도 밖으로
+  잘리거나 서로 겹치지 않게 배치한다.
+- **글자:** 설치된 맑은 고딕이 있으면 실제 글꼴 폭과 자간으로 줄바꿈을 계산한다.
+  `KOICA_FONT`·`KOICA_FONT_BOLD`로 설치 글꼴 경로를 지정할 수 있다. 없으면 근사
+  폭을 사용하며 `font_metrics`에 기록한다. PPTX는 PowerPoint에서 최종 확인한다.
+
+`map_density`는 `atlas`(기본, 520 CSS px/in), `city`(650), `standard`(130)를
+지원한다. 지도 지물 상세도와 PNG 출력 배율(`--scale`)은 별개다. 생성한 지도가
+사람의 위치 검수를 통과했다고 간주하지 않으며, 위치 기여는 별도 검수 후 수행한다.
+
+## 기존 PPTX를 명시적으로 재사용하는 경우
+
+`--reference-template`은 사용자가 기존 지도와 도형을 그대로 재사용하라고 요청한
+경우에만 쓰는 별도 기능이다. 범용 지도 생성의 기본 경로가 아니며, 인간 작성본과
+유사한 디자인을 요구했다는 이유만으로 이 경로로 바꾸지 않는다.
+`reference_pptx.calibrate()`로 로컬 원본의 사업 ID와 텍스트 도형·문단을 연결할 수
+있다. 위치·사업 목록·원본이 변경되면 재보정을 요구한다. 원본과 매니페스트는
+공개 저장소에 포함하지 않는다. 이 경로는 PPTX만 출력한다.
+
 ## 구조
 
 ```
@@ -34,6 +78,7 @@ skill/                     → ~/.claude/skills/koica-project-map 로 심볼릭 
 │   ├── layout.py          ★ 배치 계산 (투영·카드·슬롯·교차 제거)
 │   ├── render_html.py     layout.json → SVG
 │   ├── render_pptx.py     layout.json → 편집 가능한 PPTX
+│   ├── reference_pptx.py  로컬 인간 작성 PPTX의 서식·지도·도형 보존 + 사업명 갱신
 │   └── export.py          HTML → PDF/PNG
 └── cache/                 경계 데이터 · 확정 지명 좌표 (자동 생성, 커밋 안 함)
 tests/                     검증용 입력 (네팔·동티모르·우즈베키스탄)
@@ -51,7 +96,7 @@ HTML(미리보기·PDF)과 PPTX(편집용)가 그것만 소비한다. 렌더러�
 문서에 두되, 배치 알고리즘은 코드에 둔다. 산문으로 쓰면 실행마다 해석이 달라진다.
 토큰은 design.md 안 YAML 블록에 있고 스크립트가 직접 파싱한다 — 문서와 코드가 갈라지지 않는다.
 
-## 검증 결과
+## 초기 샘플 검증 기록 (범용 생성의 품질 보증이 아님)
 
 샘플 PPTX(네팔 slide1 · 동티모르 slide3) 재현 기준.
 
