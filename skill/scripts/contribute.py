@@ -59,6 +59,8 @@ def build(layout: dict, author: str, office: str = "",
     seen = set()
     for card in layout["cards"]:
         for p in card.get("points", []):
+            if p.get("marker_kind") == "admin1":
+                continue
             if p.get("lon") is None or p.get("lat") is None:
                 continue
             key = (round(p["lat"], 5), round(p["lon"], 5), p["name"])

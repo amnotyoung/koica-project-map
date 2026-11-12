@@ -102,6 +102,9 @@ def draw_map(L: dict, tok: dict) -> str:
                  f'stroke-dasharray="{ms["admin2_dash"].replace(",", " ")}" '
                  f'opacity="0.85"/>')
 
+    for area in m.get("project_areas", []):
+        for polygon in area["polygons"]:
+            s.append(f'<path d="{path_of(polygon)}" fill="#D02E35" fill-opacity=".055" fill-rule="evenodd" stroke="#C8343A" stroke-width=".014" stroke-linejoin="round"><title>{esc(area["name"])}</title></path>')
     for n in m["neighbors"]:                       # 주변국 이름 (샘플의 CHINA/INDIA)
         lab = _neighbor_label(n, f, m["land"])
         if lab:
@@ -494,6 +497,8 @@ def credit_text(L: dict) -> str:
         src += f" · {label}" + (f" ({date})" if date else "")
     if L.get("location_status") == "source-group-unverified":
         src += " · 원천 대표위치: 사업지 확인 필요" if L.get("lang") != "en" else " · Source representative locations; sites need verification"
+    if L.get("map", {}).get("project_areas"):
+        src += " · Red outline: project area" if L.get("lang") == "en" else " · 붉은 윤곽: 사업 대상 주"
     if L.get("map", {}).get("national_parks"):
         key = "Hatching: national parks" if L.get("lang") == "en" else "녹색 사선: 국립공원"
         src += f" · {key} (Protected Planet, UNEP-WCMC/IUCN)"

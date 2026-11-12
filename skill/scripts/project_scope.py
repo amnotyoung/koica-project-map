@@ -24,6 +24,7 @@ def prepare_projects(doc):
                 and record.get("_coord_source") in {"도시", "도시(음차)"} and "@" not in fid
                 and place and place.casefold() not in (title + " " + (record.get("name_en") or "")).casefold()):
             record["coverage"] = "unknown"
+            record["_inferred_scope"] = True
         if record.get("coverage") == "unknown":
             record["source_place"] = place
             record["place"] = "사업 범위 확인 필요"

@@ -651,9 +651,13 @@ def prepare(doc: dict, detail: str = "50m") -> tuple:
             or base.get("source", {}).get("boundary") != f"Natural Earth {detail}"):
         geo_prepare.build(doc["country"], detail, False)
         base = read_json(bp)
+    from admin_areas import resolve_regions
+    resolve_regions(doc, resolved, base["bbox"])
     import cartography
     extent, locator = cartography.extent(base, resolved, doc.get("map_bbox"))
     framed = {**doc, "map_bbox": extent, "_locator": locator}
+    if doc.get("card_layout") == "bilateral" or any(p.get("region") for p in resolved["places"]):
+        framed["_mode"] = "C"
     return framed, resolved, base
 
 
@@ -726,7 +730,7 @@ def compute_pages(doc: dict, langs: list, index: int = 1, detail: str = "50m") -
         pair_scale = min(c["font_scale"] for c in candidates)
         if (any(c["font_scale"] != pair_scale for c in candidates)
                 or len({c["mode"] for c in candidates}) > 1):
-            subset = {**subset, "_mode": "A" if any(c["mode"] == "A" for c in candidates) else "B"}
+            subset = {**subset, "_mode": framed.get("_mode") or ("A" if any(c["mode"] == "A" for c in candidates) else "B")}
             prepared = (subset, places, base)
             candidates = [compute(subset, lang, index, detail, pair_scale,
                                   render_tiles=False, prepared=prepared) for lang in langs]
@@ -776,6 +780,7 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale,
 
     # 1) 카드 생성 + 마커 좌표
     cards, markers, warnings = [], [], []
+    areas = {}
     country_en = doc.get("country_en") or base.get("name_en") or ""
     # 영문 슬라이드인데 영문 사업명이 없으면 한글이 그대로 실린다 — 조용히 넘기지 않는다
     if lang == "en":
@@ -800,6 +805,15 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale,
                         "lat": part["lat"], "level": part.get("level", ""),
                         "source": part.get("source", ""),
                         "coord_source": part.get("coord_source", "")})
+        if rp.get("region"):
+            key = rp["region_id"]
+            if key not in areas:
+                areas[key] = {"name":rp["region"], "id":key, "source":"geoBoundaries ADM1",
+                              "polygons":[proj.rings(poly) for poly in rp["geometry"]]}
+            for point in pts:
+                point["marker_kind"] = "admin1"
+            card["region_id"] = key
+            card["scope_evidence"] = rp["evidence"]
         card["nationwide"] = _is_nationwide(rp["parts"])
         card["points"] = pts
         if rp.get("source_conflicts"):
@@ -808,7 +822,7 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale,
             card["h"] += card["line_h"]
             card["source_conflicts"] = rp["source_conflicts"]
             warnings.append(f'위치 불일치: {rec.get("name_ko", "")[:35]} — 원천 {rp["query"]}, 사업명 {", ".join(rp["source_conflicts"])}. 마커 생략')
-        markers.extend(pts)
+        markers.extend(p for p in pts if p["marker_kind"] != "admin1")
         cards.append(card)
         if not rp["resolved"]:
             warnings.append(f'지명 미해석: {rp["query"]}')
@@ -817,47 +831,50 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale,
 
     groups = _group_cards(cards, tok)
 
-    # 2) 슬롯 배분 — 좌측열이 넘치면 하단행으로 흘린다
-    avg_h = sum(g["h"] for g in groups) / max(len(groups), 1)
-    if mode == "A":
-        cap_left = column_capacity(L["left_col"]["y0"], L["left_col"]["y1"], avg_h, gap)
-        pitch = tok["card"]["name"]["w"] + tok["card"]["name"]["dx"] + 0.22
-        cap_bottom = max(1, int((L["bottom_row"]["x1"] - L["bottom_row"]["x0"]) // pitch))
-        n_bottom = max(0, min(len(groups) - cap_left, cap_bottom))
-        n_left = len(groups) - n_bottom
-        sides = ["left"] * n_left + ["bottom"] * n_bottom
+    if mode == "C":
+        placed_groups = _bilateral(groups, L, frame, gap)
     else:
-        cap_left = column_capacity(L["right_col"]["y0"], L["right_col"]["y1"], avg_h, gap)
-        n_left, n_bottom = len(groups), 0
-        sides = ["right"] * len(groups)
+        # 2) 슬롯 배분 — 좌측열이 넘치면 하단행으로 흘린다
+        avg_h = sum(g["h"] for g in groups) / max(len(groups), 1)
+        if mode == "A":
+            cap_left = column_capacity(L["left_col"]["y0"], L["left_col"]["y1"], avg_h, gap)
+            pitch = tok["card"]["name"]["w"] + tok["card"]["name"]["dx"] + 0.22
+            cap_bottom = max(1, int((L["bottom_row"]["x1"] - L["bottom_row"]["x0"]) // pitch))
+            n_bottom = max(0, min(len(groups) - cap_left, cap_bottom))
+            n_left = len(groups) - n_bottom
+            sides = ["left"] * n_left + ["bottom"] * n_bottom
+        else:
+            cap_left = column_capacity(L["right_col"]["y0"], L["right_col"]["y1"], avg_h, gap)
+            n_left, n_bottom = len(groups), 0
+            sides = ["right"] * len(groups)
 
-    # 3) 배정 — 핀이 열/행 중 가까운 쪽으로 가고, 같은 쪽 안에서는 좌표순으로 놓는다
-    col_x = L["left_col"]["x"] if mode == "A" else L["right_col"]["x"]
-    row_y = L["bottom_row"]["y"] if mode == "A" else tok["canvas"]["h_in"]
-    idx_linked = [i for i, g in enumerate(groups) if g["points"]]
-    idx_free = [i for i, g in enumerate(groups) if not g["points"]]
-    pins = [_card_pin(groups[i]) for i in idx_linked]
+        # 3) 배정 — 핀이 열/행 중 가까운 쪽으로 가고, 같은 쪽 안에서는 좌표순으로 놓는다
+        col_x = L["left_col"]["x"] if mode == "A" else L["right_col"]["x"]
+        row_y = L["bottom_row"]["y"] if mode == "A" else tok["canvas"]["h_in"]
+        idx_linked = [i for i, g in enumerate(groups) if g["points"]]
+        idx_free = [i for i, g in enumerate(groups) if not g["points"]]
+        pins = [_card_pin(groups[i]) for i in idx_linked]
 
-    side_pick = assign_sides(pins, col_x, row_y, n_bottom)
-    col_idx = [idx_linked[i] for i, s in enumerate(side_pick) if s == "col"] + idx_free
-    row_idx = [idx_linked[i] for i, s in enumerate(side_pick) if s == "row"]
-    col_pins = [_card_pin(groups[i]) for i in col_idx]
-    row_pins = [_card_pin(groups[i]) for i in row_idx]
-    # 전국사업(핀 없음)은 열 맨 아래로
-    col_sorted = [col_idx[i] for i in order_for(col_pins, 1) if groups[col_idx[i]]["points"]] \
-        + [i for i in col_idx if not groups[i]["points"]]
-    row_sorted = [row_idx[i] for i in order_for(row_pins, 0)]
+        side_pick = assign_sides(pins, col_x, row_y, n_bottom)
+        col_idx = [idx_linked[i] for i, s in enumerate(side_pick) if s == "col"] + idx_free
+        row_idx = [idx_linked[i] for i, s in enumerate(side_pick) if s == "row"]
+        col_pins = [_card_pin(groups[i]) for i in col_idx]
+        row_pins = [_card_pin(groups[i]) for i in row_idx]
+        # 전국사업(핀 없음)은 열 맨 아래로
+        col_sorted = [col_idx[i] for i in order_for(col_pins, 1) if groups[col_idx[i]]["points"]] \
+            + [i for i in col_idx if not groups[i]["points"]]
+        row_sorted = [row_idx[i] for i in order_for(row_pins, 0)]
 
-    assign = {}                                  # slot_index -> card_index
-    for s, c in enumerate(col_sorted):
-        assign[s] = c
-    for j, c in enumerate(row_sorted):
-        assign[n_left + j] = c
-    sides = ["left" if mode == "A" else "right"] * len(col_sorted) \
-        + ["bottom"] * len(row_sorted)
-    n_left = len(col_sorted)
+        assign = {}                                  # slot_index -> card_index
+        for s, c in enumerate(col_sorted):
+            assign[s] = c
+        for j, c in enumerate(row_sorted):
+            assign[n_left + j] = c
+        sides = ["left" if mode == "A" else "right"] * len(col_sorted) \
+            + ["bottom"] * len(row_sorted)
+        n_left = len(col_sorted)
 
-    placed_groups = _materialize(assign, groups, sides, mode, L, gap, tok, frame)
+        placed_groups = _materialize(assign, groups, sides, mode, L, gap, tok, frame)
     _improve(placed_groups, mode)
     placed = _flatten_groups(placed_groups, gap)
 
@@ -888,7 +905,7 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale,
         "region": (doc.get("region", "") if lang == "ko" else
                    (doc.get("region_en")
                     or REGION_EN.get(doc.get("region", ""), doc.get("region", "")))),
-        "map": {"frame": frame, "content": proj.content,
+        "map": {"project_areas": list(areas.values()), "frame": frame, "content": proj.content,
                 "density": density, "projection": proj.as_dict(),
                 "bbox": list(proj.bbox),
                 "tiles": _tile_background(base, proj, frame) if render_tiles else None,
@@ -1049,6 +1066,39 @@ def _provisional_slots(mode, L, sides, avg_h, gap, tok) -> list:
     return out
 
 
+def _bilateral(groups, spec, frame, gap):
+    located = sorted((g for g in groups if g["points"]), key=lambda g: _card_pin(g)[0])
+    unlocated = sorted((g for g in groups if not g["points"]), key=lambda g: -g["h"])
+    def height(column):
+        return sum(g["h"] for g in column) + gap * max(0, len(column)-1)
+    splits = range(1, len(located)) if len(located)>1 else range(len(located)+1)
+    best_score, best_columns = None, None
+    for split in splits:
+        columns = [located[:split], located[split:]]
+        for group in unlocated:
+            min(columns, key=height).append(group)
+        heights = list(map(height, columns))
+        overflow = sum(max(0, h-(spec[key]["y1"]-spec[key]["y0"]))
+                       for h,key in zip(heights, ("left_col","right_col")))
+        score = (overflow, abs(2*split-len(located)), abs(heights[0]-heights[1]))
+        if best_score is None or score < best_score:
+            best_score, best_columns = score, columns
+    placed = []
+    for side, column in zip(("left","right"), best_columns):
+        col = spec[side+"_col"]
+        column.sort(key=lambda g: (not bool(g["points"]), g["nationwide"], _card_pin(g)[1]))
+        remaining = col["y1"]-col["y0"]-sum(g["h"] for g in column)
+        spacing = max(gap,min(.65,remaining/max(1,len(column)-1)))
+        y = col["y0"]
+        for group in column:
+            c = dict(group, x=col["x"], y=y, side=side, _gap=spacing)
+            c["anchor"] = anchor_of(c,c,side)
+            c["gutter"] = frame["x"]-.045 if side=="left" else frame["x"]+frame["w"]+.045
+            placed.append(c)
+            y += c["h"]+spacing
+    return placed
+
+
 def _materialize(assign, cards, sides, mode, L, gap, tok, frame) -> list:
     """슬롯 배정 결과를 실제 좌표로 굳힌다."""
     col = L["left_col"] if mode == "A" else L["right_col"]
@@ -1185,7 +1235,7 @@ def _fits(placed, mode, L, tok) -> bool:
         if c["side"] == "bottom":
             if c["y"] + c["h"] > tok["canvas"]["h_in"] - 0.05:
                 return False
-        elif c["y"] + c["h"] > L[col_key]["y1"] + 0.02:
+        elif c["y"] + c["h"] > L[c["side"]+"_col" if mode=="C" else col_key]["y1"] + 0.02:
             return False
     return True
 
