@@ -1,0 +1,62 @@
+{
+  "country": "말라위",
+  "region": "",
+  "year": 2027,
+  "fetched_at": "2026-11-12",
+  "source": "https://oda-map-lab.pages.dev/generated/map-base.json",
+  "source_build_id": "sha256:f194cf5e897bd14222f33c6efe10fd00d61fa0821d5ffe06aff131bf885c8006",
+  "use_gazetteer": false,
+  "location_status": "source-group-unverified",
+  "projects": [
+    {
+      "selected": true,
+      "place": "데자·음친지 군",
+      "badges": [
+        "H"
+      ],
+      "name_ko": "말라위 여성청소년의 성적권리 강화 및 사회적 자립 통합지원사업 2차 (UNFPA)('25-'28/740만불)",
+      "name_en": "Addressing Challenges to adolescent girls empowerment through sexual and reproductive health and rights (2025–2028 / USD 7.4m)",
+      "_period": "2025-2028",
+      "_budget_krw": 10212000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "성평등 조직(기구) 및 제도",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025010100064",
+      "id": "iati:KR-GOV-051-2025010100064",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 10212000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "국가(폴백)",
+      "source_place": "데자",
+      "coverage": "admin2",
+      "place_en": "Dedza and Mchinji districts",
+      "admin2_names": [
+        "Dedza",
+        "Mchinji"
+      ],
+      "scope_sources": [
+        "https://malawi.unfpa.org/en/news/koica-commits-usd-74-million-unfpa-and-government-malawi-empower-adolescent-girls-and-teen"
+      ],
+      "_source_name_en": "Addressing Challenges to adolescent girls empowerment through sexual and reproductive health and rights"
+    }
+  ],
+  "map_languages": [
+    "ko",
+    "en"
+  ]
+}

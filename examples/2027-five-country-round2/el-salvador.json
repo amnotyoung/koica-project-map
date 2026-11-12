@@ -1,0 +1,241 @@
+{
+  "country": "엘살바도르",
+  "region": "중남미",
+  "year": 2027,
+  "fetched_at": "2026-11-12",
+  "source": "https://oda-map-lab.pages.dev/generated/map-base.json",
+  "source_build_id": "sha256:f194cf5e897bd14222f33c6efe10fd00d61fa0821d5ffe06aff131bf885c8006",
+  "use_gazetteer": false,
+  "location_status": "source-group-unverified",
+  "projects": [
+    {
+      "selected": true,
+      "place": "산살바도르",
+      "badges": [
+        "E"
+      ],
+      "name_ko": "엘살바도르 기술혁신 기반 창업 및 산학협력 지원사업 (2026–2031 / 최대 900만불)",
+      "name_en": "University–industry research and entrepreneurship, K-INNO4U (2026–2031 / up to USD 9m)",
+      "_period": "2026-2031",
+      "_budget_krw": 12420000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "중소기업 개발",
+      "_stage": "집행중",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2026010100029",
+      "id": "iati:KR-GOV-051-2026010100029",
+      "_source_info": {
+        "name": "KOICA IATI XML",
+        "reference_date": "2026-08-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "file": null
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 12420000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "original": [
+          {
+            "value": 12420000000.0,
+            "currency": "KRW"
+          }
+        ]
+      },
+      "_budget_period_only": true,
+      "_aid_source": "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+      "_reconciled_ids": [
+        "iati:KR-GOV-051-2026010100029",
+        "ues:K-INNO4U"
+      ],
+      "_reconciled_sources": [
+        {
+          "name": "KOICA IATI XML",
+          "reference_date": "2026-08-31",
+          "report_year": null,
+          "fetched_at": null,
+          "url": "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+          "file": null
+        }
+      ],
+      "place_en": "San Salvador",
+      "coverage": "site",
+      "sites": [
+        {
+          "place": "산살바도르",
+          "geonames_locality": {
+            "name": "San Salvador",
+            "id": 3583361,
+            "lat": 13.68935,
+            "lon": -89.18718
+          }
+        }
+      ],
+      "scope_sources": [
+        "https://www.ues.edu.sv/ues-inicia-proyecto-de-innovacion-tecnologica/",
+        "https://www.ues.edu.sv/contacto/",
+        "https://www.koica.go.kr/bbs/koica_kr/292/388176/artclView.do",
+        "https://download.geonames.org/export/dump/cities500.zip",
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml"
+      ]
+    },
+    {
+      "selected": true,
+      "place": "소아 원격협진 참여 보건시설",
+      "badges": [
+        "H"
+      ],
+      "name_ko": "엘살바도르 원격협진을 통한 소아보건 개선사업('24-'27/760만불)",
+      "name_en": "Telemedicine, a Commitment to Modernization for Pediatric Care, in the Establishments of the First Level of Care in El Salvador (2024–2027 / USD 7.6m)",
+      "_period": "2024-2027",
+      "_budget_krw": 6780000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "기초의료설비",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2024010100025",
+      "id": "iati:KR-GOV-051-2024010100025",
+      "_source_info": {
+        "name": "ODA Korea IATI",
+        "reference_date": null,
+        "report_year": "2025",
+        "fetched_at": null,
+        "url": "https://web.archive.org/web/20250605154036id_/https://www.odakorea.go.kr/static/IATI/IATI_actlist.xlsx?v=v1",
+        "file": "IATI_actlist.xlsx"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 6780000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "allocation_divisor": 1
+      },
+      "_coord_source": "도시",
+      "source_place": "산살바도르",
+      "coverage": "unknown",
+      "scope_label": "소아 원격협진 참여 보건시설",
+      "scope_label_en": "Paediatric telemedicine facilities",
+      "scope_sources": [
+        "https://oda-map-lab.pages.dev/generated/map-base.json",
+        "https://www.koica.go.kr/bbs/koica_kr/292/384402/artclView.do"
+      ],
+      "_source_name_en": "Telemedicine, a Commitment to Modernization for Pediatric Care, in the Establishments of the First Level of Care in El Salvador"
+    },
+    {
+      "selected": true,
+      "place": "Morazan",
+      "badges": [
+        "A"
+      ],
+      "name_ko": "중미 건조회랑 원예기술 역량강화 삼각협력 2차사업 (2026–2028)",
+      "name_en": "Horticultural capacity in the Central American Dry Corridor, phase II (2026–2028)",
+      "_period": "2026-2028",
+      "_budget_krw": 66000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "농업관련 교육/훈련",
+      "_stage": "집행중",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025010103955",
+      "id": "iati:KR-GOV-051-2025010103955",
+      "_source_info": {
+        "name": "KOICA IATI XML",
+        "reference_date": "2026-08-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "file": null
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 66000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "original": [
+          {
+            "value": 66000000.0,
+            "currency": "KRW"
+          }
+        ]
+      },
+      "_budget_period_only": true,
+      "_aid_source": "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+      "_coord_source": "IATI 원본(공식좌표)",
+      "source_place": "Morazan",
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml"
+      ],
+      "coverage": "unknown",
+      "scope_label": "건조회랑 내 농업시험장",
+      "scope_label_en": "Experimental stations in the Dry Corridor",
+      "_source_name_ko": "중미 건조회랑 원예기술 역량강화 삼각협력 2차사업",
+      "_source_name_en": "Horticultural capacity in the Central American Dry Corridor, phase II"
+    },
+    {
+      "selected": true,
+      "place": "San Salvador",
+      "badges": [
+        "H"
+      ],
+      "name_ko": "엘살바도르 일차보건의료 기반 만성질환 예방·관리 역량강화사업 (2026–2031 / 700만불)",
+      "name_en": "Strengthening the Capacity for Non-communicable Disease (NCD) Prevention & Management Based on Primary Health Care in El Salvador (2026–2031 / USD 7m)",
+      "_period": "2026-2031",
+      "_budget_krw": 50000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "보건정책 및 행정관리",
+      "_stage": "집행중",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2026010100036",
+      "id": "iati:KR-GOV-051-2026010100036",
+      "_source_info": {
+        "name": "KOICA IATI XML",
+        "reference_date": "2026-08-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "file": null
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 50000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "original": [
+          {
+            "value": 50000000.0,
+            "currency": "KRW"
+          }
+        ]
+      },
+      "_budget_period_only": true,
+      "_aid_source": "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+      "_coord_source": "IATI 원본(공식좌표)",
+      "source_place": "San Salvador",
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://diarioelsalvador.com/depais/buscamos-que-la-cooperacion-de-corea-acompane-los-objetivos-y-esfuerzos-del-gobierno-salvadoreno-kwak-taeyeol-embajador-de-corea/fill"
+      ],
+      "coverage": "unknown",
+      "scope_label": "일차보건의료 기관",
+      "scope_label_en": "Primary healthcare facilities",
+      "_source_name_en": "Strengthening the Capacity for Non-communicable Disease (NCD) Prevention & Management Based on Primary Health Care in El Salvador"
+    }
+  ],
+  "map_languages": [
+    "ko",
+    "en"
+  ]
+}

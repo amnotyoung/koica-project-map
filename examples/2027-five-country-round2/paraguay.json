@@ -1,0 +1,265 @@
+{
+  "country": "파라과이",
+  "region": "중남미",
+  "year": 2027,
+  "fetched_at": "2026-11-12",
+  "source": "https://oda-map-lab.pages.dev/generated/map-base.json",
+  "source_build_id": "sha256:f194cf5e897bd14222f33c6efe10fd00d61fa0821d5ffe06aff131bf885c8006",
+  "use_gazetteer": false,
+  "location_status": "source-group-unverified",
+  "projects": [
+    {
+      "selected": true,
+      "place": "아순시온",
+      "badges": [
+        "H"
+      ],
+      "name_ko": "파라과이 감염병 대응을 위한 진단 및 감시 역량강화('24-'29/1,450만불)",
+      "name_en": "Strengthening laboratory and surveillance capacity for communicable diseases response in Paraguay (2024–2029 / USD 14.5m)",
+      "_period": "2024-2029",
+      "_budget_krw": 22100540000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "의료서비스",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2024010100088",
+      "id": "iati:KR-GOV-051-2024010100088",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 22100540000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "아순시온",
+        "lat": -25.28005,
+        "lon": -57.63438,
+        "source": "도시"
+      },
+      "_source_name_en": "Strengthening laboratory and surveillance capacity for communicable diseases response in Paraguay"
+    },
+    {
+      "selected": true,
+      "place": "센트랄·카아과수·코르디예라·파라과리",
+      "badges": [
+        "A"
+      ],
+      "name_ko": "파라과이 농민조합 육성을 통한 원예경쟁력 강화사업('23-'28/1,200만불)",
+      "name_en": "Project for Strengthening Horticultural Competitiveness Through Fostering Farmers Association in Paraguay (2023–2028 / USD 12m)",
+      "_period": "2023-2028",
+      "_budget_krw": 15480000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "식량생산",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2023010100072",
+      "id": "iati:KR-GOV-051-2023010100072",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 15480000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "국가(폴백)",
+      "source_place": "카아과수",
+      "coverage": "admin1",
+      "place_en": "Central, Caaguazú, Cordillera and Paraguarí",
+      "admin1_names": [
+        "CENTRAL",
+        "CAAGUAZU",
+        "CORDILLERA",
+        "PARAGUARI"
+      ],
+      "scope_sources": [
+        "https://www.ip.gov.py/ip/2026/05/07/organizaciones-productivas-podran-postularse-a-convocatoria-que-apunta-a-la-competitividad-con-financiamiento/"
+      ],
+      "_source_name_en": "Project for Strengthening Horticultural Competitiveness Through Fostering Farmers Association in Paraguay"
+    },
+    {
+      "selected": true,
+      "place": "아순시온",
+      "badges": [
+        "G"
+      ],
+      "name_ko": "파라과이 아순시온시 통합 관제 서비스 개선 및 공공안전 마스터플랜 수립 사업('26-'31/1,000만불)",
+      "name_en": "Project for improving 911 system and establishing the public safety master plan of Asuncion, Paraguay (2026–2031 / USD 10m)",
+      "_period": "2026-2031",
+      "_budget_krw": 13800000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "치안제도 관리 및 개선",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2026010100032",
+      "id": "iati:KR-GOV-051-2026010100032",
+      "_source_info": {
+        "name": "ODA Korea IATI",
+        "reference_date": null,
+        "report_year": "2026",
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/static/IATI/IATI_actlist.xlsx?v=v7",
+        "file": "IATI_actlist.xlsx"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 13800000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "allocation_divisor": 1
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "아순시온",
+        "lat": -25.28005,
+        "lon": -57.63438,
+        "source": "도시"
+      },
+      "_source_name_en": "Project for improving 911 system and establishing the public safety master plan of Asuncion, Paraguay"
+    },
+    {
+      "selected": true,
+      "place": "아순시온 국립대학교 치과대학",
+      "badges": [
+        "H"
+      ],
+      "name_ko": "파라과이 아순시온 국립대학교 치과대학병원 건립 및 역량강화사업 (2026–2031 / 1,200만불)",
+      "name_en": "Establishment and capacity development of the FOUNA dental hospital (2026–2031 / USD 12m)",
+      "_period": "2026-2031",
+      "_budget_krw": 490000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "의료서비스",
+      "_stage": "집행중",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2026010100034",
+      "id": "iati:KR-GOV-051-2026010100034",
+      "_source_info": {
+        "name": "KOICA IATI XML",
+        "reference_date": "2026-08-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "file": null
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 490000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "original": [
+          {
+            "value": 490000000.0,
+            "currency": "KRW"
+          }
+        ]
+      },
+      "_budget_period_only": true,
+      "_aid_source": "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+      "_reconciled_ids": [
+        "iati:KR-GOV-051-2026010100034",
+        "una:FOUNA-KOICA"
+      ],
+      "_reconciled_sources": [
+        {
+          "name": "KOICA IATI XML",
+          "reference_date": "2026-08-31",
+          "report_year": null,
+          "fetched_at": null,
+          "url": "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+          "file": null
+        }
+      ],
+      "coverage": "unknown",
+      "scope_label": "아순시온 국립대학교 치과대학",
+      "scope_label_en": "UNA Faculty of Dentistry",
+      "scope_sources": [
+        "https://www.una.py/la-una-founa-y-koica-gestionan-un-moderno-hospital-odontologico-y-fortalecer-la-salud-bucodental-en-paraguay",
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml"
+      ]
+    },
+    {
+      "selected": true,
+      "place": "PARAGUAY/San Pedro",
+      "badges": [
+        "A"
+      ],
+      "name_ko": "파라과이 소농의 기후변화 적응역량 강화사업 (2026–2030)",
+      "name_en": "Strengthening the capacities of small-scale farmers in sustainable adaptation to climate change (2026–2030)",
+      "_period": "2026-2030",
+      "_budget_krw": 50000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "식량생산",
+      "_stage": "집행중",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2026010100031",
+      "id": "iati:KR-GOV-051-2026010100031",
+      "_source_info": {
+        "name": "KOICA IATI XML",
+        "reference_date": "2026-08-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "file": null
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 50000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "original": [
+          {
+            "value": 50000000.0,
+            "currency": "KRW"
+          }
+        ]
+      },
+      "_budget_period_only": true,
+      "_aid_source": "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+      "_coord_source": "IATI 원본(공식좌표)",
+      "source_place": "PARAGUAY/San Pedro",
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://www.ip.gov.py/ip/2025/08/26/proyecto-de-la-koica-cooperara-con-productores-a-enfrentar-desafios-derivados-del-cambio-climatico/"
+      ],
+      "coverage": "unknown",
+      "scope_label": "산페드로 지역 소농",
+      "scope_label_en": "Smallholder farms in San Pedro",
+      "_source_name_ko": "파라과이 소농의 기후변화 적응역량 강화사업",
+      "_source_name_en": "Strengthening the capacities of small-scale farmers in sustainable adaptation to climate change"
+    }
+  ],
+  "map_languages": [
+    "ko",
+    "en"
+  ]
+}

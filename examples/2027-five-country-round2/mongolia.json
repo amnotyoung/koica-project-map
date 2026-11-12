@@ -1,0 +1,510 @@
+{
+  "country": "몽골",
+  "region": "아시아태평양",
+  "year": 2027,
+  "fetched_at": "2026-11-12",
+  "source": "https://oda-map-lab.pages.dev/generated/map-base.json",
+  "source_build_id": "sha256:f194cf5e897bd14222f33c6efe10fd00d61fa0821d5ffe06aff131bf885c8006",
+  "use_gazetteer": false,
+  "location_status": "source-group-unverified",
+  "projects": [
+    {
+      "selected": true,
+      "place": "울란바타르",
+      "badges": [
+        "T"
+      ],
+      "name_ko": "몽골 자동차 검사역량 제고 및 시설 개선을 통한 교통안전 강화 사업('23-'27/1,300만불)",
+      "name_en": "Establishment of Transportation Safety Center and Integrated Management System in Mongolia (2023–2027 / USD 13m)",
+      "_period": "2023-2027",
+      "_budget_krw": 16770000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "에너지정책 및 행정관리",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2023010100098",
+      "id": "iati:KR-GOV-051-2023010100098",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 16770000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시(음차)",
+      "source_coord": {
+        "place": "울란바타르",
+        "lat": 47.90771,
+        "lon": 106.88324,
+        "source": "도시(음차)"
+      },
+      "_source_name_en": "Establishment of Transportation Safety Center and Integrated Management System in Mongolia"
+    },
+    {
+      "selected": true,
+      "place": "울란바토르",
+      "badges": [
+        "T"
+      ],
+      "name_ko": "몽골 울란바토르시 어린이 교통안전을 위한 스쿨존 시범설치 및 역량강화사업('24-'28/1,000만불)",
+      "name_en": "Implementation of School Zones to Ensure Children's Traffic Safety and Capacity-Building in Ulaanbaatar Mongolia (2024–2028 / USD 10m)",
+      "_period": "2024-2028",
+      "_budget_krw": 13000000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "도로운송",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2024010100017",
+      "id": "iati:KR-GOV-051-2024010100017",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 13000000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시(음차)",
+      "source_place": "울란바타르",
+      "coverage": "site",
+      "geonames_locality": {
+        "name": "Ulaanbaatar",
+        "id": 2028462,
+        "lat": 47.90771,
+        "lon": 106.88324
+      },
+      "place_en": "Ulaanbaatar",
+      "scope_sources": [
+        "https://www.koica.go.kr/bbs/koica_kr/292/384353/artclView.do",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ],
+      "_source_name_en": "Implementation of School Zones to Ensure Children's Traffic Safety and Capacity-Building in Ulaanbaatar Mongolia"
+    },
+    {
+      "selected": true,
+      "place": "날라흐구",
+      "badges": [
+        "T"
+      ],
+      "name_ko": "몽골 날라흐구 폐광산지역 지속가능한 생태환경 조성을 통한 녹색 산업 혁신 생태계 구축사업('24-'29/1,000만불)",
+      "name_en": "Establishment of Green Industrial Innovation Ecosystem by Creating a Sustainable Ecological Environment in Abandoned Mine Area, Nalaikh District, Mongolia (2024–2029 / USD 10m)",
+      "_period": "2024-2029",
+      "_budget_krw": 12900000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "광물/광업정책 및 행정관리",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2024010100133",
+      "id": "iati:KR-GOV-051-2024010100133",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 12900000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시(음차)",
+      "source_place": "울란바타르",
+      "coverage": "admin2",
+      "place_en": "Nalaikh District",
+      "admin2_names": [
+        "Nalaix"
+      ],
+      "scope_sources": [
+        "https://oda-map-lab.pages.dev/generated/map-base.json"
+      ],
+      "_source_name_en": "Establishment of Green Industrial Innovation Ecosystem by Creating a Sustainable Ecological Environment in Abandoned Mine Area, Nalaikh District, Mongolia"
+    },
+    {
+      "selected": true,
+      "place": "울란바토르",
+      "badges": [
+        "E"
+      ],
+      "name_ko": "몽골과학기술대 도시계획공학과 설립 및 도시개발 전문인력 역량강화 사업('22-'27/500만불)",
+      "name_en": "Establishment of Department of Urban Planning and Engineering at Mongolian University of Science and Technology, and Urban Development Professional Capacity Building Project (2022–2027 / USD 5m)",
+      "_period": "2022-2027",
+      "_budget_krw": 5650000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "전문대,대학(원) 교육",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2022010100162",
+      "id": "iati:KR-GOV-051-2022010100162",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 5650000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시(음차)",
+      "source_place": "울란바타르",
+      "coverage": "site",
+      "geonames_locality": {
+        "name": "Ulaanbaatar",
+        "id": 2028462,
+        "lat": 47.90771,
+        "lon": 106.88324
+      },
+      "place_en": "Ulaanbaatar",
+      "scope_sources": [
+        "https://must.edu.mn/mn/news/9898",
+        "https://s-quad.imweb.me/HOME",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ],
+      "_source_name_en": "Establishment of Department of Urban Planning and Engineering at Mongolian University of Science and Technology, and Urban Development Professional Capacity Building Project"
+    },
+    {
+      "selected": true,
+      "place": "몽골 전역",
+      "badges": [
+        "G"
+      ],
+      "name_ko": "몽골 공공의사결정 여성·청년 참여 및 역량강화 2차사업(UNDP) (2026–2029 / 600만불)",
+      "name_en": "Women and youth in public decision-making, phase II (UNDP) (2026–2029 / USD 6m)",
+      "_period": "2026-2029",
+      "_budget_krw": 1005000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "성평등 조직(기구) 및 제도",
+      "_stage": "집행중",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2026010100040",
+      "id": "iati:KR-GOV-051-2026010100040",
+      "_source_info": {
+        "name": "KOICA IATI XML",
+        "reference_date": "2026-08-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "file": null
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 1005000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "original": [
+          {
+            "value": 1005000000.0,
+            "currency": "KRW"
+          }
+        ]
+      },
+      "_budget_period_only": true,
+      "_aid_source": "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+      "_reconciled_ids": [
+        "iati:KR-GOV-051-2026010100040",
+        "undp:MNG-gender-decision-making-II"
+      ],
+      "_reconciled_sources": [
+        {
+          "name": "KOICA IATI XML",
+          "reference_date": "2026-08-31",
+          "report_year": null,
+          "fetched_at": null,
+          "url": "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+          "file": null
+        }
+      ],
+      "coverage": "nationwide",
+      "scope_sources": [
+        "https://www.undp.org/mongolia/press-releases/undp-and-koica-launch-second-phase-partnership-advance-womens-and-youth-leadership-mongolia",
+        "https://www.koica.go.kr/bbs/koica_kr/292/388745/artclView.do",
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml"
+      ]
+    },
+    {
+      "selected": true,
+      "place": "울란바토르",
+      "badges": [
+        "T"
+      ],
+      "name_ko": "몽골 가스안전관리 법·제도 구축 및 역량강화사업 (2025–2027)",
+      "name_en": "Establishment of the Legal and Institutional Framework and Capacity Building for Gas Safety Management in Mongolia (2025–2027)",
+      "_period": "2025-2027",
+      "_budget_krw": 1000000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "에너지정책 및 행정관리",
+      "_stage": "집행중",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025010103705",
+      "id": "iati:KR-GOV-051-2025010103705",
+      "_source_info": {
+        "name": "KOICA IATI XML",
+        "reference_date": "2026-08-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "file": null
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 1000000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "original": [
+          {
+            "value": 1000000000.0,
+            "currency": "KRW"
+          }
+        ]
+      },
+      "_budget_period_only": true,
+      "_aid_source": "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+      "_coord_source": "IATI 원본(공식좌표)",
+      "source_place": "Ulaanbaatar",
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ],
+      "coverage": "site",
+      "place_en": "Ulaanbaatar",
+      "geonames_locality": {
+        "name": "Ulaanbaatar",
+        "id": 2028462,
+        "lat": 47.90771,
+        "lon": 106.88324
+      },
+      "_source_name_ko": "몽골 가스안전관리 법·제도 구축 및 역량강화사업",
+      "_source_name_en": "Establishment of the Legal and Institutional Framework and Capacity Building for Gas Safety Management in Mongolia"
+    },
+    {
+      "selected": true,
+      "place": "울란바토르",
+      "badges": [
+        "T"
+      ],
+      "name_ko": "몽골 국립 칭기스칸박물관 디지털 콘텐츠 개발 및 운영역량 강화 사업 (2025–2028 / 600만불)",
+      "name_en": "Digital content and operational capacity of the Chinggis Khaan National Museum (2025–2028 / USD 6m)",
+      "_period": "2025-2028",
+      "_budget_krw": 630000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "문화 및 레크리에이션",
+      "_stage": "집행중",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025010100177",
+      "id": "iati:KR-GOV-051-2025010100177",
+      "_source_info": {
+        "name": "KOICA IATI XML",
+        "reference_date": "2026-08-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "file": null
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 630000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "original": [
+          {
+            "value": 630000000.0,
+            "currency": "KRW"
+          }
+        ]
+      },
+      "_budget_period_only": true,
+      "_aid_source": "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+      "_reconciled_ids": [
+        "iati:KR-GOV-051-2025010100177"
+      ],
+      "_reconciled_sources": [
+        {
+          "name": "KOICA IATI XML",
+          "reference_date": "2026-08-31",
+          "report_year": null,
+          "fetched_at": null,
+          "url": "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+          "file": null
+        }
+      ],
+      "place_en": "Ulaanbaatar",
+      "coverage": "site",
+      "sites": [
+        {
+          "place": "울란바토르",
+          "geonames_locality": {
+            "name": "Ulaanbaatar",
+            "id": 2028462,
+            "lat": 47.90771,
+            "lon": 106.88324
+          }
+        }
+      ],
+      "scope_sources": [
+        "https://qr.chinggismuseum.com/en/blogs/68aaebb3a8f69d5ab542a233",
+        "https://new.chinggismuseum.com/en/news/to-become-a-leading-national-museum-in-digital-innovation",
+        "https://www.koica.go.kr/bbs/koica_kr/292/387004/artclView.do",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ]
+    },
+    {
+      "selected": true,
+      "place": "울란바토르",
+      "badges": [
+        "G"
+      ],
+      "name_ko": "몽골 주소정보 현대화를 통한 디지털 공공행정 역량강화사업 (2026–2029 / 800만불)",
+      "name_en": "Modernization of Address Information for Strengthening Digital Public Administration in Mongolia (2026–2029 / USD 8m)",
+      "_period": "2026-2029",
+      "_budget_krw": 505000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "공공정책 및 행정관리",
+      "_stage": "집행중",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2026010100147",
+      "id": "iati:KR-GOV-051-2026010100147",
+      "_source_info": {
+        "name": "KOICA IATI XML",
+        "reference_date": "2026-08-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "file": null
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 505000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "original": [
+          {
+            "value": 505000000.0,
+            "currency": "KRW"
+          }
+        ]
+      },
+      "_budget_period_only": true,
+      "_aid_source": "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+      "_coord_source": "IATI 원본(공식좌표)",
+      "source_place": "Ulaanbaatar",
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ],
+      "coverage": "site",
+      "place_en": "Ulaanbaatar",
+      "geonames_locality": {
+        "name": "Ulaanbaatar",
+        "id": 2028462,
+        "lat": 47.90771,
+        "lon": 106.88324
+      },
+      "_source_name_en": "Modernization of Address Information for Strengthening Digital Public Administration in Mongolia"
+    },
+    {
+      "selected": true,
+      "place": "울란바토르",
+      "badges": [
+        "A"
+      ],
+      "name_ko": "몽골 울란바토르시 사계절 온실 구축을 통한 농업생산 역량강화사업 (2026–2031 / 1,300만불)",
+      "name_en": "Strengthen agricultural production capacity through the establishment of a sustainable year-round green houses in Ulaanbaatar, Mongolia (2026–2031 / USD 13m)",
+      "_period": "2026-2031",
+      "_budget_krw": 325000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "식량생산",
+      "_stage": "집행중",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2026010100039",
+      "id": "iati:KR-GOV-051-2026010100039",
+      "_source_info": {
+        "name": "KOICA IATI XML",
+        "reference_date": "2026-08-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "file": null
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 325000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "original": [
+          {
+            "value": 325000000.0,
+            "currency": "KRW"
+          }
+        ]
+      },
+      "_budget_period_only": true,
+      "_aid_source": "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+      "_coord_source": "IATI 원본(공식좌표)",
+      "source_place": "Ulaanbaatar",
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ],
+      "coverage": "site",
+      "place_en": "Ulaanbaatar",
+      "geonames_locality": {
+        "name": "Ulaanbaatar",
+        "id": 2028462,
+        "lat": 47.90771,
+        "lon": 106.88324
+      },
+      "_source_name_en": "Strengthen agricultural production capacity through the establishment of a sustainable year-round green houses in Ulaanbaatar, Mongolia"
+    }
+  ],
+  "map_languages": [
+    "ko",
+    "en"
+  ]
+}

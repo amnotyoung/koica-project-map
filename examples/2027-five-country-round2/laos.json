@@ -1,0 +1,558 @@
+{
+  "country": "라오스",
+  "region": "아시아태평양",
+  "year": 2027,
+  "fetched_at": "2026-11-12",
+  "source": "https://oda-map-lab.pages.dev/generated/map-base.json",
+  "source_build_id": "sha256:f194cf5e897bd14222f33c6efe10fd00d61fa0821d5ffe06aff131bf885c8006",
+  "use_gazetteer": false,
+  "location_status": "source-group-unverified",
+  "projects": [
+    {
+      "selected": true,
+      "place": "캄무안",
+      "badges": [
+        "T"
+      ],
+      "name_ko": "라오스 8번 국도(아시안 하이웨이 15) 교량과 도로안전 기능개선 및 역량강화 사업('21-'27/1,300만불)",
+      "name_en": "Performance-Improvement and Capability-Enhancement of National Road No.8(Asian Highway No. 15) in Lao PDR (2021–2027 / USD 13m)",
+      "_period": "2021-2027",
+      "_budget_krw": 15730000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "도로운송",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2021010100152",
+      "id": "iati:KR-GOV-051-2021010100152",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 15730000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_period_review": {
+        "source_period": "2021-2025",
+        "title_period": [
+          2021,
+          2027
+        ],
+        "decision": "verified_for_year"
+      },
+      "_coord_source": "도시",
+      "source_place": "캄무안",
+      "verified_years": [
+        2027
+      ],
+      "coverage": "unknown",
+      "scope_label": "8번 국도 교량·도로 구간",
+      "scope_label_en": "National Road 8 bridge and road sections",
+      "scope_sources": [
+        "https://itskorea.kr/downloadFile.do?fileId=FILE_000000000109864&fileSn=1"
+      ],
+      "_source_name_en": "Performance-Improvement and Capability-Enhancement of National Road No.8(Asian Highway No. 15) in Lao PDR"
+    },
+    {
+      "selected": true,
+      "place": "비엔티안·방비엥·팍세·카이손폼비한",
+      "badges": [
+        "T"
+      ],
+      "name_ko": "라오스 도시환경 개선을 위한 폐기물 및 하수처리 역량강화 2차사업(GGGI) (2023–2028 / 1,050만불)",
+      "name_en": "Sustainable solid waste and wastewater management, phase II (GGGI) (2023–2028 / USD 10.5m)",
+      "_period": "2023-2028",
+      "_budget_krw": 13545000000.0,
+      "_biz_type": "글로벌연수사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "환경정책 및 행정관리",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2023010100065",
+      "id": "iati:KR-GOV-051-2023010100065",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 13545000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_place": "비엔티엔",
+      "coverage": "site",
+      "place_en": "Vientiane, Vang Vieng, Pakse and Kaysone Phomvihane",
+      "sites": [
+        {
+          "place": "비엔티안",
+          "geonames_locality": {
+            "name": "Vientiane",
+            "id": 1651944,
+            "lat": 17.96667,
+            "lon": 102.6
+          }
+        },
+        {
+          "place": "방비엥",
+          "geonames_locality": {
+            "name": "Vang Vieng",
+            "id": 1655087,
+            "lat": 18.9235,
+            "lon": 102.44784
+          }
+        },
+        {
+          "place": "팍세",
+          "geonames_locality": {
+            "name": "Pakse",
+            "id": 1654379,
+            "lat": 15.12022,
+            "lon": 105.79898
+          }
+        },
+        {
+          "place": "카이손폼비한",
+          "geonames_locality": {
+            "name": "Kaysone Phomvihane",
+            "id": 1653316,
+            "lat": 16.5703,
+            "lon": 104.7622
+          }
+        }
+      ],
+      "scope_sources": [
+        "https://gggi.org/project/scaling-out-sustainable-solid-waste-and-wastewater-management-in-lao-pdr-phase-ii/",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ]
+    },
+    {
+      "selected": true,
+      "place": "비엔티엔",
+      "badges": [
+        "G"
+      ],
+      "name_ko": "라오스 공무원 디지털 역량강화를 위한 국립 D-HRD센터 설립사업('25-'29/900만불)",
+      "name_en": "Establishment of Digital Government Training Center (2025–2029 / USD 9m)",
+      "_period": "2025-2029",
+      "_budget_krw": 12420000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "공공정책 및 행정관리",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025010100123",
+      "id": "iati:KR-GOV-051-2025010100123",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 12420000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "비엔티엔",
+        "lat": 17.9641,
+        "lon": 102.61337,
+        "source": "도시"
+      },
+      "_source_name_en": "Establishment of Digital Government Training Center"
+    },
+    {
+      "selected": true,
+      "place": "비엔티안시·우돔싸이주 재활센터",
+      "badges": [
+        "H"
+      ],
+      "name_ko": "라오스 재활서비스 접근성 향상 및 역량강화 사업('25-'29/880만불)",
+      "name_en": "Ensuring Acceptability to Quality Rehabilitation Services in Four Northern Provinces of Lao PDR (2025–2029 / USD 8.8m)",
+      "_period": "2025-2029",
+      "_budget_krw": 12144000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "의료서비스",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025010100120",
+      "id": "iati:KR-GOV-051-2025010100120",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 12144000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_place": "비엔티엔",
+      "coverage": "unknown",
+      "scope_label": "비엔티안시·우돔싸이주 재활센터",
+      "scope_label_en": "Rehabilitation centres in Vientiane and Oudomxay",
+      "scope_sources": [
+        "https://oda-map-lab.pages.dev/generated/map-base.json"
+      ],
+      "_source_name_en": "Ensuring Acceptability to Quality Rehabilitation Services in Four Northern Provinces of Lao PDR"
+    },
+    {
+      "selected": true,
+      "place": "비엔티엔",
+      "badges": [
+        "G"
+      ],
+      "name_ko": "라오스 지식재산서비스센터 및 지재권 관리 시스템 개선 사업('25-'29/700만불)",
+      "name_en": "Enhancing Digital Transformation in Lao PDR’s Industrial Infrastructure: Establishing a National IP Innovation Service Center and Industrial Information Network (2025–2029 / USD 7m)",
+      "_period": "2025-2029",
+      "_budget_krw": 9660000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "공공정책 및 행정관리",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025010100159",
+      "id": "iati:KR-GOV-051-2025010100159",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 9660000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "비엔티엔",
+        "lat": 17.9641,
+        "lon": 102.61337,
+        "source": "도시"
+      },
+      "_source_name_en": "Enhancing Digital Transformation in Lao PDR’s Industrial Infrastructure: Establishing a National IP Innovation Service Center and Industrial Information Network"
+    },
+    {
+      "selected": true,
+      "place": "락사오",
+      "badges": [
+        "T"
+      ],
+      "name_ko": "라오스 락사오 지역 상수도 확충 및 개선 사업('25-'29/600만불)",
+      "name_en": "Project for Expansion and Improvement of Water Supply for Lak Sao Area in Lao PDR (2025–2029 / USD 6m)",
+      "_period": "2025-2029",
+      "_budget_krw": 8280000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "수자원정책 및 행정관리",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025010100196",
+      "id": "iati:KR-GOV-051-2025010100196",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 8280000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시(음차)",
+      "source_place": "보리캄싸이",
+      "coverage": "site",
+      "geonames_locality": {
+        "name": "Lak Sao",
+        "id": 1662662,
+        "lat": 18.19381,
+        "lon": 104.97127
+      },
+      "place_en": "Lak Sao",
+      "scope_sources": [
+        "https://www.koica.go.kr/bbs/koica_kr/292/387212/artclView.do",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ],
+      "_source_name_en": "Project for Expansion and Improvement of Water Supply for Lak Sao Area in Lao PDR"
+    },
+    {
+      "selected": true,
+      "place": "비엔티엔",
+      "badges": [
+        "A"
+      ],
+      "name_ko": "라오스 축산물 안전관리체계 개선사업(`24-`29/440만불)",
+      "name_en": "Project for Improvement of Livestock Product Safety Management System in Lao PDR (2024–2029 / USD 4.4m)",
+      "_period": "2024-2029",
+      "_budget_krw": 5720000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "축산",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2024010100044",
+      "id": "iati:KR-GOV-051-2024010100044",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 5720000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "비엔티엔",
+        "lat": 17.9641,
+        "lon": 102.61337,
+        "source": "도시"
+      },
+      "_source_name_en": "Project for Improvement of Livestock Product Safety Management System in Lao PDR"
+    },
+    {
+      "selected": true,
+      "place": "비엔티엔",
+      "badges": [
+        "G"
+      ],
+      "name_ko": "라오스 여성폭력 예방 대응체계 및 정책역량 강화 2차사업(UNFPA)('24-'28/431만불)",
+      "name_en": "Project on Prevention and elimination of Violence Against Women in Lao PDR, Phase II(UNFPA) (2024–2028 / USD 4.31m)",
+      "_period": "2024-2028",
+      "_budget_krw": 5603000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "여성폭력 근절",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2024010100046",
+      "id": "iati:KR-GOV-051-2024010100046",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 5603000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "비엔티엔",
+        "lat": 17.9641,
+        "lon": 102.61337,
+        "source": "도시"
+      },
+      "_source_name_en": "Project on Prevention and elimination of Violence Against Women in Lao PDR, Phase II(UNFPA)"
+    },
+    {
+      "selected": true,
+      "place": "비엔티엔",
+      "badges": [
+        "T"
+      ],
+      "name_ko": "라오스 항만 관리 정보화 시스템(Port-MIS) 구축 사업('23-'27/425만불)",
+      "name_en": "Development of the River Port Management Information System in Lao PDR (2023–2027 / USD 4.25m)",
+      "_period": "2024-2027",
+      "_budget_krw": 5482500000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "수로운송",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2023010100572",
+      "id": "iati:KR-GOV-051-2023010100572",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 5482500000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "비엔티엔",
+        "lat": 17.9641,
+        "lon": 102.61337,
+        "source": "도시"
+      },
+      "_source_name_en": "Development of the River Port Management Information System in Lao PDR"
+    },
+    {
+      "selected": true,
+      "place": "비엔티엔",
+      "badges": [
+        "A"
+      ],
+      "name_ko": "라오스 식량안보 강화를 위한 디지털 농지정보 구축사업('23-'28/370만불)",
+      "name_en": "Project for Digital Agri-land Information Development to Strengthen Food Security in Lao PDR (2023–2028 / USD 3.7m)",
+      "_period": "2023-2028",
+      "_budget_krw": 4773000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "식량생산",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2023010100078",
+      "id": "iati:KR-GOV-051-2023010100078",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 4773000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_period_review": {
+        "source_period": "2023-2026",
+        "title_period": [
+          2023,
+          2028
+        ],
+        "decision": "verified_for_year"
+      },
+      "_coord_source": "도시",
+      "source_place": "비엔티엔",
+      "scope_sources": [
+        "https://job.koica.go.kr/application/applicationDetailPage.do?empmnPblancSn=17468&entrpsSn=&menuId=MENU0098&pageIndex=1"
+      ],
+      "verified_years": [
+        2027
+      ],
+      "coverage": "unknown",
+      "scope_label": "디지털 농지정보 구축 대상지",
+      "scope_label_en": "Digital farmland information project sites",
+      "_source_name_en": "Project for Digital Agri-land Information Development to Strengthen Food Security in Lao PDR"
+    },
+    {
+      "selected": true,
+      "place": "Attapeu",
+      "badges": [
+        "A"
+      ],
+      "name_ko": "라오스 혁신적 농촌공동체 개발 프로그램 (2026–2031)",
+      "name_en": "Saemaul Plus rural community development programme in Lao PDR (2026–2031)",
+      "_period": "2026-2031",
+      "_budget_krw": 674000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "농업정책 및 행정관리",
+      "_stage": "집행중",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2026010100150",
+      "id": "iati:KR-GOV-051-2026010100150",
+      "_source_info": {
+        "name": "KOICA IATI XML",
+        "reference_date": "2026-08-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "file": null
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 674000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "original": [
+          {
+            "value": 674000000.0,
+            "currency": "KRW"
+          }
+        ]
+      },
+      "_budget_period_only": true,
+      "_aid_source": "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+      "_coord_source": "IATI 원본(공식좌표)",
+      "source_place": "Attapeu",
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml"
+      ],
+      "coverage": "unknown",
+      "scope_label": "아타푸 등 농촌공동체",
+      "scope_label_en": "Rural communities including Attapeu",
+      "_source_name_ko": "라오스 혁신적 농촌공동체 개발 프로그램",
+      "_source_name_en": "Saemaul Plus rural community development programme in Lao PDR"
+    }
+  ],
+  "map_languages": [
+    "ko",
+    "en"
+  ]
+}
