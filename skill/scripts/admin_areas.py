@@ -24,39 +24,46 @@ def assign_regions(records, resolved, features, center_lon=0):
             continue
         title = record.get("name_en") or ""
         explicit = record.get("admin1_name") if scope == "admin1" else None
-        if explicit:
-            names = [norm(explicit)]
+        listed = record.get("admin1_names") if scope == "admin1" else None
+        if listed or explicit:
+            names = list(dict.fromkeys(norm(n) for n in (listed or [explicit])))
         elif record.get("_location_basis") == "group-representative" and not SITE_WORDS.search(title):
             names = [name for name in boundaries if re.search(
                 r"(?<!\w)" + re.escape(name) + r"\s+" + ADMIN_TYPE + r"\b", norm(title))]
+            if len(names) != 1:
+                continue
         else:
-            names = []
-        if len(names) != 1 or len(boundaries.get(names[0], [])) != 1:
-            if scope == "admin1":
-                row.update(parts=[], resolved=False)
             continue
-        feature = boundaries[names[0]][0]
-        props = feature["properties"]
-        geom = feature["geometry"]
-        polygons = geom["coordinates"] if geom["type"] == "MultiPolygon" else [geom["coordinates"]]
-        polygons = [[[[x + 360 * round((center_lon-x)/360), y] for x,y,*_ in ring]
-                     for ring in polygon] for polygon in polygons if polygon and polygon[0]]
-        if not polygons:
+        regions, parts = [], []
+        for name in names:
+            matches = boundaries.get(name, [])
+            if len(matches) != 1:
+                break
+            feature = matches[0]
+            props, geom = feature["properties"], feature["geometry"]
+            ringsets = geom["coordinates"] if geom["type"] == "MultiPolygon" else [geom["coordinates"]]
+            polygons = [[[[x + 360 * round((center_lon-x)/360), y] for x,y,*_ in ring]
+                         for ring in polygon] for polygon in ringsets if polygon and polygon[0]]
+            span, lon, lat = max((label_anchor(rings) for rings in polygons), default=(0,0,0))
+            if not span:
+                break
+            region = props["shapeName"]
+            regions.append({"region": region, "geometry": polygons,
+                            "region_id": props.get("shapeID") or region})
+            parts.append({"ok": True, "kind": "admin1", "level": "ADM1", "matched": region,
+                          "lon": lon, "lat": lat, "source": "geoBoundaries ADM1"})
+        if not regions or len(regions) != len(names):
             row.update(parts=[], resolved=False)
             continue
-        span, lon, lat = max(label_anchor(rings) for rings in polygons)
-        if not span:
-            row.update(parts=[], resolved=False)
-            continue
-        region = props["shapeName"]
-        row.update(resolved=True, source_conflicts=[], region=region, geometry=polygons,
-                   region_id=props.get("shapeID") or region, evidence=explicit or title,
-                   parts=[{"ok":True,"kind":"admin1","level":"ADM1","matched":region,
-                           "lon":lon,"lat":lat,"source":"geoBoundaries ADM1"}])
+        row.update(resolved=True, source_conflicts=[], regions=regions, parts=parts,
+                   region="/".join(r["region"] for r in regions),
+                   evidence=record.get("scope_sources") or explicit or title)
+        if len(regions) == 1:
+            row.update(regions[0])
+            record["admin1_name"] = row["region"]
         if record.get("_inferred_scope"):
-            record["place"] = record.get("source_place") or region
+            record["place"] = record.get("source_place") or row["region"]
         record["coverage"] = "admin1"
-        record["admin1_name"] = region
 
 
 def resolve_regions(doc, resolved, bbox):

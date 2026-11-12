@@ -274,7 +274,7 @@ def build_card(proj_rec: dict, tok: dict, lang: str, scale: float,
         "badges": badges,
         "text": name,
         "project_id": proj_rec.get("id") or proj_rec.get("_id"),
-        "provenance": {k: proj_rec[k] for k in ("_source_info", "_coord_source", "source_coord", "source_ids", "sites", "coverage", "source_place") if k in proj_rec},
+        "provenance": {k: proj_rec[k] for k in ("_source_info", "_coord_source", "source_coord", "source_ids", "sites", "coverage", "source_place", "scope_sources") if k in proj_rec},
         "tracking_pt": c["name"].get("tracking_pt", -0.64),
         "lines": lines,
         "first_line_dx": round(first_dx, 4),
@@ -806,13 +806,17 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale,
                         "source": part.get("source", ""),
                         "coord_source": part.get("coord_source", "")})
         if rp.get("region"):
-            key = rp["region_id"]
-            if key not in areas:
-                areas[key] = {"name":rp["region"], "id":key, "source":"geoBoundaries ADM1",
-                              "polygons":[proj.rings(poly) for poly in rp["geometry"]]}
+            regions = rp.get("regions") or [rp]
+            for region in regions:
+                key = region["region_id"]
+                if key not in areas:
+                    areas[key] = {"name":region["region"], "id":key, "source":"geoBoundaries ADM1",
+                                  "polygons":[proj.rings(poly) for poly in region["geometry"]]}
             for point in pts:
                 point["marker_kind"] = "admin1"
-            card["region_id"] = key
+            card["region_ids"] = [region["region_id"] for region in regions]
+            if len(regions) == 1:
+                card["region_id"] = key
             card["scope_evidence"] = rp["evidence"]
         card["nationwide"] = _is_nationwide(rp["parts"])
         card["points"] = pts
@@ -904,6 +908,7 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale,
     doc_out = {
         "canvas": {"w": tok["canvas"]["w_in"], "h": tok["canvas"]["h_in"]},
         "lang": lang, "mode": mode, "index": index,
+        "chapter": {"아시아태평양":1, "아프리카":2, "중남미":3, "중동·CIS":4}.get(doc.get("region"), index),
         # 영문명은 입력에서 덮어쓸 수 있다 — Natural Earth 는 'East Timor' 지만
         # KOICA 표기는 'Timor-Leste' 다.
         "country": country_info,
@@ -999,11 +1004,14 @@ def _mark_multi_site_note(cards: list, lang: str) -> None:
     슬라이드 각주로 두면 무관한 카드 위에 얹히고, 다중지역 카드마다 달면
     지시선이 거의 사라진다 — 둘 다 원본과 다르다.
     """
-    cand = [c for c in cards if len(c["points"]) >= MULTI_SITE_MIN]
+    cand = [c for c in cards if len(c["points"]) >= MULTI_SITE_MIN and not c.get("region_ids")]
     if not cand:
         return
     pick = max(cand, key=lambda c: (len(c["points"]), -cards.index(c)))
-    pick["note"] = NOTE_MULTI[lang]
+    localities = all(str(p.get("source", "")).startswith("GeoNames ") and
+                     str(p.get("source", "")).endswith("(locality)") for p in pick["points"])
+    pick["note"] = (("○ 대상지 소재 마을" if lang == "ko" else "○ Project localities")
+                    if localities else NOTE_MULTI[lang])
     pick["no_leader"] = True
     pick["h"] += pick["line_h"]
 
@@ -1082,7 +1090,13 @@ def _bilateral(groups, spec, frame, gap):
     for split in splits:
         columns = [located[:split], located[split:]]
         for group in unlocated:
-            min(columns, key=height).append(group)
+            # The atlas reserves the right-hand column for nationwide activities
+            # where capacity permits; still allow the other column if it would spill.
+            right_cap = spec["right_col"]["y1"] - spec["right_col"]["y0"]
+            if group["nationwide"] and height(columns[1] + [group]) <= right_cap:
+                columns[1].append(group)
+            else:
+                min(columns, key=height).append(group)
         heights = list(map(height, columns))
         overflow = sum(max(0, h-(spec[key]["y1"]-spec[key]["y0"]))
                        for h,key in zip(heights, ("left_col","right_col")))
@@ -1096,7 +1110,11 @@ def _bilateral(groups, spec, frame, gap):
         remaining = col["y1"]-col["y0"]-sum(g["h"] for g in column)
         spacing = max(gap,min(.65,remaining/max(1,len(column)-1)))
         y = col["y0"]
-        for group in column:
+        for i, group in enumerate(column):
+            if group["points"]:
+                # Keep the heading near its geography while reserving room for later cards.
+                latest = col["y1"] - sum(g["h"] for g in column[i:]) - spacing*(len(column)-i-1)
+                y = max(y, min(latest, _card_pin(group)[1] - .08))
             c = dict(group, x=col["x"], y=y, side=side, _gap=spacing)
             c["anchor"] = anchor_of(c,c,side)
             c["gutter"] = frame["x"]-.045 if side=="left" else frame["x"]+frame["w"]+.045
@@ -1153,8 +1171,12 @@ def _targets(card: dict) -> list:
     if card.get("no_leader") or not card["points"]:
         return []
     a = card["anchor"]
-    return sorted(card["points"],
-                  key=lambda p: (p["x"] - a[0]) ** 2 + (p["y"] - a[1]) ** 2)
+    nearest = sorted(card["points"],
+                     key=lambda p: (p["x"] - a[0]) ** 2 + (p["y"] - a[1]) ** 2)
+    # All named regions are already outlined. One pointer identifies the group.
+    if all(p.get("marker_kind") == "admin1" for p in nearest):
+        return nearest[:1]
+    return nearest
 
 
 def _leaders_of_card(card: dict) -> list:

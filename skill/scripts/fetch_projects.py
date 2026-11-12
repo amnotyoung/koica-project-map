@@ -23,7 +23,7 @@ import time
 from datetime import date
 from pathlib import Path
 
-from common import CACHE_DIR, fetch, log, read_json, sector_map, write_json
+from common import CACHE_DIR, REFERENCE_DIR, fetch, log, read_json, sector_map, write_json
 
 SOURCE = "https://oda-map-lab.pages.dev/generated/map-base.json"
 CACHE = CACHE_DIR / "map-base.json"
@@ -97,6 +97,7 @@ def _trusted_source_coord(feature: dict, place: str) -> dict | None:
 def collect(country: str, year: int | None, include_all: bool,
             force: bool = False) -> dict:
     data = load_source(force)
+    scopes = read_json(REFERENCE_DIR / "public_project_scopes.json").get(country, {})
     sm = sector_map()
     rows, seen = [], set()
     region = ""
@@ -156,6 +157,12 @@ def collect(country: str, year: int | None, include_all: bool,
                 row["_coord_source"] = coord_source
             if source_coord:
                 row["source_coord"] = dict(source_coord)
+            fact = scopes.get(fid) or scopes.get((fid or "").partition("@")[0])
+            if fact and year == fact["year"]:
+                row["source_place"] = place
+                row.pop("source_coord", None)
+                row.update({k:v for k,v in fact.items() if k != "year"})
+                row["_location_basis"] = "public-project-evidence"
             rows.append(row)
 
     rows.sort(key=lambda r: (not r["selected"], -r["_budget_krw"]))

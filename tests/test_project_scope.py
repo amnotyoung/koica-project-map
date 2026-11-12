@@ -22,3 +22,13 @@ class CoverageTests(unittest.TestCase):
         self.assertEqual(len(projects),1)
         self.assertEqual([p["source_coord"]["lon"] for p in projects[0]["sites"]],[2,3])
         self.assertEqual(projects[0]["source_ids"],["iati:activity@A","iati:activity@B"])
+
+    def test_verified_extent_without_names_does_not_plot_source_groups(self):
+        rows = [{"id":"iati:x@"+p, "place":p, "name_ko":"Youth", "coverage":"unknown",
+                 "scope_label":"6개 주 56개 군", "source_coord":{"lon":1,"lat":2}}
+                for p in ["A", "B"]]
+        projects = prepare_projects({"country":"X","projects":rows})["projects"]
+        self.assertEqual(len(projects),1)
+        self.assertEqual(projects[0]["place"],"6개 주 56개 군")
+        self.assertNotIn("sites",projects[0])
+        self.assertNotIn("source_coord",projects[0])

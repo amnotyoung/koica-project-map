@@ -26,10 +26,12 @@ def prepare_projects(doc):
             record["coverage"] = "unknown"
             record["_inferred_scope"] = True
         if record.get("coverage") == "unknown":
-            record["source_place"] = place
-            record["place"] = "사업 범위 확인 필요"
+            record.setdefault("source_place", place)
+            record["place"] = record.get("scope_label") or "사업 범위 확인 필요"
             record.pop("source_coord", None)
             record.pop("place_en", None)
+        if record.get("scope_label_en"):
+            record["place_en"] = record["scope_label_en"]
         if fid.startswith("iati:") and "@" in fid:
             key = (fid.split("@", 1)[0], title, record.get("name_en"), tuple(record.get("badges", [])), record.get("coverage"))
             if not grouped[key]:
@@ -42,7 +44,7 @@ def prepare_projects(doc):
             continue
         project = sites[0]
         project["source_ids"] = [s.get("id") or s["_id"] for s in sites]
-        if project.get("coverage") != "nationwide":
+        if project.get("coverage") not in {"nationwide", "unknown", "admin1"}:
             project["sites"] = [{k:s[k] for k in ("place","place_en","kind","aliases","source_coord","_location_basis","name_en") if k in s} for s in sites]
             project["place"] = "/".join(dict.fromkeys(s["place"] for s in sites))
             project.pop("place_en", None)

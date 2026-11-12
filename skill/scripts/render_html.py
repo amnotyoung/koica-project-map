@@ -77,6 +77,12 @@ def draw_map(L: dict, tok: dict) -> str:
             s.append(f'<path d="{path_of(m["lakes"])}" fill="{ms["lake"]}" '
                      f'stroke="{ms["river"]}" stroke-width="{0.3*PT:.5f}"/>')
 
+    # At atlas scale the tile fill alone loses lake shores against the pale base.
+    if tiles and m.get("lakes") and m.get("projection", {}).get("zoom", 99) < 9:
+        s.append(f'<clipPath id="lakes-land"><path d="{path_of(m["land"])}"/></clipPath>')
+        s.append(f'<path d="{path_of(m["lakes"])}" fill="{ms["lake"]}" fill-rule="evenodd" '
+                 f'stroke="{ms["river"]}" stroke-width="{.35*PT:.5f}" clip-path="url(#lakes-land)"/>')
+
     if m.get("national_parks"):
         s.append('<defs><pattern id="park-hatch" patternUnits="userSpaceOnUse" width=".04" height=".04" patternTransform="rotate(38)"><path d="M0,0 V.04" stroke="#619263" stroke-width=".007"/></pattern></defs>')
         for park in m["national_parks"]:
@@ -359,7 +365,7 @@ def draw_title(L: dict, tok: dict) -> str:
     t, col = tok["title"], tok["color"]
     spec = L.get("title") or {}
     p, b = t["pin"], spec.get("box") or t["box"]
-    roman = _roman(L.get("index", 1))
+    roman = _roman(L.get("chapter", L.get("index", 1)))
     cx, cy, r, tip = pin_geometry(p)
     line_w = b.get("line_w", 1.2)
     # 원본의 로마숫자 텍스트박스는 핀보다 오른쪽으로 넓지만, 실제 글자는 핀

@@ -23,6 +23,21 @@ class RegionTests(unittest.TestCase):
         self.assertNotIn("region_id", facility)
         self.assertNotEqual(records[1].get("coverage"), "admin1")
 
+    def test_reviewed_regions_are_all_or_nothing(self):
+        features = [{"properties":{"shapeName":name + " Region", "shapeID":name},
+                     "geometry":{"type":"Polygon", "coordinates":[
+                         [[x,0],[x+1,0],[x+1,1],[x,1],[x,0]]]}}
+                    for x,name in enumerate(("First", "Second"))]
+        names = [["First","Second"], ["First","Missing"]]
+        records = [{"coverage":"admin1", "admin1_names":n} for n in names]
+        rows = {"places":[{"parts":[]}, {"parts":[{"kind":"point"}]}]}
+        assign_regions(records, rows, features)
+        ok, missing = rows["places"]
+        self.assertEqual([r["region_id"] for r in ok["regions"]], names[0])
+        self.assertEqual(len(ok["parts"]), 2)
+        self.assertFalse(missing["resolved"])
+        self.assertFalse(missing["parts"])
+
     def test_bilateral_groups_get_opposite_edges(self):
         spec = design_tokens()["layout"]["C"]
         groups = [{"h":.6,"place_w":.3,"nationwide":False,"points":[{"x":x,"y":3}]}

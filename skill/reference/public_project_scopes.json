@@ -1,0 +1,103 @@
+{
+  "가나": {
+    "iati:KR-GOV-051-2022010100138": {
+      "year": 2026,
+      "coverage": "admin1",
+      "place": "어퍼이스트·노스이스트 주",
+      "admin1_names": [
+        "Upper East",
+        "North East"
+      ],
+      "scope_sources": [
+        "https://www.moh.gov.gh/wp-content/uploads/2023/07/2023-POW.pdf",
+        "https://www.unicef.org/ghana/media/4866/file/UNICEF%20in%20Ghana%27s%20newsletter%20-%20Q2%202023%20.pdf"
+      ]
+    },
+    "iati:KR-GOV-051-2025010100118": {
+      "year": 2026,
+      "coverage": "admin1",
+      "place": "아샨티·이스턴·센트럴 주",
+      "admin1_names": [
+        "Ashanti",
+        "Eastern",
+        "Central"
+      ],
+      "scope_sources": [
+        "https://www.ghs.gov.gh/news-and-events/ghs-receives-three-toyota-hilux-pickups-to-strengthen-rmncahn-services"
+      ]
+    },
+    "iati:KR-GOV-051-2020010100024": {
+      "year": 2026,
+      "coverage": "site",
+      "place": "아샤이만·다웨냐·아베이메",
+      "sites": [
+        {
+          "place": "아샤이만",
+          "geonames_locality": {
+            "name": "Ashaiman",
+            "id": 2304121,
+            "lat": 5.69951,
+            "lon": -0.03484
+          }
+        },
+        {
+          "place": "다웨냐",
+          "geonames_locality": {
+            "name": "Dawhwenya",
+            "id": 2301919,
+            "lat": 5.76505,
+            "lon": 0.055
+          }
+        },
+        {
+          "place": "아베이메",
+          "geonames_locality": {
+            "name": "Aveyime",
+            "id": 2303705,
+            "lat": 6.0371,
+            "lon": 0.36173
+          }
+        }
+      ],
+      "scope_sources": [
+        "https://www.jhsustain.com/ghana-project",
+        "https://download.geonames.org/export/dump/GH.zip"
+      ]
+    },
+    "iati:KR-GOV-051-2024010100060": {
+      "year": 2026,
+      "coverage": "admin1",
+      "place": "센트럴·볼타 주",
+      "admin1_names": [
+        "Central",
+        "Volta"
+      ],
+      "scope_sources": [
+        "https://www.ndpc.gov.gh/media/NDPC_APR_28_june_final_version.pdf"
+      ]
+    },
+    "iati:KR-GOV-051-2026010100140": {
+      "year": 2026,
+      "coverage": "admin1",
+      "place": "센트럴·이스턴·그레이터아크라 주",
+      "admin1_names": [
+        "Central",
+        "Eastern",
+        "Greater Accra"
+      ],
+      "scope_sources": [
+        "https://www.koica.go.kr/koica_kr/984/subview.do?enc=Zm5jdDF8QEB8JTJGYmJzJTJGa29pY2Ffa3IlMkYyOTIlMkYzODg3NjIlMkZhcnRjbFZpZXcuZG8lM0ZwYWdlJTNEMSUyNnNyY2hDb2x1bW4lM0RzaiUyNnNyY2hXcmQlM0QlMjZiYnNDbFNlcSUzRCUyNmJic09wZW5XcmRTZXElM0Q0MSUyNnJnc0JnbmRlU3RyJTNEJTI2cmdzRW5kZGVTdHIlM0QlMjZpc1ZpZXdNaW5lJTNEZmFsc2UlMjZwYXNzd29yZCUzRCUyNg%3D%3D",
+        "https://www.mofa.go.kr/gh-ko/brd/m_9766/view.do?seq=1342890"
+      ]
+    },
+    "iati:KR-GOV-051-2024090100743": {
+      "year": 2026,
+      "coverage": "unknown",
+      "scope_label": "6개 주 56개 군",
+      "scope_label_en": "56 districts across six regions",
+      "scope_sources": [
+        "https://ghana.un.org/en/289412-un-ghana-and-koica-launch-project-empower-15500-ghanaian-youth"
+      ]
+    }
+  }
+}

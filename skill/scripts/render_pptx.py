@@ -312,6 +312,10 @@ def draw_slide(prs, L: dict, tok: dict, tmp: Path, layout_path: Path) -> None:
         details.append(f"사업 자료 수집일: {source['retrieved_at']}")
     if source.get("build_id"):
         details.append(f"사업 데이터 판본: {source['build_id']}")
+    for card in L["cards"]:
+        urls = card.get("provenance", {}).get("scope_sources") or []
+        if urls:
+            details.append(f"{card['place']} — {card['text']}: " + " · ".join(urls))
     park_source = source.get("national_parks") or {}
     if park_source:
         details.append(f"Protected Planet WDPCA, UNEP-WCMC/IUCN · {park_source.get('url','')} ({park_source.get('retrieved','')})")
@@ -425,7 +429,7 @@ def draw_title(slide, L: dict, tok: dict) -> None:
     map_pin(slide, p, col["region_tab"])
     map_pin_inner(slide, p)
     template_roman_textbox(
-        slide, p, _roman(L.get("index", 1)), col["region_tab"]
+        slide, p, _roman(L.get("chapter", L.get("index", 1))), col["region_tab"]
     )
 
 
