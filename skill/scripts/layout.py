@@ -30,6 +30,7 @@ from pathlib import Path
 from portfolio_selection import TITLE_PERIOD
 
 from common import GEO_CACHE, design_tokens, log, read_json, write_json
+import cartography
 import geo_prepare
 import resolve_places
 from text_metrics import measure as measured_width
@@ -686,7 +687,6 @@ def prepare(doc: dict, detail: str = "50m") -> tuple:
         base = read_json(bp)
     from admin_areas import resolve_regions
     resolve_regions(doc, resolved, base["bbox"])
-    import cartography
     extent, locator = cartography.extent(base, resolved, doc.get("map_bbox"))
     framed = {**doc, "map_bbox": extent, "_locator": locator}
     if not framed.get("region"):
@@ -700,7 +700,6 @@ def prepare(doc: dict, detail: str = "50m") -> tuple:
 def finish_background(result: dict, base: dict) -> None:
     m = result["map"]
     proj = Projection(m["bbox"], m["frame"], px_per_in=m["projection"]["px_per_in"])
-    import cartography
     cartography.add_lake_labels(m, proj)
     import national_parks
     national_parks.add_to_layout(result, proj)
@@ -714,15 +713,25 @@ def single_column_spec(mode, bbox, tok):
     layouts = tok["layout"]
     on_left = mode == "L"
     column = layouts["A"]["left_col"] if on_left else layouts["B"]["right_col"]
-    left = layouts["A"]["map"]["x"] if on_left else layouts["B"]["map"]["x"]
+    card_width = tok["card"]["name"]["dx"] + tok["card"]["name"]["w"]
+    left = column["x"] + card_width + .16 if on_left else layouts["B"]["map"]["x"]
+    if not on_left:
+        # Centre a map and its single eastern callout as a pair below the title.
+        inset = tok["title"]["box"]["h"]
+        left += inset
+        column = {**column, "x": column["x"] - inset}
     right = tok["region_tab"]["rail_x"] - .24 if on_left else column["x"] - .18
     top = layouts["C"]["map"]["y"] if on_left else layouts["B"]["map"]["y"]
     bottom = layouts["C"]["left_col"]["y1"]
     aspect = country_aspect(bbox)
-    # Allow geographic context around narrow countries, without letterboxing long islands.
-    height = min((bottom-top) / math.sqrt(max(1, aspect/.70)), 1.32*(right-left)/aspect)
-    height = max(1.5, height)
-    width = min(right-left, max(1.5, 1.33*aspect*height))
+    available_width = right - left
+    available_height = bottom - top
+    # Narrow countries get the full height. Near-square ones keep title and footer space.
+    compact_height = layouts["B"]["map"]["h"] - .25
+    desired_height = max(compact_height, available_height * min(1, .70 / aspect))
+    vertical_context = 1.32 if on_left else 1.60
+    height = max(1.5, min(desired_height, available_width * vertical_context / aspect))
+    width = min(available_width, max(1.5, 1.33 * aspect * height))
     centre_y = tok["canvas"]["h_in"] * .53 - min(.70, max(0, aspect-1) * .35)
     frame = {"x":left if on_left else right-width, "y":max(top, min(bottom-height, centre_y-height/2)),
              "w":width, "h":height}
@@ -743,7 +752,8 @@ def place_single_column(groups, spec, mode, gap):
     y = col["y0"]
     placed = []
     for i, (g, cap) in enumerate(zip(ordered, reversed(caps))):
-        slot = frame["y"] + frame["h"]*(i+.5)/len(ordered) - g["h"]/2
+        fraction = (i + .5) / len(ordered) if len(ordered) > 1 else 1/3
+        slot = frame["y"] + frame["h"] * fraction - g["h"]/2
         if g["points"]:
             slot = .75*slot + .25*(_card_pin(g)[1] - g["h"]/2)
         y = max(y, min(cap, slot))
@@ -1083,9 +1093,10 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale,
     if doc.get("_locator"):
         lf = {"x": frame["x"]+.08, "y": frame["y"]+frame["h"]-1.15, "w": 1.65, "h": 1.05}
         ip = Projection(base["bbox"], lf, px_per_in=130)
-        doc_out["map"]["locator"] = {"frame":lf, "land":ip.rings(base["land"]),
-            "markers":[dict(zip(("x","y"),ip(p["lon"],p["lat"]))) for p in markers]}
-    import cartography
+        overview_land = ip.rings(base["land"])
+        if cartography.locator_adds_detail(doc_out["map"]["land"], frame, overview_land):
+            doc_out["map"]["locator"] = {"frame":lf, "land":overview_land,
+                "markers":[dict(zip(("x","y"),ip(p["lon"],p["lat"]))) for p in markers]}
     doc_out["map"]["labels"] = cartography.place_labels(doc_out["map"],doc_out["markers"],leaders,tok)
     from text_metrics import mode as metrics_mode
     doc_out["font_metrics"] = metrics_mode()

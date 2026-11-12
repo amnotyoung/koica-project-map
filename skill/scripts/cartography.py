@@ -28,6 +28,19 @@ def extent(base, resolved, override=None):
     return (focus if use_focus else full), use_focus
 
 
+def locator_adds_detail(main_rings, frame, overview_rings):
+    """Show the overview if an omitted landmass is legible there at print size."""
+    west, north = frame["x"], frame["y"]
+    east, south = west + frame["w"], north + frame["h"]
+    for ring, small in zip(main_rings, overview_rings):
+        if not small or any(west <= x <= east and north <= y <= south for x, y in ring):
+            continue
+        xs, ys = zip(*small)
+        if max(max(xs)-min(xs), max(ys)-min(ys)) >= 1/25.4:
+            return True
+    return False
+
+
 def overlap(a, b):
     return a[0] < b[2] and a[2] > b[0] and a[1] < b[3] and a[3] > b[1]
 

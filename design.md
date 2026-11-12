@@ -153,6 +153,7 @@ map_style:
   river:       "#649CB8"
   river_w:     0.5
   road:        "#D49B8D"   # 작은 크기에서도 읽히는 도로망
+  road_major:  "#C88169"   # 전국 지도 간선도로
   road_local:  "#E7B6B0"   # 도시 상세 모드의 주거·이면도로
   rail:        "#B8AEAA"   # 철도
   forest:      "#EEF3EC"   # 도시 상세 모드 토지피복

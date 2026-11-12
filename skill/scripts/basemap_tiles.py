@@ -73,6 +73,7 @@ def style_json(ms: dict, line_scale: float = 1.0, profile: str = "atlas") -> dic
     """
     road = ms.get("road", "#EFC7C0")
     river = ms["river"]
+    water_kinds = ["river", "canal"] if profile == "atlas" else ["river", "canal", "stream"]
     style = {
         "version": 8,
         # symbol 레이어를 쓰지 않으므로 glyphs 는 필요 없지만, 스타일을 손볼 때
@@ -111,7 +112,7 @@ def style_json(ms: dict, line_scale: float = 1.0, profile: str = "atlas") -> dic
              "paint": {"fill-color": ms["lake"]}},
             # 하천 — 원본 샘플의 파란 물줄기
             {"id": "river", "type": "line", "source": "v", "source-layer": "water_lines",
-             "filter": ["in", ["get", "kind"], ["literal", ["river", "canal", "stream"]]],
+             "filter": ["in", ["get", "kind"], ["literal", water_kinds]],
              "paint": {"line-color": river,
                        "line-width": ["interpolate", ["linear"], ["zoom"],
                                       4, 0.5 * line_scale,
@@ -147,9 +148,9 @@ def style_json(ms: dict, line_scale: float = 1.0, profile: str = "atlas") -> dic
             {"id": "road-major", "type": "line", "source": "v", "source-layer": "streets",
              "filter": ["in", ["get", "kind"],
                         ["literal", ["motorway", "trunk", "primary"]]],
-             "paint": {"line-color": road,
+             "paint": {"line-color": ms.get("road_major", road) if profile == "atlas" else road,
                        "line-width": ["interpolate", ["linear"], ["zoom"],
-                                      4, 0.5 * line_scale,
+                                      4, 0.65 * line_scale,
                                       9, 1.6 * line_scale]}},
         ],
     }

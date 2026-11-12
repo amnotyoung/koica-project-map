@@ -29,6 +29,12 @@ class GeographicGenerationTests(unittest.TestCase):
         self.assertGreaterEqual(bbox[2],20.05)
         self.assertGreaterEqual(bbox[3],20.05)
 
+    def test_overview_requires_legible_land_missing_from_the_main_map(self):
+        main = [square(1,1,2), square(20,20,.2)]
+        frame = {"x":0,"y":0,"w":4,"h":4}
+        self.assertFalse(cartography.locator_adds_detail(main, frame, [square(0,0,1),square(2,2,.01)]))
+        self.assertTrue(cartography.locator_adds_detail(main, frame, [square(0,0,1),square(2,2,.08)]))
+
     def test_labels_prioritize_project_sites_without_overlap_or_clipping(self):
         m={"frame":{"x":0,"y":0,"w":4,"h":3},"cities":[
             {"name":"Large City","x":2,"y":1.5,"pop":1000000},
