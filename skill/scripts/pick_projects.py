@@ -85,7 +85,10 @@ def serve(draft, out, *, make_map=False, timeout=1800):
                 if (not isinstance(doc, dict) or doc.get("country") != draft["country"]
                         or doc.get("year") != draft.get("year") or not doc.get("projects")
                         or not isinstance(doc["projects"], list)
-                        or any(not isinstance(p, dict) or not str(p.get("name_ko") or "").strip()
+                        or not isinstance(doc.get("map_languages", ["ko"]), list)
+                        or not doc.get("map_languages", ["ko"])
+                        or any(l not in ("ko", "en") for l in doc.get("map_languages", ["ko"]))
+                        or any(not isinstance(p, dict) or any(not str(p.get("name_"+l) or "").strip() for l in doc.get("map_languages", ["ko"]))
                                or p.get("selected") is False for p in doc["projects"])):
                     raise ValueError("선택한 국가·연도와 사업명을 확인하세요.")
                 persist(out, doc)

@@ -987,6 +987,8 @@ def _place_label(rec: dict, rp: dict, lang: str, country_en: str = "") -> str:
     입력에 `place_en` 이 있으면 그 값이 우선한다."""
     if lang == "ko":
         return rec.get("place", "")
+    if rec.get("display_place_en"):
+        return rec["display_place_en"]
     if rec.get("place_en"):
         return rec["place_en"]
     parts = [p for p in rp["parts"] if p.get("ok") and p.get("matched")]
@@ -995,6 +997,8 @@ def _place_label(rec: dict, rp: dict, lang: str, country_en: str = "") -> str:
         return f"{country_en} nationwide"
     names = [p["matched"] for p in parts]
     if not names:
+        if rec.get("coverage") == "unknown":
+            return "Location unconfirmed"
         return rec.get("place", "")
     # GeoNames 는 장음부호를 단다(Butwāl·Bardiyā). KOICA 표기는 붙이지 않는다.
     return strip_accents("/".join(names))

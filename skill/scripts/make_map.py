@@ -43,7 +43,7 @@ def stamped_dir(base: Path) -> Path:
     return run
 
 
-def run(inputs: list, outdir: Path, langs: list, formats: list,
+def run(inputs: list, outdir: Path, langs: list | None, formats: list,
         detail: str = "50m", scale: int = 2, page_format: str = "wide") -> dict:
     outdir.mkdir(parents=True, exist_ok=True)
     made = {f: [] for f in formats}
@@ -53,7 +53,10 @@ def run(inputs: list, outdir: Path, langs: list, formats: list,
         doc = read_json(src)
         if "notice_search" in doc:
             doc["projects"] = [p for p in doc["projects"] if p.get("selected", True)]
-        for L in layout_mod.compute_pages(doc, langs, idx, detail):
+        chosen_langs = langs or doc.get("map_languages") or ["ko"]
+        if not isinstance(chosen_langs, list) or any(lang not in ("ko","en") for lang in chosen_langs):
+            raise ValueError("지도 언어를 확인하세요")
+        for L in layout_mod.compute_pages(doc, chosen_langs, idx, detail):
             if page_format in {"atlas", "atlas-full"}:
                 L["paper"] = {"w":16.931, "h":11.694}
                 if page_format == "atlas-full":
@@ -175,6 +178,8 @@ def main() -> int:
         inputs = []
         for country in a.country:
             doc = fetch_projects.collect_for_review(country, a.year, all_notices=a.all_notices)
+            if a.lang:
+                doc["map_languages"] = a.lang
             roster = outdir / "inputs" / f"{country}.json"
             if a.include_unselected:
                 doc["projects"] = [{**p, "selected":True} for p in doc["projects"]]
@@ -195,7 +200,7 @@ def main() -> int:
         inputs = [Path(p) for p in a.input]
     if not inputs:
         return 0
-    made = run(inputs, outdir, a.lang or ["ko"],
+    made = run(inputs, outdir, None if a.review else a.lang,
                a.formats or ["html", "pdf", "pptx"],
                a.detail, a.scale, a.page_format)
     log(f"\n생성 완료 → {outdir}")
