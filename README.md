@@ -142,6 +142,9 @@ Natural Earth(퍼블릭 도메인) · [geoBoundaries](https://www.geoboundaries.
 
 매일 `oda-map-lab` 원본의 `map-base`와 기여 스키마를 확인한다. 변경이 있으면
 계약 잠금파일을 갱신하고 지도 테스트를 실행한 뒤 이 저장소에 PR을 만든다.
+ChatGPT의 클라우드 예약 작업 **지도 갱신 PR Codex 리뷰 요청**이 PR 생성 이벤트를 받는다.
+Actions가 만든 같은 저장소의 `deps/oda-map-lab-*` 브랜치이고, 갱신 표시가 있는 PR이
+지도 잠금파일 하나만 바꾼 경우 연결된 GitHub 계정으로 커밋당 한 번 Codex 리뷰를 요청한다.
 Actions의 **Update repository dependencies**에서 수동으로도 실행할 수 있다.
 허용된 저장소와 검증 경로는 [의존성 목록](.github/dependencies.json)에 있다.
 
