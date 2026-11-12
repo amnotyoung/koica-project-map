@@ -33,7 +33,7 @@ textarea{font:inherit;font-size:15px;width:100%;resize:vertical;padding:7px}.per
 .pin.representative circle:last-of-type{fill:#fff1cd;stroke:#995814;stroke-dasharray:3 2}.coordinate-fields{display:flex;align-items:end;gap:5px;flex-wrap:wrap}.coordinate-fields input{width:8em;font:inherit}.coordinate-fields button{font-size:13px}.map-tools button:disabled{opacity:.45;cursor:default}
 </style></head>
 <body><header><div><div><small>KOICA 프로젝트맵</small><h1 id="heading"></h1></div><span class="grow"></span><label class="lang-control">지도 언어 <select id="languages"><option value="ko">국문</option><option value="en">영문</option><option value="ko,en">국문·영문</option></select></label><span id="count"></span><button class="primary" id="save"></button></div></header>
-<main><p id="issue" hidden role="status"></p><div class="tools"><div class="filters" aria-label="목록 필터"><button data-filter="all">전체</button><button data-filter="notice">공고 후보</button><button data-filter="included">지도에 포함</button></div><input type="search" id="search" aria-label="사업명 또는 지명 검색" placeholder="사업명·지명 검색"><span class="grow"></span><button id="add">+ 직접 추가</button><button id="load">목록 열기</button><input id="restore" type="file" accept=".json,application/json"></div>
+<main><p id="issue" hidden role="status"></p><div class="tools"><div class="filters" aria-label="목록 필터"><button data-filter="all">전체</button><button data-filter="notice">공고 후보</button><button data-filter="included">지도에 포함</button><button data-filter="location" hidden>위치 확인</button></div><input type="search" id="search" aria-label="사업명 또는 지명 검색" placeholder="사업명·지명 검색"><span class="grow"></span><button id="add">+ 직접 추가</button><button id="load">목록 열기</button><input id="restore" type="file" accept=".json,application/json"></div>
 <div id="feedback" role="status"></div><div class="rows" id="rows"></div>
 <datalist id="geo-citylist"></datalist><div id="geo-dock"><section id="location-panel" hidden aria-label="대상지 지도 미리보기">
 <div class="map-tools"><strong>대상지 미리보기</strong><span class="grow"></span><button id="geo-close">닫기</button></div>
@@ -62,6 +62,7 @@ function init(doc){
  if(!doc || typeof doc.country!=='string'||!Array.isArray(doc.projects))throw Error('국가와 사업 목록이 있는 JSON 파일을 선택하세요.');
  let entries=[...doc.projects,...(doc.annual_plan_candidates||[]).map(p=>({...p,selected:false})),...(doc.partner_candidates||[]).map(p=>({...p,selected:false})),...(doc.period_candidates||[]).map(p=>({...p,selected:false})),...(doc.notice_candidates||[]).map(p=>({...p,selected:false})),...(doc.review_excluded||[]).map(p=>({...p,selected:false}))];
  if(entries.some(p=>!p||typeof p.name_ko!=='string'))throw Error('사업명이 없는 레코드를 읽을 수 없습니다.');
+ document.querySelector('[data-filter="location"]').hidden=!entries.some(r=>r._review_location);
  currentLocation=null;data=doc;rows=entries.map(p=>({...p,selected:p.selected!==false,_key:++seq,_editingNames:new Set()}));filter=doc.notice_candidates?.length?'notice':'all';$('search').value='';
  for(const row of rows){
   if(row._similar_project&&!row._similar_project_id)row._similar_project_id=rows.find(p=>!p._notice_candidate&&p.name_ko===row._similar_project)?.id;
@@ -80,7 +81,7 @@ function count(){const n=rows.filter(r=>r.selected).length;$('count').textConten
 function draw(){
  const panel=$('location-panel');$('geo-dock').append(panel);panel.hidden=true;
  const q=$('search').value.trim().toLowerCase();
- const shown=rows.filter(r=>(filter==='all'||filter==='notice'&&r._notice_candidate||filter==='included'&&r.selected)&&(!q||[r.name_ko,r.name_en,r.place,r.display_place_en,r.place_en,r._notice_title].join(' ').toLowerCase().includes(q)));
+ const shown=rows.filter(r=>(filter==='all'||filter==='notice'&&r._notice_candidate||filter==='included'&&r.selected||filter==='location'&&r.selected&&r._review_location&&(r._location_basis!=='manager-reviewed'||r.coverage==='unknown'||r.reviewed_unresolved?.length))&&(!q||[r.name_ko,r.name_en,r.place,r.display_place_en,r.place_en,r._notice_title].join(' ').toLowerCase().includes(q)));
  $('rows').innerHTML=shown.map(r=>{
  const links=[...new Set([...(r.scope_sources||[]),r._source_info?.url].map(webUrl).filter(Boolean))];
  const lang=languages(), english=lang.includes('en'), korean=lang.includes('ko');
@@ -93,6 +94,8 @@ function draw(){
  <div class="sources">${links.length?link(links[0],0):''}${r._detail_unavailable?'본문 조회 실패':r._notice_candidate&&!r._period?'기간 확인 필요':''}</div>
  <details><summary>상세</summary><div class="extra">
  ${r._notice_title?`<p class="hint">${esc(r._notice_title)}</p>`:''}${r._notice_evidence?`<p class="hint">${esc(r._notice_evidence)}</p>`:''}
+ ${r._iati_reported_places?.length?`<p class="hint">IATI 보고 지명 · ${esc(r._iati_reported_places.join(" / "))}</p>`:'' }
+ ${r._title_region?`<p class="hint">사업명에 명시된 지역 · ${esc(r._title_region)}</p>`:''}
  ${links.slice(1).map((u,i)=>link(u,i+1)).join(' ')}
  <label>사업 단계<input type="text" data-field="_stage" value="${esc(r._stage)}"></label>
  <div class="badges">${Object.entries(badges).map(([k,v])=>`<label><input type="checkbox" data-badge="${k}" ${(r.badges||[]).includes(k)?'checked':''}>${v}</label>`).join('')}</div></div></details></div>

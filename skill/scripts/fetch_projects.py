@@ -63,6 +63,21 @@ def budget_label(total, currency, lang):
     return f"{number}{unit}" if lang == "ko" else f"{currency} {number}{unit}"
 
 
+def apply_translation(row, translations):
+    entry = translations.get(row["id"]) or translations.get(row["id"].partition("@")[0])
+    if not entry:
+        return
+    for lang, other in (("ko","en"), ("en","ko")):
+        field = "name_" + lang
+        current = row.get(field) or ""
+        missing = not current or (lang == "ko" and not re.search("[가-힣]", current)) or (
+            lang == "en" and re.search("[가-힣]", current))
+        if missing and entry.get(lang) and entry["source"] == row.get("name_" + other):
+            row.setdefault("_source_" + field, current)
+            row[field] = entry[lang]
+            row["_translated_from"] = other
+
+
 def complete_card_metadata(row):
     """Carry reported dates and total budget into both display titles before review."""
     ko = row["name_ko"].rstrip().rstrip(")") + ")"
@@ -311,7 +326,9 @@ def collect(country: str, year: int | None, include_all: bool,
     for item in review:
         if item["id"] in decisions:
             item["decision"] = decisions[item["id"]]
+    translations = read_json(REFERENCE_DIR / "title_translations.json")
     for row in rows + period_candidates + plan_candidates:
+        apply_translation(row, translations)
         complete_card_metadata(row)
     for item in review:
         log(f'  · 기간 대조 {item["decision"]}: {item["name"]}')
@@ -335,9 +352,21 @@ def collect(country: str, year: int | None, include_all: bool,
             "location_status": "source-group-unverified", "projects": rows}
 
 
+def prepare_locations(doc):
+    from location_evidence import cities_for, enrich_locations, regional_names
+    from resolve_places import ensure_country
+    ref = identity(doc["country"])
+    if ref:
+        geo = ensure_country(ref["iso3"], "10m")
+        enrich_locations(doc, iati_aid.load_index().get("places", {}), cities_for(ref["iso2"]),
+                         regional_names(ref["iso3"], geo.get("admin", [])))
+
+
 def collect_for_review(country, year, include_all=False, force=False, all_notices=False):
     from official_notices import add_notices
-    return add_notices(collect(country, year, include_all, force, review_partners=True), force=force, all_notices=all_notices)
+    doc = collect(country, year, include_all, force, review_partners=True)
+    prepare_locations(doc)
+    return add_notices(doc, force=force, all_notices=all_notices)
 
 
 def main() -> int:

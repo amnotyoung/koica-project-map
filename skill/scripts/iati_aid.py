@@ -9,12 +9,13 @@ from pathlib import Path
 from common import CACHE_DIR, fetch, log
 
 URL = "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml"
-INDEX = CACHE_DIR / "koica-iati-activities-v2.json"
+INDEX = CACHE_DIR / "koica-iati-activities-v3.json"
 
 
 def read_index(path):
     codes = {}
     triangular = []
+    reported_places = {}
     for _, node in ET.iterparse(path, events=("end",)):
         if node.tag != "iati-activity":
             continue
@@ -23,6 +24,14 @@ def read_index(path):
         if key.startswith("KR-GOV-051-") and default is not None and default.get("vocabulary", "1") == "1":
             fid = "iati:" + key
             codes[fid] = default.get("code", "")
+            if codes[fid] in {"C01", "B03"}:
+                locations = []
+                for place in node.findall("location"):
+                    name = (place.findtext("name/narrative") or "").strip()
+                    if name:
+                        locations.append(name)
+                if locations:
+                    reported_places[fid] = list(dict.fromkeys(locations))
             title = (node.findtext("title/narrative") or "").strip()
             if codes[fid] == "C01" and re.search(r"\btriangular\b|삼각협력", title, re.I):
                 descriptions = " ".join(n.text or "" for n in node.findall("description/narrative"))
@@ -32,7 +41,7 @@ def read_index(path):
         node.clear()
     if not codes:
         raise ValueError("KOICA XML 원조유형 없음")
-    return {"codes":codes, "triangular":triangular}
+    return {"codes":codes, "triangular":triangular, "places":reported_places}
 
 
 def load_index(force=False):
