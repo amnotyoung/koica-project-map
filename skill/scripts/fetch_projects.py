@@ -32,7 +32,30 @@ TTL_HOURS = 12          # 원천이 IATI 라 갱신이 잦지 않다. 그래도 
 
 # 국별협력사업(무상원조 프로젝트)의 성격 — 기본 선택 대상
 MAIN_AID = "프로젝트 원조"
-MAIN_BUDGET_KRW = 3_000_000_000     # 30억원. 봉사단·연수·소규모 민관협력과 가르는 선
+# 2027년판 국문 24·36쪽의 두 최저액 사업. 원화만 있을 때는 두 원천 예산 중 작은 값.
+MAIN_BUDGET_USD = 2_000_000
+MAIN_BUDGET_KRW = 2_260_000_000
+# 사업명 끝의 기간/총액만 읽는다. 설명에 등장하는 집행액·분담금은 사용하지 않는다.
+TITLE_BUDGET = re.compile(
+    r"[(（]\s*['‘’`]?(?:20)?\d{2}\s*년?\s*[-~–—]\s*['‘’`]?(?:20)?\d{2}\s*년?\s*[/／,]\s*"
+    r"([0-9]+(?:,[0-9]{3})*(?:\.[0-9]+)?)\s*(억|천만|백만|십만|만|천)?\s*(달러|불|원)\s*[)）]\s*$"
+)
+AMOUNT_SCALE = {"억":100_000_000, "천만":10_000_000, "백만":1_000_000,
+                "십만":100_000, "만":10_000, "천":1_000, None:1}
+
+
+def meets_budget_floor(title, details):
+    match = TITLE_BUDGET.search(title)
+    if match:
+        amount, unit, currency = match.groups()
+        value = float(amount.replace(",", "")) * AMOUNT_SCALE[unit]
+        return value >= (MAIN_BUDGET_KRW if currency == "원" else MAIN_BUDGET_USD)
+    reported = (details.get("amounts") or {}).get("budget") or {}
+    currency = reported.get("currency") or "KRW"
+    floor = {"USD":MAIN_BUDGET_USD, "KRW":MAIN_BUDGET_KRW}.get(currency)
+    value = reported.get("value") if reported else details.get("budget")
+    return floor is not None and isinstance(value, (int, float)) and value >= floor
+
 
 # 원천 데이터의 지역 구분 → 슬라이드 지역 탭 표기 (샘플은 '아시아태평양')
 REGION_TAB = {"아시아": "아시아태평양", "오세아니아": "아시아태평양",
@@ -140,7 +163,7 @@ def collect(country: str, year: int | None, include_all: bool,
                 continue
             explicit_bilateral = de.get("biz_type") == "국별협력사업"
             main = (de.get("aid") == MAIN_AID and "KOICA" in agency
-                    and (explicit_bilateral or budget >= MAIN_BUDGET_KRW) and not done and not other)
+                    and (explicit_bilateral or meets_budget_floor(name_ko, de)) and not done and not other)
             row = {
                 "selected": main,
                 "place": place,
