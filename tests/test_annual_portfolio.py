@@ -34,6 +34,20 @@ class AnnualPortfolioTests(unittest.TestCase):
         self.assertEqual(len(existing),1)
         self.assertEqual(pending[0]["_possible_catalog_ids"],["a"])
 
+    def test_budget_tables_resolve_old_end_date_without_creating_a_second_record(self):
+        title = "예시국 교사 교육사업('22-'27/576만불)"
+        row = {"account":"[405]예시국(ODA)", "title":title, "period":"2022-2027", "annual_100m_krw":"0.25","status":"계속","page":81}
+        target = {"basis":"requested","resolution":"A","source":"source","projects":[row]}
+        previous = {**target,"basis":"confirmed","resolution":"B"}
+        waiting = [{"id":"iati:1","name_ko":title,"selected":False,"_period_candidate":True,
+                    "_period_review":{"source_period":"2022-2026"}}]
+        rows = []
+        reconcile(rows, [], "예시국", 2027, [], target, previous, {}, waiting)
+        self.assertEqual(waiting, [])
+        self.assertEqual(rows[0]["id"],"iati:1")
+        self.assertEqual(rows[0]["_period"],"2022-2027")
+        self.assertEqual(rows[0]["_period_review"]["source_period"],"2022-2026")
+
     def test_similar_titles_are_not_silently_merged_and_country_prefix_is_unambiguous(self):
         row = {"title":"인도네시아 토양 정보 현대화","account":"일반협력국가그룹","period":"2025-2028",
                "page":2,"annual_100m_krw":"1","status":"계속"}

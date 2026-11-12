@@ -16,6 +16,7 @@ import json
 import sys
 from pathlib import Path
 
+from country_names import identity
 from common import (GEO_CACHE, bbox_intersects, bbox_of, centroid_of, fetch,
                     geom_area_deg2, log, norm, outer_rings, read_json,
                     round_ring, simplify, unzip_member, write_json)
@@ -57,7 +58,7 @@ def iso3_of(props: dict) -> str:
 def find_country(features: list, query: str):
     """한글명 · 영문명 · ISO3 어느 쪽으로도 찾는다."""
     q = norm(query)
-    qu = query.strip().upper()
+    qu = identity(query).get("iso3", query.strip().upper())
     exact, partial = [], []
     for f in features:
         p = f["properties"]

@@ -25,6 +25,7 @@ import time
 from datetime import date
 from pathlib import Path
 
+from country_names import canonical, identity
 import annual_portfolio
 import iati_aid
 from portfolio_selection import TITLE_PERIOD, project_key, reconcile_notices, title_period, year_decision
@@ -173,6 +174,7 @@ def _trusted_source_coord(feature: dict, place: str) -> dict | None:
 
 def collect(country: str, year: int | None, include_all: bool,
             force: bool = False, *, review_partners: bool = False) -> dict:
+    country = canonical(country)
     data = load_source(force)
     scopes = read_json(REFERENCE_DIR / "public_project_scopes.json").get(country, {})
     sm = sector_map()
@@ -183,12 +185,12 @@ def collect(country: str, year: int | None, include_all: bool,
     country_en = ""
     region = ""
     for f in data["features"]:
-        if f.get("country") == country and f.get("details", {}).get("region"):
+        if canonical(f.get("country")) == country and f.get("details", {}).get("region"):
             region = REGION_TAB.get(f["details"]["region"], f["details"]["region"])
             break
 
     for f in data["features"]:
-        if f.get("country") != country or not f.get("layer", "").startswith("project"):
+        if canonical(f.get("country")) != country or not f.get("layer", "").startswith("project"):
             continue
         if not country_en and "·" in (f.get("name", {}).get("en") or ""):
             country_en = f["name"]["en"].partition("·")[0].strip()
@@ -305,6 +307,10 @@ def collect(country: str, year: int | None, include_all: bool,
     reconcile_notices(rows, notices, year, catalog_titles, seen)
     countries = {f["country"] for f in data["features"] if f.get("country")}
     plan_audit, plan_candidates = annual_portfolio.add_plan(rows, period_candidates, country, year, countries, scopes)
+    decisions = {r["id"]:r["_period_review"]["decision"] for r in rows if r.get("_period_review")}
+    for item in review:
+        if item["id"] in decisions:
+            item["decision"] = decisions[item["id"]]
     for row in rows + period_candidates + plan_candidates:
         complete_card_metadata(row)
     for item in review:
@@ -320,6 +326,8 @@ def collect(country: str, year: int | None, include_all: bool,
         confirmed = {fid for row in rows for fid in row.get("partner_activity_ids", [])}
         activities = iati_aid.load_index(force and aid_codes is None).get("triangular", [])
         extra["partner_candidates"] = iati_aid.partner_candidates(activities, country, country_en, year, domestic, confirmed)
+    if identity(country):
+        extra.update(country_ko=country, country_iso3=identity(country)["iso3"])
     return {**extra, "country": country, "region": region, "year": year,
             "fetched_at": date.today().isoformat(),
             "source": SOURCE, "source_build_id": data.get("build_id"),

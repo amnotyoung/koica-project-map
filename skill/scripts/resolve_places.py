@@ -25,6 +25,7 @@ from pathlib import Path
 from common import CACHE_DIR, GEO_CACHE, log, norm, read_json, write_json
 from hangul import full_ratio, loose_key, similarity
 
+from country_names import identity
 import geo_prepare
 
 ACCEPT = 0.75      # 이 미만이면 미해석 처리
@@ -44,6 +45,11 @@ COUNTRY_FALLBACK = "국가(폴백)"
 
 def ensure_country(country: str, detail: str = "50m"):
     """basemap/places 캐시가 없으면 geo_prepare 로 만든다."""
+    iso3 = identity(country).get("iso3")
+    if iso3:
+        path = GEO_CACHE / f"{iso3}_places.json"
+        if path.exists():
+            return read_json(path)
     hits = sorted(GEO_CACHE.glob("*_places.json"))
     for p in hits:
         doc = read_json(p)

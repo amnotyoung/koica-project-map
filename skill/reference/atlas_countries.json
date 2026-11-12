@@ -1,0 +1,444 @@
+[
+  {
+    "ko": "네팔",
+    "en": "Nepal",
+    "iso3": "NPL",
+    "iso2": "NP",
+    "aliases": []
+  },
+  {
+    "ko": "동티모르",
+    "en": "East Timor",
+    "iso3": "TLS",
+    "iso2": "TL",
+    "aliases": []
+  },
+  {
+    "ko": "라오스",
+    "en": "Laos",
+    "iso3": "LAO",
+    "iso2": "LA",
+    "aliases": []
+  },
+  {
+    "ko": "미얀마",
+    "en": "Myanmar",
+    "iso3": "MMR",
+    "iso2": "MM",
+    "aliases": []
+  },
+  {
+    "ko": "몽골",
+    "en": "Mongolia",
+    "iso3": "MNG",
+    "iso2": "MN",
+    "aliases": []
+  },
+  {
+    "ko": "방글라데시",
+    "en": "Bangladesh",
+    "iso3": "BGD",
+    "iso2": "BD",
+    "aliases": []
+  },
+  {
+    "ko": "베트남",
+    "en": "Vietnam",
+    "iso3": "VNM",
+    "iso2": "VN",
+    "aliases": []
+  },
+  {
+    "ko": "솔로몬군도",
+    "en": "Solomon Islands",
+    "iso3": "SLB",
+    "iso2": "SB",
+    "aliases": [
+      "솔로몬제도",
+      "솔로몬 제도"
+    ]
+  },
+  {
+    "ko": "스리랑카",
+    "en": "Sri Lanka",
+    "iso3": "LKA",
+    "iso2": "LK",
+    "aliases": []
+  },
+  {
+    "ko": "인도",
+    "en": "India",
+    "iso3": "IND",
+    "iso2": "IN",
+    "aliases": []
+  },
+  {
+    "ko": "인도네시아",
+    "en": "Indonesia",
+    "iso3": "IDN",
+    "iso2": "ID",
+    "aliases": []
+  },
+  {
+    "ko": "캄보디아",
+    "en": "Cambodia",
+    "iso3": "KHM",
+    "iso2": "KH",
+    "aliases": []
+  },
+  {
+    "ko": "태국",
+    "en": "Thailand",
+    "iso3": "THA",
+    "iso2": "TH",
+    "aliases": []
+  },
+  {
+    "ko": "파키스탄",
+    "en": "Pakistan",
+    "iso3": "PAK",
+    "iso2": "PK",
+    "aliases": []
+  },
+  {
+    "ko": "파푸아뉴기니",
+    "en": "Papua New Guinea",
+    "iso3": "PNG",
+    "iso2": "PG",
+    "aliases": []
+  },
+  {
+    "ko": "피지",
+    "en": "Fiji",
+    "iso3": "FJI",
+    "iso2": "FJ",
+    "aliases": []
+  },
+  {
+    "ko": "필리핀",
+    "en": "Philippines",
+    "iso3": "PHL",
+    "iso2": "PH",
+    "aliases": []
+  },
+  {
+    "ko": "가나",
+    "en": "Ghana",
+    "iso3": "GHA",
+    "iso2": "GH",
+    "aliases": []
+  },
+  {
+    "ko": "나이지리아",
+    "en": "Nigeria",
+    "iso3": "NGA",
+    "iso2": "NG",
+    "aliases": []
+  },
+  {
+    "ko": "르완다",
+    "en": "Rwanda",
+    "iso3": "RWA",
+    "iso2": "RW",
+    "aliases": []
+  },
+  {
+    "ko": "말라위",
+    "en": "Malawi",
+    "iso3": "MWI",
+    "iso2": "MW",
+    "aliases": []
+  },
+  {
+    "ko": "모잠비크",
+    "en": "Mozambique",
+    "iso3": "MOZ",
+    "iso2": "MZ",
+    "aliases": []
+  },
+  {
+    "ko": "모로코",
+    "en": "Morocco",
+    "iso3": "MAR",
+    "iso2": "MA",
+    "aliases": []
+  },
+  {
+    "ko": "세네갈",
+    "en": "Senegal",
+    "iso3": "SEN",
+    "iso2": "SN",
+    "aliases": []
+  },
+  {
+    "ko": "수단",
+    "en": "Sudan",
+    "iso3": "SDN",
+    "iso2": "SD",
+    "aliases": []
+  },
+  {
+    "ko": "알제리",
+    "en": "Algeria",
+    "iso3": "DZA",
+    "iso2": "DZ",
+    "aliases": []
+  },
+  {
+    "ko": "앙골라",
+    "en": "Angola",
+    "iso3": "AGO",
+    "iso2": "AO",
+    "aliases": []
+  },
+  {
+    "ko": "에티오피아",
+    "en": "Ethiopia",
+    "iso3": "ETH",
+    "iso2": "ET",
+    "aliases": []
+  },
+  {
+    "ko": "우간다",
+    "en": "Uganda",
+    "iso3": "UGA",
+    "iso2": "UG",
+    "aliases": []
+  },
+  {
+    "ko": "이집트",
+    "en": "Egypt",
+    "iso3": "EGY",
+    "iso2": "EG",
+    "aliases": []
+  },
+  {
+    "ko": "짐바브웨",
+    "en": "Zimbabwe",
+    "iso3": "ZWE",
+    "iso2": "ZW",
+    "aliases": []
+  },
+  {
+    "ko": "카메룬",
+    "en": "Cameroon",
+    "iso3": "CMR",
+    "iso2": "CM",
+    "aliases": []
+  },
+  {
+    "ko": "케냐",
+    "en": "Kenya",
+    "iso3": "KEN",
+    "iso2": "KE",
+    "aliases": []
+  },
+  {
+    "ko": "코트디부아르",
+    "en": "Ivory Coast",
+    "iso3": "CIV",
+    "iso2": "CI",
+    "aliases": []
+  },
+  {
+    "ko": "DR콩고",
+    "en": "Democratic Republic of the Congo",
+    "iso3": "COD",
+    "iso2": "CD",
+    "aliases": [
+      "콩고민주공화국",
+      "콩고민주공화국(DR콩고)",
+      "콩고 민주 공화국"
+    ]
+  },
+  {
+    "ko": "탄자니아",
+    "en": "Tanzania",
+    "iso3": "TZA",
+    "iso2": "TZ",
+    "aliases": []
+  },
+  {
+    "ko": "튀니지",
+    "en": "Tunisia",
+    "iso3": "TUN",
+    "iso2": "TN",
+    "aliases": []
+  },
+  {
+    "ko": "토고",
+    "en": "Togo",
+    "iso3": "TGO",
+    "iso2": "TG",
+    "aliases": []
+  },
+  {
+    "ko": "과테말라",
+    "en": "Guatemala",
+    "iso3": "GTM",
+    "iso2": "GT",
+    "aliases": []
+  },
+  {
+    "ko": "도미니카공화국",
+    "en": "Dominican Republic",
+    "iso3": "DOM",
+    "iso2": "DO",
+    "aliases": [
+      "도미니카 공화국"
+    ]
+  },
+  {
+    "ko": "벨리즈",
+    "en": "Belize",
+    "iso3": "BLZ",
+    "iso2": "BZ",
+    "aliases": []
+  },
+  {
+    "ko": "볼리비아",
+    "en": "Bolivia",
+    "iso3": "BOL",
+    "iso2": "BO",
+    "aliases": []
+  },
+  {
+    "ko": "아이티",
+    "en": "Haiti",
+    "iso3": "HTI",
+    "iso2": "HT",
+    "aliases": []
+  },
+  {
+    "ko": "에콰도르",
+    "en": "Ecuador",
+    "iso3": "ECU",
+    "iso2": "EC",
+    "aliases": []
+  },
+  {
+    "ko": "엘살바도르",
+    "en": "El Salvador",
+    "iso3": "SLV",
+    "iso2": "SV",
+    "aliases": []
+  },
+  {
+    "ko": "온두라스",
+    "en": "Honduras",
+    "iso3": "HND",
+    "iso2": "HN",
+    "aliases": []
+  },
+  {
+    "ko": "자메이카",
+    "en": "Jamaica",
+    "iso3": "JAM",
+    "iso2": "JM",
+    "aliases": []
+  },
+  {
+    "ko": "코스타리카",
+    "en": "Costa Rica",
+    "iso3": "CRI",
+    "iso2": "CR",
+    "aliases": []
+  },
+  {
+    "ko": "콜롬비아",
+    "en": "Colombia",
+    "iso3": "COL",
+    "iso2": "CO",
+    "aliases": []
+  },
+  {
+    "ko": "쿠바",
+    "en": "Cuba",
+    "iso3": "CUB",
+    "iso2": "CU",
+    "aliases": []
+  },
+  {
+    "ko": "파라과이",
+    "en": "Paraguay",
+    "iso3": "PRY",
+    "iso2": "PY",
+    "aliases": []
+  },
+  {
+    "ko": "페루",
+    "en": "Peru",
+    "iso3": "PER",
+    "iso2": "PE",
+    "aliases": []
+  },
+  {
+    "ko": "아제르바이잔",
+    "en": "Azerbaijan",
+    "iso3": "AZE",
+    "iso2": "AZ",
+    "aliases": []
+  },
+  {
+    "ko": "요르단",
+    "en": "Jordan",
+    "iso3": "JOR",
+    "iso2": "JO",
+    "aliases": []
+  },
+  {
+    "ko": "우즈베키스탄",
+    "en": "Uzbekistan",
+    "iso3": "UZB",
+    "iso2": "UZ",
+    "aliases": []
+  },
+  {
+    "ko": "우크라이나",
+    "en": "Ukraine",
+    "iso3": "UKR",
+    "iso2": "UA",
+    "aliases": []
+  },
+  {
+    "ko": "이라크",
+    "en": "Iraq",
+    "iso3": "IRQ",
+    "iso2": "IQ",
+    "aliases": []
+  },
+  {
+    "ko": "이란",
+    "en": "Iran",
+    "iso3": "IRN",
+    "iso2": "IR",
+    "aliases": []
+  },
+  {
+    "ko": "키르기스스탄",
+    "en": "Kyrgyzstan",
+    "iso3": "KGZ",
+    "iso2": "KG",
+    "aliases": [
+      "키르기즈",
+      "키르기즈공화국",
+      "키르기스공화국"
+    ]
+  },
+  {
+    "ko": "타지키스탄",
+    "en": "Tajikistan",
+    "iso3": "TJK",
+    "iso2": "TJ",
+    "aliases": []
+  },
+  {
+    "ko": "팔레스타인",
+    "en": "Palestine",
+    "iso3": "PSE",
+    "iso2": "PS",
+    "aliases": [
+      "서안지구 및 가자지구"
+    ]
+  }
+]
