@@ -205,5 +205,132 @@
         "https://digital.gov.uz/en/adliya/news/view/93584"
       ]
     }
+  ],
+  "엘살바도르": [
+    {
+      "id": "ues:K-INNO4U",
+      "edition_year": 2027,
+      "title": "엘살바도르 기술혁신 기반 창업 및 산학협력 지원사업",
+      "period": "2026-2031",
+      "stage": "협약",
+      "published": "2026-08-26",
+      "publisher": "Universidad de El Salvador",
+      "name_ko": "엘살바도르 기술혁신 기반 창업 및 산학협력 지원사업 (2026–2031 / 최대 900만불)",
+      "name_en": "University–industry research and entrepreneurship, K-INNO4U (2026–2031 / up to USD 9m)",
+      "badges": [
+        "E"
+      ],
+      "coverage": "site",
+      "place": "산살바도르",
+      "place_en": "San Salvador",
+      "sites": [
+        {
+          "place": "산살바도르",
+          "geonames_locality": {
+            "name": "San Salvador",
+            "id": 3583361,
+            "lat": 13.68935,
+            "lon": -89.18718
+          }
+        }
+      ],
+      "scope_sources": [
+        "https://www.ues.edu.sv/ues-inicia-proyecto-de-innovacion-tecnologica/",
+        "https://www.ues.edu.sv/contacto/",
+        "https://www.koica.go.kr/bbs/koica_kr/292/388176/artclView.do",
+        "https://download.geonames.org/export/dump/cities500.zip",
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml"
+      ],
+      "source_ids": [
+        "iati:KR-GOV-051-2026010100029"
+      ]
+    }
+  ],
+  "파라과이": [
+    {
+      "id": "una:FOUNA-KOICA",
+      "edition_year": 2027,
+      "title": "파라과이 아순시온 국립대학교 치과대학병원 건립 및 역량강화사업",
+      "period": "2026-2031",
+      "stage": "협약",
+      "published": "2026-02-19",
+      "publisher": "Universidad Nacional de Asunción",
+      "name_ko": "파라과이 아순시온 국립대학교 치과대학병원 건립 및 역량강화사업 (2026–2031 / 1,200만불)",
+      "name_en": "Establishment and capacity development of the FOUNA dental hospital (2026–2031 / USD 12m)",
+      "badges": [
+        "H"
+      ],
+      "coverage": "unknown",
+      "place": "아순시온 국립대학교 치과대학",
+      "scope_label": "아순시온 국립대학교 치과대학",
+      "scope_label_en": "UNA Faculty of Dentistry",
+      "scope_sources": [
+        "https://www.una.py/la-una-founa-y-koica-gestionan-un-moderno-hospital-odontologico-y-fortalecer-la-salud-bucodental-en-paraguay",
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml"
+      ],
+      "source_ids": [
+        "iati:KR-GOV-051-2026010100034"
+      ]
+    }
+  ],
+  "몽골": [
+    {
+      "id": "iati:KR-GOV-051-2025010100177",
+      "edition_year": 2027,
+      "title": "몽골 국립 칭기스칸박물관 디지털 콘텐츠 개발 및 운영역량 강화 사업",
+      "period": "2025-2028",
+      "stage": "사업착수",
+      "published": "2025-08-26",
+      "publisher": "Chinggis Khaan National Museum",
+      "name_ko": "몽골 국립 칭기스칸박물관 디지털 콘텐츠 개발 및 운영역량 강화 사업 (2025–2028 / 600만불)",
+      "name_en": "Digital content and operational capacity of the Chinggis Khaan National Museum (2025–2028 / USD 6m)",
+      "badges": [
+        "T"
+      ],
+      "coverage": "site",
+      "place": "울란바토르",
+      "place_en": "Ulaanbaatar",
+      "sites": [
+        {
+          "place": "울란바토르",
+          "geonames_locality": {
+            "name": "Ulaanbaatar",
+            "id": 2028462,
+            "lat": 47.90771,
+            "lon": 106.88324
+          }
+        }
+      ],
+      "scope_sources": [
+        "https://qr.chinggismuseum.com/en/blogs/68aaebb3a8f69d5ab542a233",
+        "https://new.chinggismuseum.com/en/news/to-become-a-leading-national-museum-in-digital-innovation",
+        "https://www.koica.go.kr/bbs/koica_kr/292/387004/artclView.do",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ]
+    },
+    {
+      "id": "undp:MNG-gender-decision-making-II",
+      "edition_year": 2027,
+      "title": "몽골 공공의사결정에서의 양성평등 달성을 위한 여성 권한 강화 2차 사업",
+      "period": "2026-2029",
+      "stage": "협약",
+      "published": "2026-07-22",
+      "publisher": "UNDP Mongolia",
+      "name_ko": "몽골 공공의사결정 여성·청년 참여 및 역량강화 2차사업(UNDP) (2026–2029 / 600만불)",
+      "name_en": "Women and youth in public decision-making, phase II (UNDP) (2026–2029 / USD 6m)",
+      "place": "몽골 전역",
+      "coverage": "nationwide",
+      "badges": [
+        "G"
+      ],
+      "scope_sources": [
+        "https://www.undp.org/mongolia/press-releases/undp-and-koica-launch-second-phase-partnership-advance-womens-and-youth-leadership-mongolia",
+        "https://www.koica.go.kr/bbs/koica_kr/292/388745/artclView.do",
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml"
+      ],
+      "source_ids": [
+        "iati:KR-GOV-051-2026010100040"
+      ]
+    }
   ]
 }

@@ -365,5 +365,301 @@
         "https://www.koica.go.kr/koica_kr/990/subview.do?enc=Zm5jdDF8QEB8JTJGYmJzJTJGa29pY2Ffa3IlMkYxNTElMkYzODM3NjQlMkZhcnRjbFZpZXcuZG8lM0Y%3D"
       ]
     }
+  },
+  "몽골": {
+    "iati:KR-GOV-051-2024010100017": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "울란바토르",
+      "geonames_locality": {
+        "name": "Ulaanbaatar",
+        "id": 2028462,
+        "lat": 47.90771,
+        "lon": 106.88324
+      },
+      "place_en": "Ulaanbaatar",
+      "scope_sources": [
+        "https://www.koica.go.kr/bbs/koica_kr/292/384353/artclView.do",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ]
+    },
+    "iati:KR-GOV-051-2024010100133": {
+      "year": 2027,
+      "coverage": "admin2",
+      "place": "날라흐구",
+      "place_en": "Nalaikh District",
+      "admin2_names": [
+        "Nalaix"
+      ],
+      "scope_sources": [
+        "https://oda-map-lab.pages.dev/generated/map-base.json"
+      ]
+    },
+    "iati:KR-GOV-051-2022010100162": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "울란바토르",
+      "geonames_locality": {
+        "name": "Ulaanbaatar",
+        "id": 2028462,
+        "lat": 47.90771,
+        "lon": 106.88324
+      },
+      "place_en": "Ulaanbaatar",
+      "scope_sources": [
+        "https://must.edu.mn/mn/news/9898",
+        "https://s-quad.imweb.me/HOME",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ]
+    },
+    "iati:KR-GOV-051-2026010100147": {
+      "year": 2027,
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ],
+      "name_ko": "몽골 주소정보 현대화를 통한 디지털 공공행정 역량강화사업 (2026–2029 / 800만불)",
+      "_period": "2026-2029",
+      "coverage": "site",
+      "place": "울란바토르",
+      "place_en": "Ulaanbaatar",
+      "geonames_locality": {
+        "name": "Ulaanbaatar",
+        "id": 2028462,
+        "lat": 47.90771,
+        "lon": 106.88324
+      }
+    },
+    "iati:KR-GOV-051-2026010100039": {
+      "year": 2027,
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ],
+      "name_ko": "몽골 울란바토르시 사계절 온실 구축을 통한 농업생산 역량강화사업 (2026–2031 / 1,300만불)",
+      "_period": "2026-2031",
+      "coverage": "site",
+      "place": "울란바토르",
+      "place_en": "Ulaanbaatar",
+      "geonames_locality": {
+        "name": "Ulaanbaatar",
+        "id": 2028462,
+        "lat": 47.90771,
+        "lon": 106.88324
+      }
+    },
+    "iati:KR-GOV-051-2025010103705": {
+      "year": 2027,
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ],
+      "name_ko": "몽골 가스안전관리 법·제도 구축 및 역량강화사업",
+      "_period": "2025-2027",
+      "coverage": "site",
+      "place": "울란바토르",
+      "place_en": "Ulaanbaatar",
+      "geonames_locality": {
+        "name": "Ulaanbaatar",
+        "id": 2028462,
+        "lat": 47.90771,
+        "lon": 106.88324
+      }
+    }
+  },
+  "말라위": {
+    "iati:KR-GOV-051-2025010100064": {
+      "year": 2027,
+      "coverage": "admin2",
+      "place": "데자·음친지 군",
+      "place_en": "Dedza and Mchinji districts",
+      "admin2_names": [
+        "Dedza",
+        "Mchinji"
+      ],
+      "badges": [
+        "H"
+      ],
+      "scope_sources": [
+        "https://malawi.unfpa.org/en/news/koica-commits-usd-74-million-unfpa-and-government-malawi-empower-adolescent-girls-and-teen"
+      ]
+    }
+  },
+  "파라과이": {
+    "iati:KR-GOV-051-2023010100072": {
+      "year": 2027,
+      "coverage": "admin1",
+      "place": "센트랄·카아과수·코르디예라·파라과리",
+      "place_en": "Central, Caaguazú, Cordillera and Paraguarí",
+      "admin1_names": [
+        "CENTRAL",
+        "CAAGUAZU",
+        "CORDILLERA",
+        "PARAGUARI"
+      ],
+      "scope_sources": [
+        "https://www.ip.gov.py/ip/2026/05/07/organizaciones-productivas-podran-postularse-a-convocatoria-que-apunta-a-la-competitividad-con-financiamiento/"
+      ]
+    },
+    "iati:KR-GOV-051-2026010100031": {
+      "year": 2027,
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://www.ip.gov.py/ip/2025/08/26/proyecto-de-la-koica-cooperara-con-productores-a-enfrentar-desafios-derivados-del-cambio-climatico/"
+      ],
+      "name_ko": "파라과이 소농의 기후변화 적응역량 강화사업",
+      "coverage": "unknown",
+      "scope_label": "산페드로 지역 소농",
+      "scope_label_en": "Smallholder farms in San Pedro"
+    }
+  },
+  "라오스": {
+    "iati:KR-GOV-051-2023010100065": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "비엔티안·방비엥·팍세·카이손폼비한",
+      "place_en": "Vientiane, Vang Vieng, Pakse and Kaysone Phomvihane",
+      "sites": [
+        {
+          "place": "비엔티안",
+          "geonames_locality": {
+            "name": "Vientiane",
+            "id": 1651944,
+            "lat": 17.96667,
+            "lon": 102.6
+          }
+        },
+        {
+          "place": "방비엥",
+          "geonames_locality": {
+            "name": "Vang Vieng",
+            "id": 1655087,
+            "lat": 18.9235,
+            "lon": 102.44784
+          }
+        },
+        {
+          "place": "팍세",
+          "geonames_locality": {
+            "name": "Pakse",
+            "id": 1654379,
+            "lat": 15.12022,
+            "lon": 105.79898
+          }
+        },
+        {
+          "place": "카이손폼비한",
+          "geonames_locality": {
+            "name": "Kaysone Phomvihane",
+            "id": 1653316,
+            "lat": 16.5703,
+            "lon": 104.7622
+          }
+        }
+      ],
+      "_period": "2023-2028",
+      "name_ko": "라오스 도시환경 개선을 위한 폐기물 및 하수처리 역량강화 2차사업(GGGI) (2023–2028 / 1,050만불)",
+      "name_en": "Sustainable solid waste and wastewater management, phase II (GGGI) (2023–2028 / USD 10.5m)",
+      "scope_sources": [
+        "https://gggi.org/project/scaling-out-sustainable-solid-waste-and-wastewater-management-in-lao-pdr-phase-ii/",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ]
+    },
+    "iati:KR-GOV-051-2025010100196": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "락사오",
+      "geonames_locality": {
+        "name": "Lak Sao",
+        "id": 1662662,
+        "lat": 18.19381,
+        "lon": 104.97127
+      },
+      "place_en": "Lak Sao",
+      "scope_sources": [
+        "https://www.koica.go.kr/bbs/koica_kr/292/387212/artclView.do",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ]
+    },
+    "iati:KR-GOV-051-2025010100120": {
+      "year": 2027,
+      "coverage": "unknown",
+      "place": "비엔티안시·우돔싸이주 재활센터",
+      "scope_label": "비엔티안시·우돔싸이주 재활센터",
+      "scope_label_en": "Rehabilitation centres in Vientiane and Oudomxay",
+      "scope_sources": [
+        "https://oda-map-lab.pages.dev/generated/map-base.json"
+      ]
+    },
+    "iati:KR-GOV-051-2021010100152": {
+      "year": 2027,
+      "verified_years": [
+        2027
+      ],
+      "coverage": "unknown",
+      "scope_label": "8번 국도 교량·도로 구간",
+      "scope_label_en": "National Road 8 bridge and road sections",
+      "scope_sources": [
+        "https://itskorea.kr/downloadFile.do?fileId=FILE_000000000109864&fileSn=1"
+      ]
+    },
+    "iati:KR-GOV-051-2026010100150": {
+      "year": 2027,
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml"
+      ],
+      "name_ko": "라오스 혁신적 농촌공동체 개발 프로그램",
+      "name_en": "Saemaul Plus rural community development programme in Lao PDR",
+      "coverage": "unknown",
+      "scope_label": "아타푸 등 농촌공동체",
+      "scope_label_en": "Rural communities including Attapeu"
+    },
+    "iati:KR-GOV-051-2023010100078": {
+      "year": 2027,
+      "scope_sources": [
+        "https://job.koica.go.kr/application/applicationDetailPage.do?empmnPblancSn=17468&entrpsSn=&menuId=MENU0098&pageIndex=1"
+      ],
+      "verified_years": [
+        2027
+      ],
+      "coverage": "unknown",
+      "scope_label": "디지털 농지정보 구축 대상지",
+      "scope_label_en": "Digital farmland information project sites"
+    }
+  },
+  "엘살바도르": {
+    "iati:KR-GOV-051-2024010100025": {
+      "year": 2027,
+      "coverage": "unknown",
+      "place": "소아 원격협진 참여 보건시설",
+      "scope_label": "소아 원격협진 참여 보건시설",
+      "scope_label_en": "Paediatric telemedicine facilities",
+      "scope_sources": [
+        "https://oda-map-lab.pages.dev/generated/map-base.json",
+        "https://www.koica.go.kr/bbs/koica_kr/292/384402/artclView.do"
+      ]
+    },
+    "iati:KR-GOV-051-2026010100036": {
+      "year": 2027,
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://diarioelsalvador.com/depais/buscamos-que-la-cooperacion-de-corea-acompane-los-objetivos-y-esfuerzos-del-gobierno-salvadoreno-kwak-taeyeol-embajador-de-corea/fill"
+      ],
+      "name_ko": "엘살바도르 일차보건의료 기반 만성질환 예방·관리 역량강화사업 (2026–2031 / 700만불)",
+      "coverage": "unknown",
+      "scope_label": "일차보건의료 기관",
+      "scope_label_en": "Primary healthcare facilities"
+    },
+    "iati:KR-GOV-051-2025010103955": {
+      "year": 2027,
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml"
+      ],
+      "name_ko": "중미 건조회랑 원예기술 역량강화 삼각협력 2차사업",
+      "name_en": "Horticultural capacity in the Central American Dry Corridor, phase II",
+      "coverage": "unknown",
+      "scope_label": "건조회랑 내 농업시험장",
+      "scope_label_en": "Experimental stations in the Dry Corridor"
+    }
   }
 }
