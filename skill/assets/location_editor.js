@@ -214,7 +214,7 @@ $('geo-mode').onchange=e=>{
  if(!d.byMode[mode]){
   const area=mode.startsWith('admin')?findArea(query,mode):null;
   d.byMode[mode]={mode,evidence:'',ids:area?[area.id]:[],pins:mode==='site'?pinsFromText(query):[],
-   place:mode==='nationwide'?data.country+' 전역':area?area.name:mode==='site'?query:''};
+   place:mode==='nationwide'?data.country+' 전역':area?query:mode==='site'?query:''};
  }
  d.mode=mode;activePin=0;$('region-filter').value='';syncLocationPanel();
 };

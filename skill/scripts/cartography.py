@@ -45,7 +45,7 @@ def place_labels(map_data, markers, leaders, tok):
         q=map_data["locator"]["frame"]
         blocked.append([q["x"]-.04,q["y"]-.04,q["x"]+q["w"]+.04,q["y"]+q["h"]+.04])
     labels, seen = [], []
-    candidates = [{**m, "project": True, "name": m.get("name", "")} for m in markers]
+    candidates = [{**m, "project": True, "name": m.get("label", m.get("name", ""))} for m in markers]
     candidates += sorted(map_data.get("cities",[]),key=lambda c:-c.get("pop",0))
     for c in candidates:
         key = norm(c["name"])

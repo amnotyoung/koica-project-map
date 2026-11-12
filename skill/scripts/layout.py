@@ -807,13 +807,17 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale,
                        if part.get("ok") and part.get("kind") != "nationwide"
                        and not rp.get("source_conflicts")]
         marker_kind = "multi" if len(valid_parts) >= MULTI_SITE_MIN else "point"
-        for part in valid_parts:
+        english_sites = [s.strip() for s in (rec.get("display_place_en") or "").split("/")]
+        use_english_sites = (lang == "en" and rec.get("reviewed_pins") and all(english_sites)
+                             and not rec.get("reviewed_unresolved") and len(english_sites) == len(valid_parts))
+        for i, part in enumerate(valid_parts):
             xy = proj(part["lon"], part["lat"])
             # 경위도도 남긴다 — 인치 좌표만 두면 이 지도가 확정한 위치를
             # 밖으로 내보낼 수 없다 (contribute.py 가 이 값을 쓴다)
             pts.append({"x": xy[0], "y": xy[1], "kind": part["kind"],
                         "marker_kind": marker_kind,
-                        "name": part["matched"], "lon": part["lon"],
+                        "name": part["matched"], "label":english_sites[i] if use_english_sites else part["matched"],
+                        "lon": part["lon"],
                         "lat": part["lat"], "level": part.get("level", ""),
                         "source": part.get("source", ""),
                         "coord_source": part.get("coord_source", "")})
