@@ -757,5 +757,164 @@
       "scope_label": "건조회랑 내 농업시험장",
       "scope_label_en": "Experimental stations in the Dry Corridor"
     }
+  },
+  "태국": {
+    "iati:KR-GOV-051-2025010100138": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "방콕",
+      "place_en": "Bangkok",
+      "geonames_locality": {
+        "name": "Bangkok",
+        "id": 1609350,
+        "lat": 13.75398,
+        "lon": 100.50144
+      },
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://www.koica.go.kr/bbs/koica_kr/292/386785/artclView.do",
+        "https://www.thaieei.com/en/contact-us/",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ]
+    }
+  },
+  "자메이카": {
+    "iati:KR-GOV-051-2025010100162": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "킹스턴",
+      "place_en": "Kingston",
+      "geonames_locality": {
+        "name": "Kingston",
+        "id": 3489854,
+        "lat": 17.99702,
+        "lon": -76.79358
+      },
+      "_period": "2026-2031",
+      "name_ko": "자메이카 토지행정 혁신센터 설립 및 역량강화사업 (2026–2031 / 900만불)",
+      "name_en": "Land Administration Capacity Enhancement Project (2026–2031 / USD 9m)",
+      "scope_sources": [
+        "https://megid.gov.jm/government-signs-us9m-agreement-with-republic-of-korea-for-the-land-administration-and-capacity-enhancement-project/",
+        "https://jis.gov.jm/govt-partners-with-koica-to-transform-jamaicas-land-administration/",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ]
+    }
+  },
+  "코스타리카": {
+    "iati:KR-GOV-051-2026010100030": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "산페드로·코스타리카대학교",
+      "place_en": "San Pedro",
+      "geonames_locality": {
+        "name": "San Pedro",
+        "id": 3621717,
+        "lat": 9.92829,
+        "lon": -84.05074
+      },
+      "scope_sources": [
+        "https://rectoria.ucr.ac.cr/index.php/node/236",
+        "https://www.cea.ucr.ac.cr/index.php/es/contactenos",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ]
+    },
+    "plan:코스타리카:29bfe6858b51c440": {
+      "year": 2027,
+      "name_ko": "코스타리카 삼각협력을 통한 중미 건조회랑 시설원예 역량강화 2차 사업 (2025–2028 / 275만불)",
+      "name_en": "Triangular cooperation for horticulture in the Central American Dry Corridor, phase II (2025–2028 / USD 2.75m)",
+      "_period": "2025-2028",
+      "badges": [
+        "A"
+      ],
+      "coverage": "admin1",
+      "place": "과나카스테주",
+      "place_en": "Guanacaste",
+      "admin1_names": [
+        "Provincia Guanacaste"
+      ],
+      "partner_activity_ids": [
+        "iati:KR-GOV-051-2025010103954",
+        "iati:KR-GOV-051-2025010103955",
+        "iati:KR-GOV-051-2025010103956"
+      ],
+      "scope_sources": [
+        "https://www.rree.go.cr/index.php?cat=prensa&cont=593&id=8193&sec=servicios",
+        "https://www.koica.go.kr/bbs/koica_kr/292/385972/artclView.do",
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml"
+      ]
+    }
+  },
+  "쿠바": {
+    "iati:KR-GOV-051-2025010100098": {
+      "year": 2027,
+      "coverage": "admin2",
+      "place": "동부 5개 주의 10개 시·군",
+      "place_en": "10 municipalities in five eastern provinces",
+      "admin2_names": [
+        "Jiguaní",
+        "Río Cauto",
+        "Urbano Noris",
+        "Rafael Freyre",
+        "Manati",
+        "Jesús Menéndez",
+        "Guamá",
+        "Songo - La Maya",
+        "Niceto Pérez",
+        "Yateras"
+      ],
+      "scope_sources": [
+        "https://es.wfp.org/noticias/wfp-y-koica-amplian-en-cuba-el-proyecto-actua-diferente-hasta-2029",
+        "https://www.koica.go.kr/bbs/koica_kr/292/386759/artclView.do"
+      ]
+    }
+  },
+  "아제르바이잔": {
+    "iati:KR-GOV-051-2024010100114": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "숨가이트 등 사업지역",
+      "place_en": "Sumgayit",
+      "geonames_locality": {
+        "name": "Sumgayit",
+        "id": 584923,
+        "lat": 40.58972,
+        "lon": 49.66861
+      },
+      "scope_sources": [
+        "https://www.koica.go.kr/bbs/koica_kr/292/382614/artclView.do",
+        "https://oda-map-lab.pages.dev/generated/map-base.json",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ]
+    },
+    "iati:KR-GOV-051-2026010100132": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "바쿠",
+      "place_en": "Baku",
+      "geonames_locality": {
+        "name": "Baku",
+        "id": 587084,
+        "lat": 40.37767,
+        "lon": 49.89201
+      },
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://www.koica.go.kr/bbs/koica_kr/292/388720/artclView.do",
+        "https://tabib.gov.az/media/xeberler/506",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ]
+    },
+    "iati:KR-GOV-051-2025010100053": {
+      "year": 2027,
+      "name_ko": "아제르바이잔 물·식량 안보를 위한 전통적 물공급시스템(카흐리즈) 복원과 재생에너지 활용을 통한 실향민 및 기후취약 지역사회 기후회복력 강화사업(IOM) (2025–2028 / 551만불)",
+      "name_en": "Water and food security for displaced and climate-vulnerable communities through kahriz rehabilitation and renewable energy (IOM) (2025–2028 / USD 5.51m)",
+      "coverage": "unknown",
+      "scope_label": "카흐리즈 복원 대상 지역",
+      "scope_label_en": "Kahriz rehabilitation communities",
+      "scope_sources": [
+        "https://www.koica.go.kr/bbs/koica_kr/292/387191/artclView.do",
+        "https://az.mofa.go.kr/az-en/brd/m_8237/view.do?seq=761760"
+      ]
+    }
   }
 }
