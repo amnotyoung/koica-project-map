@@ -32,6 +32,12 @@ description: KOICA 연도별 프로젝트맵(사업 위치 지도) 자동 생성
 
 지도 하단에는 권역·공원 견본 범례나 출처 주석을 넣지 않는다. 공간자료·사업자료 출처와 수집일·판본은 PPTX 발표자 노트와 동봉한 `*.sources.txt`에 보관한다.
 
+## 전 국가 생성 준비
+
+저장소에서 `skill/.venv/bin/python tools/prepare_atlas.py --year 2027 --outdir output/2027-preflight/verified`를 실행하면 61개국의 공개 사업자료와 지리 캐시를 점검하고 양언어 페이지 배치를 메모리에서 검사한다. 국가별 준비현황, 생성 입력 JSON, 사업 편집 HTML과 위치 검토 CSV를 저장한다. 수행 확인 사업이 0건인 국가도 준비현황에 남긴다.
+
+실제 전체 지도 작성 요청을 받으면 `make_map.py --manifest <준비폴더>/manifest.json --lang ko en --formats pptx --page-format atlas-full`로 준비 목록을 읽는다. 별칭과 ISO 코드를 같은 국가로 연결한다. 번역은 해당 ID의 원문 제목이 일치할 때 적용하고 IATI 보고 지명은 편집 화면에서 사업지 근거와 함께 검토한다. 위치가 불확실한 사업은 설명을 유지하고 핀은 보류한다.
+
 ## 워크플로
 
 ### 1. 사업 목록 만들기

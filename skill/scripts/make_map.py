@@ -128,10 +128,30 @@ def _suggest_contribution(layouts: list) -> None:
             contribute.suggest(lp, country, n + doc["_skipped_already_precise"], n)
 
 
+def manifest_inputs(path):
+    manifest = read_json(path)
+    inputs = []
+    seen = set()
+    for row in manifest["countries"]:
+        if row["status"] == "no_confirmed_projects":
+            continue
+        iso = row["iso3"]
+        if row["status"] != "ready" or iso in seen:
+            raise ValueError(f"준비 상태 또는 국가 중복 확인 필요: {iso}")
+        src = path.parent / row["input"]
+        doc = read_json(src)
+        if doc.get("country_iso3") != iso or doc.get("year") != manifest["year"] or not doc.get("projects"):
+            raise ValueError(f"국가·연도 또는 입력 사업목록 불일치: {src}")
+        seen.add(iso)
+        inputs.append(src)
+    return inputs
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="KOICA 프로젝트맵 생성 (전 과정)")
     source = ap.add_mutually_exclusive_group(required=True)
     source.add_argument("--input", nargs="+", help="사업 목록 JSON (국가별)")
+    source.add_argument("--manifest", type=Path, help="사전 점검을 마친 국가별 입력 목록")
     source.add_argument("--country", nargs="+", help="공개 사업자료에서 국가별 KOICA 사업을 수집하여 생성")
     ap.add_argument("--page-format", choices=["atlas","atlas-full","wide"], default="atlas", help="최종 책자 판형 또는 16:9")
     ap.add_argument("--year", type=int, help="사업 기간에 포함되는 기준연도")
@@ -197,6 +217,8 @@ def main() -> int:
                 log(f"{country}: 선택된 사업이 없습니다. 검토 화면에서 공고를 확인한 뒤 저장하세요.")
                 continue
             inputs.append(write_json(roster, doc, indent=2))
+    elif a.manifest:
+        inputs = manifest_inputs(a.manifest)
     else:
         inputs = [Path(p) for p in a.input]
     if not inputs:

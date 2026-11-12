@@ -291,7 +291,7 @@ def build_card(proj_rec: dict, tok: dict, lang: str, scale: float,
         "text": name,
         "external": proj_rec.get("coverage") == "external",
         "project_id": proj_rec.get("id") or proj_rec.get("_id"),
-        "provenance": {k: proj_rec[k] for k in ("_source_info", "_annual_plan", "_coord_source", "source_coord", "source_ids", "sites", "coverage", "source_place", "scope_sources", "_linked_notices", "_location_evidence") if k in proj_rec},
+        "provenance": {k: proj_rec[k] for k in ("_source_info", "_iati_reported_places", "_annual_plan", "_coord_source", "source_coord", "source_ids", "sites", "coverage", "source_place", "scope_sources", "_linked_notices", "_location_evidence") if k in proj_rec},
         "tracking_pt": c["name"].get("tracking_pt", -0.64),
         "lines": lines,
         "first_line_dx": round(first_dx, 4),
@@ -819,7 +819,8 @@ def distribute_mapped_groups(pages, mapped_groups, trial):
             break
 
 
-def compute_pages(doc: dict, langs: list, index: int = 1, detail: str = "50m") -> list:
+def compute_pages(doc: dict, langs: list, index: int = 1, detail: str = "50m",
+                  *, render_background: bool = True) -> list:
     """Paginate whole place groups, splitting only groups larger than one page.
 
     All languages share the same project membership on each page. Trial layouts
@@ -848,20 +849,29 @@ def compute_pages(doc: dict, langs: list, index: int = 1, detail: str = "50m") -
             candidates = [compute(subset, lang, index, detail, render_tiles=False,
                                   prepared=prepared) for lang in langs]
         pair_scale = min(c["font_scale"] for c in candidates)
+        best_pair = None
         if (all(c["fits"] and c["font_scale"] == pair_scale for c in candidates)
                 and len({c["mode"] for c in candidates}) == 1):
-            return candidates
+            best_pair = candidates
+            if not any(c["crossings"] for c in candidates):
+                return candidates
         if framed.get("_mode"):
             modes = [framed["_mode"]]
         else:
-            modes = list(dict.fromkeys([c["mode"] for c in candidates] + ["C"]))
+            modes = list(dict.fromkeys([c["mode"] for c in candidates] + ["C","A","B"]))
         for mode in modes:
+            if best_pair and best_pair[0]["mode"] == mode:
+                continue
             shared = {**subset, "_mode": mode}
             trials = [compute(shared, lang, index, detail, pair_scale, render_tiles=False,
                               prepared=(shared, places, base)) for lang in langs]
             if all(c["fits"] for c in trials):
-                return trials
-        return None
+                crossings = sum(c["crossings"] for c in trials)
+                if not crossings:
+                    return trials
+                if best_pair is None or crossings < sum(c["crossings"] for c in best_pair):
+                    best_pair = trials
+        return best_pair
 
     packed, current = [], []
     for group in groups.values():
@@ -897,7 +907,8 @@ def compute_pages(doc: dict, langs: list, index: int = 1, detail: str = "50m") -
         for result in trial(indices):
             result.update({"page": page_index, "pages": len(packed),
                            "input_indices": indices, "project_total": len(doc["projects"])})
-            finish_background(result, base)
+            if render_background:
+                finish_background(result, base)
             results.append(result)
     return results
 
