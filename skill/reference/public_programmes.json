@@ -1,13 +1,170 @@
 {
-  "가나": [{
-    "id": "koica-notice:16173", "edition_year": 2026,
-    "title": "가나 통합적 보건 시스템 강화 프로그램",
-    "period": "2026-2035", "stage": "기획조사 공고", "published": "2025-06-24",
-    "publisher": "한국국제협력단",
-    "name_ko": "가나 통합적 보건 시스템 강화 프로그램 (기획·2026–2035/1억 불)",
-    "name_en": "Integrated health system strengthening programme in Ghana (planned, 2026–2035 / USD 100 million)",
-    "coverage": "admin1", "place": "그레이터아크라 등 6개 주", "badges": ["H"],
-    "admin1_names": ["Greater Accra","Northern","Ashanti","Central","Volta","Bono"],
-    "scope_sources": ["https://job.koica.go.kr/application/applicationDetailPage.do?empmnPblancSn=16173&menuId=MENU0098&pageIndex=1"]
-  }]
+  "가나": [
+    {
+      "id": "koica-notice:16173",
+      "edition_year": 2026,
+      "title": "가나 통합적 보건 시스템 강화 프로그램",
+      "period": "2026-2035",
+      "stage": "기획조사 공고",
+      "published": "2025-06-24",
+      "publisher": "한국국제협력단",
+      "name_ko": "가나 통합적 보건 시스템 강화 프로그램 (기획·2026–2035/1억 불)",
+      "name_en": "Integrated health system strengthening programme in Ghana (planned, 2026–2035 / USD 100 million)",
+      "coverage": "admin1",
+      "place": "그레이터아크라 등 6개 주",
+      "badges": [
+        "H"
+      ],
+      "admin1_names": [
+        "Greater Accra",
+        "Northern",
+        "Ashanti",
+        "Central",
+        "Volta",
+        "Bono"
+      ],
+      "scope_sources": [
+        "https://job.koica.go.kr/application/applicationDetailPage.do?empmnPblancSn=16173&menuId=MENU0098&pageIndex=1"
+      ]
+    }
+  ],
+  "방글라데시": [
+    {
+      "id": "koica-plan:BGD-BKTTC-ship-recycling",
+      "title": "차토그램 한·방직업훈련원 스마트·그린 선박해체 기술 산업인력 양성사업",
+      "edition_year": 2027,
+      "period": "2027-2031",
+      "stage": "기획조사",
+      "published": "2026-09-13",
+      "publisher": "KOICA 방글라데시사무소 공개 설명",
+      "name_ko": "차토그램 한·방직업훈련원 스마트·그린 선박해체 기술 산업인력 양성사업 (기획·2027–2031/1,500만 불)",
+      "name_en": "Smart and green ship recycling workforce training at Chattogram BKTTC (planned, 2027–2031 / USD 15m)",
+      "coverage": "site",
+      "place": "차토그램",
+      "badges": [
+        "E"
+      ],
+      "scope_sources": [
+        "https://job.koica.go.kr/application/entrpsDetailPage.do?empmnPblancSn=&entrpsSn=2023020&menuId=MENU0098",
+        "https://www.tbsnews.net/economy/industry/south-korea-support-skilled-workforce-development-bangladeshs-ship-recycling-sector"
+      ],
+      "sites": [
+        {
+          "place": "차토그램",
+          "aliases": [
+            "Chattogram"
+          ]
+        }
+      ],
+      "aliases": [
+        "방글라데시 차토그램 한-방직업훈련원 스마트·그린 선박해체 기술 산업인력 양성사업"
+      ]
+    },
+    {
+      "id": "koica-rod:BGD-AI-20260825",
+      "title": "방글라데시 AI 혁신기술 전문인력 양성사업",
+      "edition_year": 2027,
+      "period": "2026-2029",
+      "stage": "협의의사록 서명",
+      "published": "2026-08-25",
+      "publisher": "방글라데시 ERD·KOICA 협의의사록 발표",
+      "name_ko": "방글라데시 AI 혁신기술 전문인력 양성사업 (2026–2029/1,300만 불)",
+      "name_en": "Fostering innovative technology experts with a focus on AI (2026–2029 / USD 13m)",
+      "coverage": "site",
+      "place": "다카",
+      "badges": [
+        "E"
+      ],
+      "scope_sources": [
+        "https://job.koica.go.kr/application/applicationDetailPage.do?empmnPblancSn=16814&entrpsSn=&menuId=MENU0098&pageIndex=1",
+        "https://www.bssnews.net/others/417915",
+        "https://www.tbsnews.net/economy/corporates/south-korea-provides-13-million-grant-bangladesh-ai-hub-1524536"
+      ],
+      "sites": [
+        {
+          "place": "다카",
+          "aliases": [
+            "Dhaka"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "koica-rod:BGD-SPEPP-20260917",
+      "title": "혁신적 농촌공동체 개발 프로그램",
+      "edition_year": 2027,
+      "period": "2026-2034",
+      "stage": "협의의사록 서명",
+      "published": "2026-09-17",
+      "publisher": "방글라데시 경제관계부",
+      "name_ko": "혁신적 농촌공동체 개발 프로그램 (2026–2034/3,000만 불)",
+      "name_en": "Saemaul Plus End Poverty Program (2026–2034 / KOICA USD 30m)",
+      "place": "쿠밀라·페니·보구라 114개 마을",
+      "badges": [
+        "A"
+      ],
+      "scope_sources": [
+        "https://erd.gov.bd/pages/press-releases/on-september-17-2026-the-government-of-bangladesh-along-with-south-koreas-koica-mois-and-rda-signed-the-record-of-discussion-rod-and-terms-of-reference-tor-for-the-saemaul-plus-end-poverty-program-spepp-in-bangladesh-1x357f-6aacd2a113916fdf3843753a",
+        "https://www.bssnews.net/business/425724"
+      ],
+      "coverage": "admin2",
+      "admin2_names": [
+        "Comilla",
+        "Feni",
+        "Bogra"
+      ],
+      "aliases": [
+        "방글라데시 혁신적 농촌공동체 개발 사업",
+        "방글라데시 혁신적 농촌공동체 개발 프로그램 사업"
+      ]
+    },
+    {
+      "id": "koica-rod:BGD-TTC-expost-20260917",
+      "title": "차토그램 직업훈련원 교육시설 개선 사후관리사업",
+      "edition_year": 2027,
+      "period": "2026-2028",
+      "stage": "협의의사록 서명",
+      "published": "2026-09-17",
+      "publisher": "방글라데시 경제관계부 발표",
+      "name_ko": "차토그램 직업훈련원 교육시설 개선 사후관리사업 (2026–2028/200만 불)",
+      "name_en": "Ex-post management for enhancing vocational training at TTC Chittagong (2026–2028 / USD 2m)",
+      "coverage": "site",
+      "place": "차토그램",
+      "badges": [
+        "E"
+      ],
+      "scope_sources": [
+        "https://en.prothomalo.com/bangladesh/03fdo477l5"
+      ],
+      "sites": [
+        {
+          "place": "차토그램",
+          "aliases": [
+            "Chattogram"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "iati:KR-GOV-051-2026010100046",
+      "title": "부탄 지역농산물 연계 학교급식을 통한 영양개선 및 농업가치사슬 지원사업(WFP)",
+      "edition_year": 2027,
+      "period": "2026-2030",
+      "stage": "협약 서명",
+      "published": "2026",
+      "publisher": "WFP·KOICA",
+      "name_ko": "부탄 지역농산물 연계 학교급식을 통한 영양개선 및 농업가치사슬 지원사업(WFP) (2026–2030/950만 불)",
+      "name_en": "Home-grown school feeding and local agriculture in Bhutan (2026–2030 / USD 9.5m)",
+      "place": "(겸임) 부탄",
+      "badges": [
+        "H"
+      ],
+      "scope_sources": [
+        "https://oda-map-lab.pages.dev/generated/map-base.json",
+        "https://www.wfp.org/news/koica-and-wfp-partner-strengthen-school-nutrition-and-support-local-farmers-bhutan"
+      ],
+      "coverage": "external",
+      "recipient_country": "부탄"
+    }
+  ]
 }

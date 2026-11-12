@@ -240,3 +240,13 @@ def write_json(p: Path, data, indent: int | None = None) -> Path:
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(json.dumps(data, ensure_ascii=False, indent=indent), encoding="utf-8")
     return p
+
+def paper_transform(layout):
+    """Uniform scaling for an atlas page, optionally aligning the design's outer tab."""
+    w, h = layout["canvas"]["w"], layout["canvas"]["h"]
+    paper = layout["paper"]
+    if paper.get("outer_tab_edge") is not None:
+        scale = paper["h"] / h
+        return scale, paper["w"] - paper["outer_tab_edge"] * scale, 0
+    scale = min(paper["w"]/w, paper["h"]/h)
+    return scale, (paper["w"]-w*scale)/2, (paper["h"]-h*scale)/2

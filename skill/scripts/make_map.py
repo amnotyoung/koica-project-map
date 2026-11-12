@@ -15,7 +15,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-from common import log, read_json, write_json
+from common import design_tokens, log, read_json, write_json
 import layout as layout_mod
 import render_html
 from source_notes import source_notes
@@ -52,8 +52,11 @@ def run(inputs: list, outdir: Path, langs: list, formats: list,
     for idx, src in enumerate(inputs, 1):
         doc = read_json(src)
         for L in layout_mod.compute_pages(doc, langs, idx, detail):
-            if page_format == "atlas":
+            if page_format in {"atlas", "atlas-full"}:
                 L["paper"] = {"w":16.931, "h":11.694}
+                if page_format == "atlas-full":
+                    tab = design_tokens()["region_tab"]
+                    L["paper"]["outer_tab_edge"] = tab["rail_x"] + tab["rail_w"]
             lang = L["lang"]
             suffix = f'_p{L["page"]:02d}' if L["pages"] > 1 else ""
             stem = f'{Path(src).stem}_{lang}{suffix}'
@@ -124,7 +127,7 @@ def main() -> int:
     source = ap.add_mutually_exclusive_group(required=True)
     source.add_argument("--input", nargs="+", help="사업 목록 JSON (국가별)")
     source.add_argument("--country", nargs="+", help="공개 사업자료에서 국가별 KOICA 사업을 수집하여 생성")
-    ap.add_argument("--page-format", choices=["atlas","wide"], default="atlas", help="최종 책자 판형 또는 16:9")
+    ap.add_argument("--page-format", choices=["atlas","atlas-full","wide"], default="atlas", help="최종 책자 판형 또는 16:9")
     ap.add_argument("--year", type=int, help="사업 기간에 포함되는 기준연도")
     ap.add_argument("--include-unselected", action="store_true", help="기본 지도 선정 대상 외 KOICA 사업도 포함")
     ap.add_argument("--outdir", default="out")

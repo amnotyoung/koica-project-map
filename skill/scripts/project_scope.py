@@ -44,7 +44,7 @@ def prepare_projects(doc):
             continue
         project = sites[0]
         project["source_ids"] = [s.get("id") or s["_id"] for s in sites]
-        if project.get("coverage") not in {"nationwide", "unknown", "admin1"}:
+        if project.get("coverage") not in {"nationwide", "unknown", "admin1", "admin2", "external"}:
             project["sites"] = [{k:s[k] for k in ("place","place_en","kind","aliases","source_coord","_location_basis","name_en") if k in s} for s in sites]
             project["place"] = "/".join(dict.fromkeys(s["place"] for s in sites))
             project.pop("place_en", None)

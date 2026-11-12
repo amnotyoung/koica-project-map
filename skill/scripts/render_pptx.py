@@ -24,7 +24,7 @@ from pptx.enum.text import MSO_ANCHOR, MSO_AUTO_SIZE, PP_ALIGN
 from pptx.oxml.ns import qn
 from pptx.util import Emu, Inches, Pt
 
-from common import design_tokens, log, read_json
+from common import paper_transform, design_tokens, log, read_json
 
 EMU_IN = 914400
 
@@ -277,7 +277,7 @@ def draw_slide(prs, L: dict, tok: dict, tmp: Path, layout_path: Path) -> None:
             textbox(slide, x + dx,
                     y + body_dy - 0.015 + line_index * card["line_h"],
                     cd["name"]["w"] - (dx - cd["name"]["dx"]),
-                    card["line_h"] * 1.4, line, card["font"], col["body"],
+                    card["line_h"] * 1.4, line, card["font"], card.get("body_color", col["body"]),
                     tracking_pt=card.get("tracking_pt", 0))
         # 다중 대상지 사업의 설명 — 그 카드 안에 붙는다 (원본과 동일)
         if card.get("note"):
@@ -480,9 +480,8 @@ def build(layout_paths: list, out: Path) -> Path:
                 raise ValueError("한 PPTX의 모든 슬라이드는 같은 판형이어야 합니다")
             draw_slide(prs, L, tok, tmp / f"s{i}", Path(lp))
             if paper:
-                w,h = L["canvas"]["w"],L["canvas"]["h"]
-                factor = min(paper["w"]/w,paper["h"]/h)
-                dx,dy = I((paper["w"]-w*factor)/2),I((paper["h"]-h*factor)/2)
+                factor, left, top = paper_transform(L)
+                dx, dy = I(left), I(top)
                 for shape in prs.slides[-1].shapes:
                     shape.left, shape.top = round(shape.left*factor)+dx, round(shape.top*factor)+dy
                     shape.width, shape.height = round(shape.width*factor), round(shape.height*factor)

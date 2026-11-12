@@ -135,5 +135,127 @@
         "https://gna.org.gh/2026/08/korea-backed-plan-seeks-to-broaden-ghanas-tax-base/"
       ]
     }
+  },
+  "방글라데시": {
+    "iati:KR-GOV-051-2024010100048": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "차토그램",
+      "scope_sources": [
+        "https://www.nabo.go.kr/board/file/down.do?fid=33318827"
+      ],
+      "sites": [
+        {
+          "place": "차토그램",
+          "aliases": [
+            "Chattogram"
+          ]
+        }
+      ]
+    },
+    "iati:KR-GOV-051-2016010120206": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "다카",
+      "scope_sources": [
+        "https://du.ac.bd/du_post_details/KOICA-Country-Director--calls-on-DU-VC/21186"
+      ],
+      "sites": [
+        {
+          "place": "다카",
+          "aliases": [
+            "Dhaka"
+          ]
+        }
+      ],
+      "badges": [
+        "E"
+      ]
+    },
+    "iati:KR-GOV-051-2025010100106": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "다카",
+      "scope_sources": [
+        "https://hris.mohfw.gov.bd/public/facility-registry/facilities/33792/profile",
+        "https://www.tbsnews.net/economy/corporates/koica-erd-sign-deal-first-nursing-phd-1225031"
+      ],
+      "sites": [
+        {
+          "place": "다카",
+          "aliases": [
+            "Dhaka"
+          ]
+        }
+      ]
+    },
+    "iati:KR-GOV-051-2024010100143": {
+      "year": 2027,
+      "coverage": "unknown",
+      "place": "도로청 시범교량 3곳",
+      "scope_sources": [
+        "https://www.bssnews.net/news/254562",
+        "https://en.sarabangla.net/development/post-25466/tk-115-73cr-project-to-bring-smart-bridge-monitoring/",
+        "https://thefinancialexpress.com.bd/home/tk-116b-project-aims-to-introduce-smart-monitoring-maintenance-of-bridges?amp=true"
+      ],
+      "scope_label": "카마르칼리·뎀라·토라 교량",
+      "scope_label_en": "Kamar Khali, Demra and Tora bridges",
+      "name_ko": "도로청 교량 스마트 유지관리 역량강화사업 (현지 시행 2026–2029/885만 불)",
+      "name_en": "Smart bridge maintenance capacity building (local implementation 2026–2029 / USD 8.85m)"
+    },
+    "iati:KR-GOV-051-2016010120200": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "다카·쿨나·실렛",
+      "scope_sources": [
+        "https://www.nabo.go.kr/board/file/down.do?fid=33318827",
+        "https://www.adb.org/sites/default/files/project-documents/42466/42466-016-fam-en.pdf"
+      ],
+      "sites": [
+        {
+          "place": "다카",
+          "aliases": [
+            "Dhaka"
+          ]
+        },
+        {
+          "place": "쿨나",
+          "aliases": [
+            "Khulna"
+          ]
+        },
+        {
+          "place": "실렛",
+          "aliases": [
+            "Sylhet"
+          ]
+        }
+      ],
+      "verified_years": [
+        2027
+      ],
+      "name_ko": "기술교육 및 청년취업 강화사업 (2018–2028 계획/850만 불)"
+    },
+    "iati:KR-GOV-051-2023010100055": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "다카",
+      "scope_sources": [
+        "https://www.eprocure.gov.bd/resources/common/ViewTender.jsp?h=t&id=1319050"
+      ],
+      "verified_years": [
+        2027
+      ],
+      "sites": [
+        {
+          "place": "다카",
+          "aliases": [
+            "Dhaka"
+          ]
+        }
+      ],
+      "name_ko": "플랫폼 기반 통계서비스 역량강화사업 (965만 불·2027년 과업 예정)",
+      "name_en": "Capacity building for platform-based statistics services (USD 9.65m; work scheduled in 2027)"
+    }
   }
 }

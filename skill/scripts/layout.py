@@ -273,6 +273,7 @@ def build_card(proj_rec: dict, tok: dict, lang: str, scale: float,
         "place_font": round(place_font, 2),
         "badges": badges,
         "text": name,
+        "external": proj_rec.get("coverage") == "external",
         "project_id": proj_rec.get("id") or proj_rec.get("_id"),
         "provenance": {k: proj_rec[k] for k in ("_source_info", "_coord_source", "source_coord", "source_ids", "sites", "coverage", "source_place", "scope_sources") if k in proj_rec},
         "tracking_pt": c["name"].get("tracking_pt", -0.64),
@@ -294,7 +295,7 @@ def _fit_font(text: str, preferred: float, max_width: float) -> float:
     return round(preferred * max_width / width, 2)
 
 
-def _title_layout(country_ko: str, country_en: str, lang: str, tok: dict) -> dict:
+def _title_layout(country_ko: str, country_en: str, lang: str, tok: dict, right_limit=None) -> dict:
     """두 렌더러가 공유하는 국가 제목 텍스트 배치.
 
     인간 작성본의 국문 제목은 `피지`와 `Fiji`를 별도 상자나 별도 줄에 둔 것이
@@ -332,6 +333,8 @@ def _title_layout(country_ko: str, country_en: str, lang: str, tok: dict) -> dic
             # 음수 자간을 적용한 뒤에도 한 줄을 보장한다.
             desired_right = x + combined * 1.10 + 0.08
             expanded_w = min(max(box["w"], desired_right - box["x"]), 4.20)
+            if right_limit is not None:
+                expanded_w = min(expanded_w, right_limit - box["x"])
             title_box = {**box, "w": round(expanded_w, 5)}
             available = title_box["x"] + title_box["w"] - x - 0.04
             if combined > available:
@@ -435,6 +438,7 @@ def _group_cards(cards: list, tok: dict) -> list:
         group = by_key.get(key)
         if group is None:
             group = {
+                "external":card.get("external", False),
                 "group_key": "|".join((key[0], repr(key[1]), str(key[2]))),
                 "place": card["place"],
                 "place_w": card["place_w"],
@@ -790,6 +794,8 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale,
                             f"— 해당 카드는 한글 사업명으로 나옵니다")
     for rec, rp in zip(doc["projects"], resolved["places"]):
         card = build_card(rec, tok, lang, scale, place=_place_label(rec, rp, lang, country_en))
+        if doc.get("year") and rec.get("_period", "").split("-")[0] == str(doc["year"]):
+            card["body_color"] = "#2057A7"
         pts = []
         valid_parts = [part for part in rp["parts"]
                        if part.get("ok") and part.get("kind") != "nationwide"
@@ -810,7 +816,7 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale,
             for region in regions:
                 key = region["region_id"]
                 if key not in areas:
-                    areas[key] = {"name":region["region"], "id":key, "source":"geoBoundaries ADM1",
+                    areas[key] = {"name":region["region"], "id":key, "source":rp["parts"][0]["source"],
                                   "polygons":[proj.rings(poly) for poly in region["geometry"]]}
             for point in pts:
                 point["marker_kind"] = "admin1"
@@ -912,7 +918,8 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale,
         # 영문명은 입력에서 덮어쓸 수 있다 — Natural Earth 는 'East Timor' 지만
         # KOICA 표기는 'Timor-Leste' 다.
         "country": country_info,
-        "title": _title_layout(country_info["ko"], country_info["en"], lang, tok),
+        "title": _title_layout(country_info["ko"], country_info["en"], lang, tok,
+                               right_limit=frame["x"] - .07 if mode == "C" else None),
         "region": (doc.get("region", "") if lang == "ko" else
                    (doc.get("region_en")
                     or REGION_EN.get(doc.get("region", ""), doc.get("region", "")))),
@@ -1093,7 +1100,7 @@ def _bilateral(groups, spec, frame, gap):
             # The atlas reserves the right-hand column for nationwide activities
             # where capacity permits; still allow the other column if it would spill.
             right_cap = spec["right_col"]["y1"] - spec["right_col"]["y0"]
-            if group["nationwide"] and height(columns[1] + [group]) <= right_cap:
+            if (group["nationwide"] or group.get("external")) and height(columns[1] + [group]) <= right_cap:
                 columns[1].append(group)
             else:
                 min(columns, key=height).append(group)
@@ -1106,7 +1113,7 @@ def _bilateral(groups, spec, frame, gap):
     placed = []
     for side, column in zip(("left","right"), best_columns):
         col = spec[side+"_col"]
-        column.sort(key=lambda g: (not bool(g["points"]), g["nationwide"], _card_pin(g)[1]))
+        column.sort(key=lambda g: (not g.get("external", False), not bool(g["points"]), g["nationwide"], _card_pin(g)[1]))
         remaining = col["y1"]-col["y0"]-sum(g["h"] for g in column)
         spacing = max(gap,min(.65,remaining/max(1,len(column)-1)))
         y = col["y0"]
@@ -1114,6 +1121,8 @@ def _bilateral(groups, spec, frame, gap):
             if group["points"]:
                 # Keep the heading near its geography while reserving room for later cards.
                 latest = col["y1"] - sum(g["h"] for g in column[i:]) - spacing*(len(column)-i-1)
+                if i == 0:
+                    latest = min(latest, col["y0"] + .65)
                 y = max(y, min(latest, _card_pin(group)[1] - .08))
             c = dict(group, x=col["x"], y=y, side=side, _gap=spacing)
             c["anchor"] = anchor_of(c,c,side)

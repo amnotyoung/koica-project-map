@@ -14,7 +14,7 @@ import math
 import sys
 from pathlib import Path
 
-from common import SKILL_DIR, design_tokens, log, read_json
+from common import paper_transform, SKILL_DIR, design_tokens, log, read_json
 
 PT = 1.0 / 72.0
 
@@ -318,7 +318,7 @@ def draw_cards(L: dict, tok: dict) -> str:
         for i, line in enumerate(c["lines"]):
             lx = tx if i == 0 else x + cd["name"]["dx"]
             out.append(f'<text x="{lx:.4f}" y="{ty:.4f}" font-size="{c["font"]*PT:.5f}" '
-                       f'fill="{col["body"]}" letter-spacing="{c.get("tracking_pt", 0)*PT:.5f}" paint-order="stroke" stroke="#FFFFFF" '
+                       f'fill="{c.get("body_color", col["body"])}" letter-spacing="{c.get("tracking_pt", 0)*PT:.5f}" paint-order="stroke" stroke="#FFFFFF" '
                        f'stroke-width="{0.022:.4f}" stroke-linejoin="round">{esc(line)}</text>')
             ty += c["line_h"]
         # 다중 대상지 사업의 설명 — 그 카드 안에 붙는다 (원본과 동일)
@@ -510,8 +510,7 @@ def render(L: dict, layers: str = "all") -> str:
     body = "\n".join(parts)
     if layers != "map" and L.get("paper"):
         paper = L["paper"]
-        factor = min(paper["w"]/w, paper["h"]/h)
-        dx, dy = (paper["w"]-w*factor)/2, (paper["h"]-h*factor)/2
+        factor, dx, dy = paper_transform(L)
         body = f'<g transform="translate({dx} {dy}) scale({factor})">{body}</g>'
         w,h = paper["w"],paper["h"]
     svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" '

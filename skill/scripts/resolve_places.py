@@ -219,6 +219,9 @@ def resolve(country: str, entries: list, detail: str = "50m", *, use_gazetteer: 
                 "lon":locality["lon"], "lat":locality["lat"], "source":f"GeoNames {locality['id']} (locality)"
             }]})
             continue
+        if e.get("coverage") == "external":
+            out.append({"query":raw, "label":raw, "resolved":True, "parts":[]})
+            continue
         if e.get("coverage") == "unknown":
             out.append({"query":raw, "label":raw, "resolved":False, "parts":[]})
             unresolved.append({"country":country, "place":raw, "reason":"사업 범위 확인 필요"})

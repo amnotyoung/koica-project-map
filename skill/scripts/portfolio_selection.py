@@ -28,16 +28,19 @@ def year_decision(year, structured, title, reviewed):
     report = {"source_period":structured, "title_period":list(named) if named else None}
     if year is None:
         return True, None
+    verified = bool(reviewed and year in reviewed.get("verified_years", [])
+                    and reviewed.get("scope_sources"))
     if structured:
         s, e = int(structured.split("-")[0]), int(structured.split("-")[-1])
         in_field = s <= year <= e
         if named and (named[0] <= year <= named[1]) != in_field:
             # Preserve both values. Never turn a title-only extension into proven execution.
-            verified = bool(reviewed and year in reviewed.get("verified_years", [])
-                            and reviewed.get("scope_sources"))
             report["decision"] = ("verified_for_year" if verified else
                                   "included_by_field_review" if in_field else "needs_evidence")
             return in_field or verified, report
+        if verified and not in_field:
+            report["decision"] = "verified_activity_in_year"
+            return True, report
         return in_field, None
     return not named or named[0] <= year <= named[1], None
 
@@ -55,4 +58,4 @@ def public_additions(notices, year, catalog_titles, catalog_ids):
                "_source_info":{"name":notice["publisher"], "url":notice["scope_sources"][0],
                                "reference_date":notice["published"]},
                **{k:notice[k] for k in ("place","name_ko","name_en","badges","coverage",
-                                         "admin1_names","scope_sources") if k in notice}}
+                                         "admin1_names","admin2_names","sites","recipient_country","scope_sources") if k in notice}}

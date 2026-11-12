@@ -1,4 +1,4 @@
-"""Use named first-level administrative boundaries for regional project coverage."""
+"""Use named administrative boundaries for regional project coverage."""
 import re
 
 from common import GEO_CACHE, read_json, norm
@@ -8,7 +8,7 @@ ADMIN_TYPE = r"(?:county|province|state|governorate|oblast|region)"
 SITE_WORDS = re.compile(r"\b(?:hospital|campus|sub[- ]county|construction of .*? for )", re.I)
 
 
-def assign_regions(records, resolved, features, center_lon=0):
+def assign_regions(records, resolved, features, center_lon=0, level="ADM1"):
     boundaries = {}
     for feature in features:
         props = feature["properties"]
@@ -18,13 +18,16 @@ def assign_regions(records, resolved, features, center_lon=0):
         simple = re.sub(r"\s+" + ADMIN_TYPE + r"$", "", name, flags=re.I)
         if simple:
             boundaries.setdefault(norm(simple), []).append(feature)
+    key = {"ADM1": "admin1", "ADM2": "admin2"}[level]
     for record, row in zip(records, resolved["places"]):
         scope = record.get("coverage")
-        if scope in {"site", "nationwide"} or (scope == "unknown" and not record.get("_inferred_scope")):
+        if (level == "ADM2" or scope == "admin2") and scope != key:
+            continue
+        if scope in {"site", "nationwide", "external"} or (scope == "unknown" and not record.get("_inferred_scope")):
             continue
         title = record.get("name_en") or ""
-        explicit = record.get("admin1_name") if scope == "admin1" else None
-        listed = record.get("admin1_names") if scope == "admin1" else None
+        explicit = record.get(f"{key}_name") if scope == key else None
+        listed = record.get(f"{key}_names") if scope == key else None
         if listed or explicit:
             names = list(dict.fromkeys(norm(n) for n in (listed or [explicit])))
         elif record.get("_location_basis") == "group-representative" and not SITE_WORDS.search(title):
@@ -50,8 +53,8 @@ def assign_regions(records, resolved, features, center_lon=0):
             region = props["shapeName"]
             regions.append({"region": region, "geometry": polygons,
                             "region_id": props.get("shapeID") or region})
-            parts.append({"ok": True, "kind": "admin1", "level": "ADM1", "matched": region,
-                          "lon": lon, "lat": lat, "source": "geoBoundaries ADM1"})
+            parts.append({"ok": True, "kind": key, "level": level, "matched": region,
+                          "lon": lon, "lat": lat, "source": f"geoBoundaries {level}"})
         if not regions or len(regions) != len(names):
             row.update(parts=[], resolved=False)
             continue
@@ -60,13 +63,17 @@ def assign_regions(records, resolved, features, center_lon=0):
                    evidence=record.get("scope_sources") or explicit or title)
         if len(regions) == 1:
             row.update(regions[0])
-            record["admin1_name"] = row["region"]
+            record[f"{key}_name"] = row["region"]
         if record.get("_inferred_scope"):
             record["place"] = record.get("source_place") or row["region"]
-        record["coverage"] = "admin1"
+        record["coverage"] = key
 
 
 def resolve_regions(doc, resolved, bbox):
-    path = GEO_CACHE / f"{resolved['iso3']}_ADM1.geojson"
-    features = read_json(path)["features"] if path.exists() else []
-    assign_regions(doc["projects"], resolved, features, (bbox[0]+bbox[2])/2)
+    levels = ["ADM1"]
+    if any(p.get("coverage") == "admin2" for p in doc["projects"]):
+        levels.append("ADM2")
+    for level in levels:
+        path = GEO_CACHE / f"{resolved['iso3']}_{level}.geojson"
+        features = read_json(path)["features"] if path.exists() else []
+        assign_regions(doc["projects"], resolved, features, (bbox[0]+bbox[2])/2, level)
