@@ -816,6 +816,12 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale,
             card["scope_evidence"] = rp["evidence"]
         card["nationwide"] = _is_nationwide(rp["parts"])
         card["points"] = pts
+        if (len(pts)==1 and pts[0]["marker_kind"]=="point"
+                and pts[0].get("coord_source") in {"도시", "도시(음차)"}
+                and rec.get("_location_basis")=="group-representative"):
+            card["note"] = "도시 대표위치" if lang=="ko" else "Representative city location"
+            card["note_color"] = "#646464"
+            card["h"] += card["line_h"]
         if rp.get("source_conflicts"):
             card["note"] = "* 위치 확인 필요" if lang == "ko" else "* Location needs review"
             card["note_color"] = "#A16A2D"

@@ -488,23 +488,37 @@ def credit_text(L: dict) -> str:
     tile_credit = ("Map tiles © OpenStreetMap contributors"
                    if L.get("lang") == "en"
                    else "지도 타일 © OpenStreetMap contributors")
-    src = ("Natural Earth · geoBoundaries (CC BY) · GeoNames (CC BY)"
-           + (f" · {tile_credit}" if L["map"].get("tiles") else ""))
-    if L.get("source", {}).get("projects"):
-        date = L["source"].get("retrieved_at", "")
-        source = L["source"]["projects"]
-        label = "oda-map-lab" if "oda-map-lab.pages.dev" in source else source
-        src += f" · {label}" + (f" ({date})" if date else "")
-    if L.get("location_status") == "source-group-unverified":
-        src += " · 원천 대표위치: 사업지 확인 필요" if L.get("lang") != "en" else " · Source representative locations; sites need verification"
-    if L.get("map", {}).get("project_areas"):
-        src += " · Red outline: project area" if L.get("lang") == "en" else " · 붉은 윤곽: 사업 대상 주"
-    if L.get("map", {}).get("national_parks"):
-        key = "Hatching: national parks" if L.get("lang") == "en" else "녹색 사선: 국립공원"
-        src += f" · {key} (Protected Planet, UNEP-WCMC/IUCN)"
+    credits = ["geoBoundaries · GeoNames (CC BY)"]
+    if L["map"].get("tiles"):
+        credits.append(tile_credit)
+    if L["map"].get("national_parks"):
+        credits.append("Protected Planet (UNEP-WCMC/IUCN)")
+    src = " · ".join(credits)
     if L.get("pages", 1) > 1:
         src += f" · {L['page']}/{L['pages']}"
     return src
+
+
+def map_key(L):
+    labels = []
+    en = L.get("lang") == "en"
+    if L["map"].get("project_areas"):
+        labels.append(("area", "Project area" if en else "사업 대상 주"))
+    if L["map"].get("national_parks"):
+        labels.append(("park", "National park" if en else "국립공원"))
+    # The outside left margin is clear in all three layouts.
+    return [(kind, label, .38, L["canvas"]["h"]-.64+.17*i)
+            for i,(kind,label) in enumerate(labels)]
+
+
+def draw_map_key(L):
+    out = []
+    for kind,label,x,y in map_key(L):
+        fill = "url(#park-hatch)" if kind=="park" else "#FCF0F0"
+        stroke = "#789C78" if kind=="park" else "#C8343A"
+        out.append(f'<rect x="{x}" y="{y}" width=".19" height=".10" fill="{fill}" stroke="{stroke}" stroke-width=".009"/>')
+        out.append(f'<text x="{x+.24}" y="{y+.093}" font-size=".083" fill="#484848">{esc(label)}</text>')
+    return "".join(out)
 
 
 def draw_credit(L: dict, tok: dict) -> str:
@@ -529,6 +543,7 @@ def render(L: dict, layers: str = "all") -> str:
         draw_region_tab(L, tok),
         draw_legend(L, tok),
 
+        draw_map_key(L),
         draw_credit(L, tok),
     ]
     body = "\n".join(parts)

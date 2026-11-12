@@ -290,6 +290,32 @@ def draw_slide(prs, L: dict, tok: dict, tmp: Path, layout_path: Path) -> None:
     draw_region_tab(slide, L, tok)
     draw_legend(slide, L, tok)
     import render_html
+    from pptx.enum.dml import MSO_PATTERN_TYPE
+    for kind,label,x,y in render_html.map_key(L):
+        color = "#789C78" if kind=="park" else "#C8343A"
+        swatch = rect(slide,x,y,.19,.10,"#FCF0F0",color,.5)
+        if kind=="park":
+            swatch.fill.patterned()
+            swatch.fill.pattern = MSO_PATTERN_TYPE.LIGHT_UPWARD_DIAGONAL
+            swatch.fill.fore_color.rgb = rgb(color)
+            swatch.fill.back_color.rgb = rgb("#FFFFFF")
+        textbox(slide,x+.24,y-.012,1.25,.17,label,6,"#484848")
+    source = L.get("source", {})
+    details = ["지도 자료", "Natural Earth · https://www.naturalearthdata.com/",
+               "geoBoundaries (CC BY) · https://www.geoboundaries.org/",
+               "GeoNames (CC BY) · https://www.geonames.org/"]
+    if L["map"].get("tiles"):
+        details.append("VersaTiles · © OpenStreetMap contributors · https://www.openstreetmap.org/copyright")
+    if source.get("projects"):
+        details.append(f"사업 자료: {source['projects']}")
+    if source.get("retrieved_at"):
+        details.append(f"사업 자료 수집일: {source['retrieved_at']}")
+    if source.get("build_id"):
+        details.append(f"사업 데이터 판본: {source['build_id']}")
+    park_source = source.get("national_parks") or {}
+    if park_source:
+        details.append(f"Protected Planet WDPCA, UNEP-WCMC/IUCN · {park_source.get('url','')} ({park_source.get('retrieved','')})")
+    slide.notes_slide.notes_text_frame.text = "\n".join(details)
     textbox(slide, .22, tok["canvas"]["h_in"]-.25, 11.3, .16,
             render_html.credit_text(L), 4.8, "#929A9D")
     
