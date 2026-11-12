@@ -142,6 +142,8 @@ Natural Earth(퍼블릭 도메인) · [geoBoundaries](https://www.geoboundaries.
 
 매일 `oda-map-lab` 원본의 `map-base`와 기여 스키마를 확인한다. 변경이 있으면
 계약 잠금파일을 갱신하고 지도 테스트를 실행한 뒤 이 저장소에 PR을 만든다.
+이 작업이 만든 지도 갱신 PR에는 GitHub Actions가 `@codex review` 댓글을 한 번 남겨
+클라우드 리뷰를 요청한다. 직접 작성한 PR에는 이 작업이 댓글을 달지 않는다.
 Actions의 **Update repository dependencies**에서 수동으로도 실행할 수 있다.
 허용된 저장소와 검증 경로는 [의존성 목록](.github/dependencies.json)에 있다.
 
