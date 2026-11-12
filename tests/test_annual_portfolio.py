@@ -23,6 +23,17 @@ class AnnualPortfolioTests(unittest.TestCase):
         self.assertTrue(all(not p["selected"] for p in pending))
         self.assertEqual(len(existing[1]["_annual_plan"]),2)
 
+    def test_translating_an_existing_card_cannot_add_another_activity(self):
+        row = {"title":"예시국 기후적응 재생에너지 지원","account":"[405]예시국(ODA)", "period":"2025-2028",
+               "page":2,"annual_100m_krw":"1","status":"계속"}
+        target = {"basis":"confirmed","resolution":"A","source":"source","projects":[row]}
+        existing = [{"id":"a","name_ko":"태양광과 물","_source_name_ko":"Water project",
+                     "_period":"2025-2028","selected":True}]
+        pending = []
+        reconcile(existing, pending, "예시국", 2027, [], target, {}, {})
+        self.assertEqual(len(existing),1)
+        self.assertEqual(pending[0]["_possible_catalog_ids"],["a"])
+
     def test_similar_titles_are_not_silently_merged_and_country_prefix_is_unambiguous(self):
         row = {"title":"인도네시아 토양 정보 현대화","account":"일반협력국가그룹","period":"2025-2028",
                "page":2,"annual_100m_krw":"1","status":"계속"}

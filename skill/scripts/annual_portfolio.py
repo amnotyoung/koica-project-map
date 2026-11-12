@@ -53,9 +53,10 @@ def reconcile(rows, pending, country, year, countries, target, previous, display
             continue
         identity = hashlib.sha256(key.encode()).hexdigest()[:16]
         fid = f"plan:{country}:{identity}"
-        possible = [r["id"] for r in candidates if (
-            SequenceMatcher(None, key, match_key(r["name_ko"]), autojunk=False).ratio() >= .64
-            or (not re.search("[가-힣]", r["name_ko"]) and r.get("_period") == record["period"]))]
+        possible = [r["id"] for r in candidates if any(
+            SequenceMatcher(None, key, match_key(name), autojunk=False).ratio() >= .64
+            or (not re.search("[가-힣]", name) and r.get("_period") == record["period"])
+            for name in (r.get("name_ko"), r.get("_source_name_ko")) if name)]
         selected = funded(record) and not possible and (target["basis"] == "confirmed" or
                                       (record["status"] == "계속" and len(history) == 1))
         row = {"id":fid, "_id":fid, "selected":selected, "_period":record["period"],
@@ -66,7 +67,7 @@ def reconcile(rows, pending, country, year, countries, target, previous, display
             # Presentation metadata is applied after admission and cannot change the roster.
             labels = display.get(fid, {})
             if labels.get("year") == year and labels.get("scope_sources"):
-                for k in ("name_ko","name_en","badges","place","place_en","coverage","scope_label","scope_label_en",
+                for k in ("name_ko","name_en","_period","badges","place","place_en","coverage","scope_label","scope_label_en",
                           "admin1_names","admin2_names","sites","geonames_locality","partner_activity_ids"):
                     if k in labels:
                         row[k] = labels[k]
