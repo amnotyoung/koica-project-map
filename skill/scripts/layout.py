@@ -36,11 +36,8 @@ from text_metrics import measure as measured_width
 
 MIN_FONT_SCALE = 0.85     # design.md 규칙 4 — 폰트는 15% 까지만 줄인다
 
-# 다중 대상지 사업 주석 (샘플 slide1/slide2 표기 그대로)
-NOTE_MULTI = {"ko": "* 원형 표시 지역", "en": "* Areas marked circles"}
-
 # 한 사업의 대상지가 이만큼 이상이면 지시선을 하나로 특정할 수 없다 → 원으로만 표시하고
-# 카드에 주석을 단다. 원본 샘플의 `바라/팔사/반케/버르디야` 가 이 경우다.
+# 카드에 별도 지시선을 긋지 않는다. 원본 샘플의 `바라/팔사/반케/버르디야` 가 이 경우다.
 MULTI_SITE_MIN = 2
 
 # 범례가 위로 올라갈 수 있는 한계 — 지역 탭(y 0.58~1.45)과 x 가 겹치므로 그 아래여야 한다
@@ -898,13 +895,9 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale,
         if (len(pts)==1 and pts[0]["marker_kind"]=="point"
                 and pts[0].get("coord_source") in {"도시", "도시(음차)"}
                 and rec.get("_location_basis")=="group-representative"):
-            card["note"] = "도시 대표위치" if lang=="ko" else "Representative city location"
-            card["note_color"] = "#646464"
-            card["h"] += card["line_h"]
+            card["location_note"] = "도시 대표위치" if lang == "ko" else "Representative city location"
         if rp.get("source_conflicts"):
-            card["note"] = "* 위치 확인 필요" if lang == "ko" else "* Location needs review"
-            card["note_color"] = "#A16A2D"
-            card["h"] += card["line_h"]
+            card["location_note"] = "위치 확인 필요" if lang == "ko" else "Location needs review"
             card["source_conflicts"] = rp["source_conflicts"]
             warnings.append(f'위치 불일치: {rec.get("name_ko", "")[:35]} — 원천 {rp["query"]}, 사업명 {", ".join(rp["source_conflicts"])}. 마커 생략')
         markers.extend(p for p in pts if p["marker_kind"] != "admin1")
@@ -912,7 +905,7 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale,
         if not rp["resolved"]:
             warnings.append(f'지명 미해석: {rp["query"]}')
 
-    _mark_multi_site_note(cards, lang)
+    mark_multi_site_group(cards)
 
     groups = _group_cards(cards, tok)
 
@@ -1075,27 +1068,11 @@ def _place_label(rec: dict, rp: dict, lang: str, country_en: str = "") -> str:
     return strip_accents("/".join(names))
 
 
-def _mark_multi_site_note(cards: list, lang: str) -> None:
-    """`* 원형 표시 지역` 을 붙일 카드를 **하나만** 고른다.
-
-    원본 샘플에서 이 주석은 슬라이드당 한 번, 사업대상지가 여러 곳이라 지시선을
-    한 지점으로 특정할 수 없는 카드 안에 들어간다(네팔 `바라/팔사/반케/버르디야`,
-    동티모르 `딜리/리키사/에르메라/바우카우 주`). 그 카드는 지시선을 긋지 않고
-    지도의 초록 원으로만 위치를 알린다.
-
-    슬라이드 각주로 두면 무관한 카드 위에 얹히고, 다중지역 카드마다 달면
-    지시선이 거의 사라진다 — 둘 다 원본과 다르다.
-    """
-    cand = [c for c in cards if len(c["points"]) >= MULTI_SITE_MIN and not c.get("region_ids")]
-    if not cand:
-        return
-    pick = max(cand, key=lambda c: (len(c["points"]), -cards.index(c)))
-    localities = all(str(p.get("source", "")).startswith("GeoNames ") and
-                     str(p.get("source", "")).endswith("(locality)") for p in pick["points"])
-    pick["note"] = (("○ 대상지 소재 마을" if lang == "ko" else "○ Project localities")
-                    if localities else NOTE_MULTI[lang])
-    pick["no_leader"] = True
-    pick["h"] += pick["line_h"]
+def mark_multi_site_group(cards: list) -> None:
+    """Use the mapped circles for the largest multi-site group."""
+    candidates = [c for c in cards if len(c["points"]) >= MULTI_SITE_MIN and not c.get("region_ids")]
+    if candidates:
+        max(candidates, key=lambda c: len(c["points"]))["no_leader"] = True
 
 
 def _tile_background(base: dict, proj: "Projection", frame: dict):

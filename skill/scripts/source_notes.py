@@ -15,6 +15,8 @@ def source_notes(L):
         details.append(f"사업 데이터 판본: {source['build_id']}")
     for card in L["cards"]:
         provenance = card.get("provenance", {})
+        if card.get("location_note"):
+            details.append(f"{card['place']} · {card['text']} · {card['location_note']}")
         if provenance.get("_location_evidence"):
             details.append(f"{card['place']} 사업지 확인 근거 · {provenance['_location_evidence']}")
         for notice in provenance.get("_linked_notices", []):
