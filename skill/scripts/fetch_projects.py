@@ -25,6 +25,7 @@ import time
 from datetime import date
 from pathlib import Path
 
+import iati_aid
 from portfolio_selection import project_key, reconcile_notices, title_period, year_decision
 from common import CACHE_DIR, REFERENCE_DIR, fetch, log, read_json, sector_map, write_json
 
@@ -70,6 +71,8 @@ def complete_card_metadata(row):
         value, unit, currency = amount.groups()
         total = Decimal(value.replace(",", "")) * AMOUNT_SCALE[unit]
         currency = "KRW" if currency == "원" else "USD"
+    elif row.get("_budget_period_only"):
+        total, currency = Decimal(0), ""
     else:
         reported = row.get("_reported_budget")
         if reported is None:
@@ -174,6 +177,7 @@ def collect(country: str, year: int | None, include_all: bool,
     sm = sector_map()
     rows, seen, catalog_titles, review = [], set(), set(), []
     period_candidates = []
+    aid_codes = None
     notices = read_json(REFERENCE_DIR / "public_programmes.json").get(country, [])
     region = ""
     for f in data["features"]:
@@ -203,6 +207,13 @@ def collect(country: str, year: int | None, include_all: bool,
             name_en = html.unescape(mem["name"].get("en") or "").strip()
             budget = de.get("budget") or 0
             per = _period(de)
+            aid = de.get("aid") or ""
+            xml_source = (de.get("source_info") or {}).get("url") == iati_aid.URL
+            if not aid and xml_source and "KOICA" in agency:
+                if aid_codes is None:
+                    aid_codes = iati_aid.load_codes(force)
+                if aid_codes.get((fid or "").partition("@")[0]) == "C01":
+                    aid = MAIN_AID
             if "KOICA" in agency:
                 catalog_titles.add(project_key(name_ko))
             fact = scopes.get(fid) or scopes.get((fid or "").partition("@")[0])
@@ -210,12 +221,12 @@ def collect(country: str, year: int | None, include_all: bool,
             if decision:
                 review.append({"id":fid, "name":name_ko, **decision})
             needs_review = (not applicable and decision and decision["decision"] == "needs_evidence"
-                            and de.get("aid") == MAIN_AID and "KOICA" in agency)
+                            and aid == MAIN_AID and "KOICA" in agency)
             if not applicable and not needs_review:
                 continue
             explicit_bilateral = de.get("biz_type") == "국별협력사업"
-            main = (de.get("aid") == MAIN_AID and "KOICA" in agency
-                    and (explicit_bilateral or meets_budget_floor(name_ko, de)) and not done and not other)
+            main = (aid == MAIN_AID and "KOICA" in agency
+                    and (explicit_bilateral or (not xml_source or TITLE_BUDGET.search(name_ko)) and meets_budget_floor(name_ko, de)) and not done and not other)
             row = {
                 "selected": main,
                 "place": place,
@@ -225,7 +236,7 @@ def collect(country: str, year: int | None, include_all: bool,
                 "_period": per,
                 "_budget_krw": budget,
                 "_biz_type": de.get("biz_type"),
-                "_aid": de.get("aid") or "",
+                "_aid": aid,
                 "_agency": agency,
                 "_sector": de.get("sector") or "",
                 "_stage": de.get("stage") or "",
@@ -239,6 +250,11 @@ def collect(country: str, year: int | None, include_all: bool,
             reported = (de.get("amounts") or {}).get("budget")
             if isinstance(reported, dict):
                 row["_reported_budget"] = reported
+            if xml_source:
+                # The XML budget element covers a reporting period, often a single year.
+                row["_budget_period_only"] = True
+                if aid and not de.get("aid"):
+                    row["_aid_source"] = iati_aid.URL
             if decision:
                 row["_period_review"] = decision
                 if decision["decision"] == "verified_for_year":

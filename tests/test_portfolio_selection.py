@@ -45,6 +45,23 @@ class AnnualMapTests(unittest.TestCase):
             rows = fetch_projects.collect("시험국",2026,False)["projects"]
         self.assertEqual([r["id"] for r in rows if r["selected"]], ["1"])
 
+    def test_missing_xml_aid_uses_official_code_and_hides_annual_budget(self):
+        import iati_aid
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            xml = Path(tmp) / "source.xml"
+            xml.write_text('<iati-activities><iati-activity><iati-identifier>KR-GOV-010-KR-GOV-051-1</iati-identifier><default-aid-type code="C01"/></iati-activity></iati-activities>')
+            index = iati_aid.read_codes(xml)
+        member = {"feature_id":"iati:KR-GOV-051-1", "name":{"ko":"시설사업", "en":"Facilities"},
+                  "details":{"agency":"KOICA","biz_type":"국별협력사업","budget":100000000,
+                  "source_info":{"url":iati_aid.URL}, "start":"2026","end":"2030"}}
+        sample = {"features":[{"country":"시험국","name":{"ko":"수도"},"layer":"project","members":[member]}]}
+        with patch.object(fetch_projects,"load_source",return_value=sample), patch.object(iati_aid,"load_codes",return_value=index):
+            row = fetch_projects.collect("시험국",2027,False)["projects"][0]
+        self.assertTrue(row["selected"])
+        self.assertEqual(row["name_en"], "Facilities (2026–2030)")
+        self.assertEqual(row["_aid_source"], iati_aid.URL)
+
     def test_reference_budget_floor_handles_both_currencies_and_partial_spending(self):
         check = fetch_projects.meets_budget_floor
         self.assertTrue(check("사업(’21-’25/200만불)", {"budget":1}))
