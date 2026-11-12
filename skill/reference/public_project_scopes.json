@@ -465,6 +465,78 @@
         "lat": 47.90771,
         "lon": 106.88324
       }
+    },
+    "iati:KR-GOV-051-2025010100178": {
+      "year": 2027,
+      "verified_period": "2025-2028",
+      "name_ko": "몽골 관세청 위험관리 및 수하물 관리 선진화 사업 (2025–2028 / 560만불)",
+      "name_en": "Customs risk management and passenger baggage control in Mongolia (2025–2028 / USD 5.6m)",
+      "coverage": "site",
+      "place": "울란바토르",
+      "place_en": "Ulaanbaatar",
+      "geonames_locality": {
+        "name": "Ulaanbaatar",
+        "id": 2028462,
+        "lat": 47.90771,
+        "lon": 106.88324
+      },
+      "badges": [
+        "G"
+      ],
+      "scope_sources": [
+        "https://www.koica.go.kr/bbs/koica_kr/151/388849/artclView.do",
+        "https://nebid.koica.go.kr/oep/elbi/inProgrsBidPblancDetail.do?P_PBLANC_NO=P2025-00161&P_PBLANC_ODR=1&resourceName=oep1010",
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ]
+    },
+    "iati:KR-GOV-051-2023020103096": {
+      "year": 2027,
+      "verified_years": [
+        2027
+      ],
+      "_period": "",
+      "name_ko": "몽골 국토균형개발 및 울란바토르 지속가능한 도시화 지원사업 (570만불 / 2027년 9월까지 사업관리 용역)",
+      "name_en": "Balanced national development and sustainable urbanisation in Ulaanbaatar (USD 5.7m / project management through September 2027)",
+      "place": "울란바토르·하르허린",
+      "place_en": "Ulaanbaatar and Kharkhorin",
+      "coverage": "site",
+      "sites": [
+        {
+          "place": "울란바토르",
+          "geonames_locality": {
+            "name": "Ulaanbaatar",
+            "id": 2028462,
+            "lat": 47.90771,
+            "lon": 106.88324
+          }
+        },
+        {
+          "place": "하르허린",
+          "geonames_locality": {
+            "name": "Kharkhorin",
+            "id": 7648891,
+            "lat": 47.19245,
+            "lon": 102.81349
+          }
+        }
+      ],
+      "scope_sources": [
+        "https://mas.smc.seoul.kr/attach/record/SEOUL/appendix/a11/A0070852.pdf",
+        "https://www.si.re.kr/atch/filePreview.do?cnncSn=2603060001&cnncTy=bbs&ordr=1",
+        "https://oda-map-lab.pages.dev/generated/map-base.json",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ]
+    },
+    "iati:KR-GOV-051-2022010100048": {
+      "year": 2027,
+      "period_needs_review": "KOICA 사업실명제에는 2026년 종료로, 2026년 3·4월 개소식 보도에는 2028년까지로 표기되어 있다.",
+      "scope_sources": [
+        "https://www.koica.go.kr/koica_kr/1084/subview.do",
+        "https://mn.mofa.go.kr/mn-ko/brd/m_375/view.do?seq=1347039",
+        "https://www.worldkorean.net/news/articleView.html?idxno=56494",
+        "https://newsk.net/mn/?bmode=view&idx=170563516"
+      ]
     }
   },
   "말라위": {
@@ -511,6 +583,30 @@
       "coverage": "unknown",
       "scope_label": "산페드로 지역 소농",
       "scope_label_en": "Smallholder farms in San Pedro"
+    },
+    "iati:KR-GOV-051-2022010100011": {
+      "year": 2027,
+      "verified_years": [
+        2027
+      ],
+      "_period": "",
+      "name_ko": "파라과이 아순시온 국립대학교 ICT 혁신센터 설립 및 역량강화사업 (960만불 / 2027년 개소 예정)",
+      "name_en": "ICT capacity development and innovation centre at the National University of Asunción (USD 9.6m / opening planned for 2027)",
+      "place": "산로렌소",
+      "place_en": "San Lorenzo",
+      "coverage": "site",
+      "geonames_locality": {
+        "name": "San Lorenzo",
+        "id": 3437056,
+        "lat": -25.33968,
+        "lon": -57.50879
+      },
+      "scope_sources": [
+        "https://www.una.py/una-y-koica-avanzan-en-la-planificacion-para-la-puesta-en-funcionamiento-del-centro-de-innovacion-tic",
+        "https://www.una.py/la-una-y-la-koica-afianzan-el-centro-de-innovacion-tic-paraguay-corea-de-cara-a-su-inauguracion",
+        "https://oda-map-lab.pages.dev/generated/map-base.json",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ]
     }
   },
   "라오스": {
