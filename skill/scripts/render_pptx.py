@@ -454,8 +454,9 @@ def draw_legend(slide, L: dict, tok: dict) -> None:
 def draw_notes(slide, L: dict, tok: dict) -> None:
     if not L.get("notes"):
         return
-    lay = tok["layout"][L["mode"]]
-    if L["mode"] == "A":
+    mode = {"L":"A", "R":"B"}.get(L["mode"], L["mode"])
+    lay = tok["layout"][mode]
+    if mode == "A":
         x, y = lay["bottom_row"]["x0"], lay["bottom_row"]["y"] - 0.24
     else:
         x, y = lay["right_col"]["x"], lay["right_col"]["y1"] + 0.05

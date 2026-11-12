@@ -6,9 +6,9 @@
 복제하지 말 것 — 두 출력이 갈라진다.
 
 계산 순서
-    1. 국가 종횡비로 레이아웃 A(지도 중앙·카드 좌측+하단) / B(지도 좌측·카드 우측) 선택
-    2. 정거원통도법으로 국토 bbox 를 지도 프레임에 맞춤
-    3. 사업명 길이 → 줄 수 → 카드 높이
+    1. 장소별 사업명의 줄 수와 설명 높이 계산
+    2. 국토의 Web Mercator 종횡비와 설명 높이로 지도 프레임·설명 열 선택
+    3. 같은 투영으로 지도와 사업 위치를 프레임에 맞춤
     4. 슬롯 생성 후 **각도 정렬**로 배정 → **2-opt** 로 지시선 교차 제거
     5. 넘치면 폰트 축소 → 지도 축소 → 경고 (design.md 판단 규칙 4)
 
@@ -134,9 +134,9 @@ class Projection:
 
 
 def country_aspect(bbox: list) -> float:
-    lon0, lat0, lon1, lat1 = bbox
-    cos = math.cos(math.radians((lat0 + lat1) / 2))
-    return ((lon1 - lon0) * cos) / max(lat1 - lat0, 1e-6)
+    from basemap_tiles import merc_x, merc_y
+    west, south, east, north = bbox
+    return max(merc_x(east) - merc_x(west), 1e-9) / max(merc_y(south) - merc_y(north), 1e-9)
 
 
 def _is_nationwide(parts: list) -> bool:
@@ -146,11 +146,7 @@ def _is_nationwide(parts: list) -> bool:
 
 def choose_mode(doc: dict, tok: dict, lang: str,
                 resolved: dict | None = None) -> str:
-    """레이아웃 A / B 선택 — **카드가 한 열에 들어가는가**로 갈린다.
-
-    국가 종횡비가 아니다. 샘플에서 네팔(bbox 1.77)은 A, 동티모르(2.35)는 B인데
-    동티모르 쪽이 오히려 더 넓다. 실제 차이는 사업 수였다(10건 vs 7건).
-    """
+    """Choose a column using the projected land extent and measured place groups."""
     col = tok["layout"]["B"]["right_col"]
     gap = tok["card"]["gap"]
     cards = []
@@ -185,7 +181,21 @@ def choose_mode(doc: dict, tok: dict, lang: str,
     # 만큼 실제 높이가 줄어드는데, 여기서도 최종 배치와 같은 그룹 키를 써야 한다.
     groups = _group_cards(cards, tok)
     need = sum(g["h"] for g in groups) + gap * max(len(groups) - 1, 0)
-    return "B" if need <= (col["y1"] - col["y0"]) else "A"
+    capacity = col["y1"] - col["y0"]
+    bbox = doc.get("map_bbox")
+    if bbox and resolved:
+        aspect = country_aspect(bbox)
+        if need <= capacity * .72:
+            # A single eastern point can connect straight into a right column.
+            points = groups[0]["points"] if len(groups) == 1 else []
+            if (len(points) == 1 and points[0]["marker_kind"] == "point" and aspect >= 1
+                    and not any(place.get("region") for place in resolved["places"])
+                    and points[0]["lon"] > (bbox[0] + bbox[2]) / 2):
+                return "R"
+            return "L"
+        if aspect < 1 or any(place.get("region") for place in resolved["places"]):
+            return "C"
+    return "B" if need <= capacity else "A"
 
 
 # ─────────────────────────────── 카드 ───────────────────────────────
@@ -422,7 +432,7 @@ def _place_group_key(card: dict) -> tuple:
 def _dedupe_points(points: list) -> list:
     seen, out = set(), []
     for p in points:
-        key = (round(float(p.get("x", 0)), 4), round(float(p.get("y", 0)), 4),
+        key = (round(float(p.get("x", p.get("lon", 0))), 4), round(float(p.get("y", p.get("lat", 0))), 4),
                p.get("marker_kind", "point"))
         if key not in seen:
             seen.add(key)
@@ -682,7 +692,7 @@ def prepare(doc: dict, detail: str = "50m") -> tuple:
     if not framed.get("region"):
         feature = geo_prepare.find_country(geo_prepare.load_countries(detail, False), resolved["iso3"])
         framed["region"] = geographic_region(feature["properties"])
-    if doc.get("card_layout") == "bilateral" or any(p.get("region") for p in resolved["places"]):
+    if doc.get("card_layout") == "bilateral":
         framed["_mode"] = "C"
     return framed, resolved, base
 
@@ -699,18 +709,65 @@ def finish_background(result: dict, base: dict) -> None:
         result["warnings"].append("타일 배경을 가져오지 못해 공개 벡터 지리자료로 대체했습니다")
 
 
+def single_column_spec(mode, bbox, tok):
+    """Fit a national map beside one caption column; all dimensions are in slide inches."""
+    layouts = tok["layout"]
+    on_left = mode == "L"
+    column = layouts["A"]["left_col"] if on_left else layouts["B"]["right_col"]
+    left = layouts["A"]["map"]["x"] if on_left else layouts["B"]["map"]["x"]
+    right = tok["region_tab"]["rail_x"] - .24 if on_left else column["x"] - .18
+    top = layouts["C"]["map"]["y"] if on_left else layouts["B"]["map"]["y"]
+    bottom = layouts["C"]["left_col"]["y1"]
+    aspect = country_aspect(bbox)
+    # Allow geographic context around narrow countries, without letterboxing long islands.
+    height = min((bottom-top) / math.sqrt(max(1, aspect/.70)), 1.32*(right-left)/aspect)
+    height = max(1.5, height)
+    width = min(right-left, max(1.5, 1.33*aspect*height))
+    centre_y = tok["canvas"]["h_in"] * .53 - min(.70, max(0, aspect-1) * .35)
+    frame = {"x":left if on_left else right-width, "y":max(top, min(bottom-height, centre_y-height/2)),
+             "w":width, "h":height}
+    return {"map":frame, "column":column, "bottom":bottom}
+
+
+def place_single_column(groups, spec, mode, gap):
+    """Aim headings at mapped places, reserving space above and below for every card."""
+    frame, col = spec["map"], spec["column"]
+    side = "left" if mode == "L" else "right"
+    ordered = sorted(groups, key=lambda g: (not bool(g["points"]), _card_pin(g)[1]))
+    limit = spec["bottom"]
+    caps = []
+    for g in reversed(ordered):
+        limit -= g["h"]
+        caps.append(limit)
+        limit -= gap
+    y = col["y0"]
+    placed = []
+    for i, (g, cap) in enumerate(zip(ordered, reversed(caps))):
+        slot = frame["y"] + frame["h"]*(i+.5)/len(ordered) - g["h"]/2
+        if g["points"]:
+            slot = .75*slot + .25*(_card_pin(g)[1] - g["h"]/2)
+        y = max(y, min(cap, slot))
+        c = dict(g, x=col["x"], y=y, side=side, _gap=gap)
+        c["anchor"] = anchor_of(c, c, side)
+        c["gutter"] = frame["x"]-.045 if side=="left" else frame["x"]+frame["w"]+.045
+        placed.append(c)
+        y += g["h"] + gap
+    return placed
+
+
 def compute(doc: dict, lang: str = "ko", index: int = 1,
             detail: str = "50m", force_scale: float | None = None,
             *, render_tiles: bool = True, prepared: tuple | None = None) -> dict:
     tok = design_tokens()
     doc, resolved, base = prepared or prepare(doc, detail)
     preferred = doc.get("_mode") or choose_mode(doc, tok, lang, resolved)
-    modes = [preferred] if doc.get("_mode") else [preferred, "A" if preferred == "B" else "B"]
+    modes = [preferred] if doc.get("_mode") else list(dict.fromkeys([preferred, "A", "B", "C"]))
     scales = [force_scale] if force_scale is not None else [1.0, .92, MIN_FONT_SCALE]
     best = None
     for scale in scales:
         for mode in modes:
-            spec = tok["layout"][mode]
+            spec = (single_column_spec(mode, doc["map_bbox"], tok) if mode in {"L","R"}
+                    else tok["layout"][mode])
             result = _try_layout(doc, resolved, base, tok, spec, mode, lang,
                                  index, dict(spec["map"]), scale, render_tiles=False)
             if result["fits"]:
@@ -909,7 +966,9 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale,
 
     groups = _group_cards(cards, tok)
 
-    if mode == "C":
+    if mode in {"L", "R"}:
+        placed_groups = place_single_column(groups, L, mode, gap)
+    elif mode == "C":
         placed_groups = _bilateral(groups, L, frame, gap)
     else:
         # 2) 슬롯 배분 — 좌측열이 넘치면 하단행으로 흘린다
@@ -981,7 +1040,7 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale,
         # KOICA 표기는 'Timor-Leste' 다.
         "country": country_info,
         "title": _title_layout(country_info["ko"], country_info["en"], lang, tok,
-                               right_limit=frame["x"] - .07 if mode == "C" else None),
+                               right_limit=frame["x"] - .07 if mode in {"C","L"} else None),
         "region": (doc.get("region", "") if lang == "ko" else
                    (doc.get("region_en")
                     or REGION_EN.get(doc.get("region", ""), doc.get("region", "")))),
@@ -1319,6 +1378,8 @@ def _restack(placed: list, side: str) -> None:
 
 
 def _fits(placed, mode, L, tok) -> bool:
+    if mode in {"L","R"}:
+        return all(c["y"] + c["h"] <= L["bottom"] + .02 for c in placed)
     col_key = "left_col" if mode == "A" else "right_col"
     for c in placed:
         if c["side"] == "bottom":

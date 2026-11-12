@@ -79,6 +79,24 @@ class GeographicGenerationTests(unittest.TestCase):
         labels=cartography.place_labels(m,[{"name":"Dili","x":2,"y":1.5}],[],design_tokens())
         self.assertEqual([l["name"] for l in labels],["Dili"])
 
+    def test_aspect_and_measured_captions_control_the_map_and_column(self):
+        tok = design_tokens()
+        bbox = [0, 0, 12, 4]
+        rec = {"place":"Area","name_ko":"짧은 사업","name_en":"Project"}
+        area = {"region":"Area", "parts":[{"ok":True,"kind":"admin1","matched":"Area","lon":10,"lat":2}]}
+        resolved = {"places":[area]}
+        doc = {"map_bbox":bbox,"projects":[rec]}
+        self.assertEqual(layout.choose_mode(doc,tok,"en",resolved), "L")
+        wide = layout.single_column_spec("L",bbox,tok)["map"]
+        tall = layout.single_column_spec("L",[0,0,4,12],tok)["map"]
+        self.assertGreater(wide["w"], 2 * wide["h"])
+        self.assertGreater(tall["h"], 1.5 * tall["w"])
+        self.assertLess(wide["x"] + wide["w"], tok["region_tab"]["rail_x"])
+        dense = {**doc,"projects":[{**rec,"name_ko":"사업 설명 " * 40}] * 8}
+        self.assertEqual(layout.choose_mode(dense,tok,"ko",{"places":[area]*8}), "C")
+        point = {"parts":[{**area["parts"][0], "kind":"point"}]}
+        self.assertEqual(layout.choose_mode(doc,tok,"en",{"places":[point]}), "R")
+
     def test_pagination_retains_every_project_at_readable_size_without_templates(self):
         doc={"country":"Example","projects":[
             {"id":str(i),"place":"City","badges":["E"],

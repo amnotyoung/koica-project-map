@@ -480,7 +480,8 @@ def draw_notes(L: dict, tok: dict) -> str:
     if not L.get("notes"):
         return ""
     col = tok["color"]
-    mode, lay = L["mode"], tok["layout"][L["mode"]]
+    mode = {"L":"A", "R":"B"}.get(L["mode"], L["mode"])
+    lay = tok["layout"][mode]
     if mode == "A":
         x, y = lay["bottom_row"]["x0"], lay["bottom_row"]["y"] - 0.16
     else:
