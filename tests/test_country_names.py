@@ -2,7 +2,7 @@ import sys
 import unittest
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1] / "skill/scripts"))
-from country_names import atlas_countries, canonical, identity
+from country_names import atlas_countries, canonical, identity, mentions_country
 
 
 class CountryNamesTests(unittest.TestCase):
@@ -16,3 +16,7 @@ class CountryNamesTests(unittest.TestCase):
         self.assertEqual(canonical("콩고민주공화국(DR콩고)"),canonical("COD"))
         self.assertNotEqual(canonical("도미니카"),canonical("DOM"))
         self.assertNotEqual(canonical("남수단"),canonical("SDN"))
+        self.assertFalse(mentions_country("남수단 사업", "수단"))
+        self.assertTrue(mentions_country("남수단 및 수단 사업", "수단"))
+        self.assertFalse(mentions_country("인도네시아 사업", "인도"))
+        self.assertTrue(mentions_country("키르기즈공화국 협력사업", "KGZ"))

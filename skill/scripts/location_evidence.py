@@ -2,14 +2,18 @@
 import re
 from collections import defaultdict
 
-from common import GEO_CACHE, norm, read_json
+from common import GEO_CACHE, fetch, norm, read_json, unzip_member
 from geo_prepare import GEONAMES_URL
 from iati_aid import URL
 
 
 def cities_for(iso2):
     names = defaultdict(dict)
-    with (GEO_CACHE / "cities500.txt").open(encoding="utf-8") as source:
+    path = GEO_CACHE / "cities500.txt"
+    if not path.exists():
+        archive = fetch(GEONAMES_URL, GEO_CACHE / "cities500.zip")
+        unzip_member(archive, "cities500.txt", path)
+    with path.open(encoding="utf-8") as source:
         for line in source:
             fields = line.rstrip("\n").split("\t")
             if fields[8] != iso2:
@@ -38,6 +42,26 @@ def match_city(title, reported, cities):
     if not re.search(r"\b(?:in|at|city of|municipality of) " + place + r"(?=,|$|\s*\(| city\b)", title):
         return None
     return next(iter(matches.values()))
+
+
+def named_city(title, cities):
+    # Only explicit city/town labels qualify without an independent activity location.
+    matches = {}
+    for m in re.finditer(r"\b(?:city|town)\b", title):
+        before = title[:m.start()].strip().split()
+        after = title[m.end():].strip().split()
+        candidates = [" ".join(before[-n:]).strip(" ,") for n in range(min(5,len(before)), 0, -1)]
+        if after[:1] == ["of"]:
+            candidates = [" ".join(after[1:n+1]).strip(" ,") for n in range(min(5,len(after)-1),0,-1)] + candidates
+        for term in candidates:
+            found = cities.get(term, {})
+            if len(term) >= 3 and len(found) == 1:
+                city = next(iter(found.values()))
+                matches[city["id"]] = city
+                break
+    if len(matches) == 1:
+        return next(iter(matches.values()))
+    return None
 
 
 def enrich_locations(doc, reported_places, cities, regions):
@@ -77,12 +101,16 @@ def enrich_locations(doc, reported_places, cities, regions):
                          ko_name and re.search(re.escape(ko_name) + r"\s*시(?:의|에|와|\s|$)", original))
             if not city_type:
                 city = None
+        basis = "사업명과 IATI 보고 지명이 일치한 도시"
+        if not city and not re.search(r"\b(?:provinces?|regions?|districts?|states?|municipalities|cities|towns|counties)\b", title):
+            city = named_city(title, cities)
+            basis = "사업명에 명시된 도시"
         if city:
             row.pop("source_coord", None)
             row.update(coverage="site", source_place=row["place"], place=city["ko"] or city["name"],
                        place_en=city["name"], geonames_locality={k:city[k] for k in ("id","name","lat","lon")},
-                       _location_basis="public-project-evidence", scope_sources=[URL, GEONAMES_URL],
-                       _location_evidence=f"사업명과 IATI 위치가 일치한 도시 · {places[0]}")
+                       _location_basis="public-project-evidence", scope_sources=list(dict.fromkeys([*(row.get("scope_sources") or []), doc.get("source") or URL, GEONAMES_URL])),
+                       _location_evidence=f"{basis} · {city['name']}")
 
 
 def boundary_key(text):

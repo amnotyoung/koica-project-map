@@ -27,3 +27,21 @@ def identity(value):
 
 def canonical(value):
     return identity(value).get("ko", value)
+
+
+def notice_query(country):
+    # Use a common search stem where KOICA's bulletin uses competing Korean spellings.
+    return {"COD":"콩고","KGZ":"키르기","SLB":"솔로몬"}.get(identity(country).get("iso3"), canonical(country))
+
+
+def mentions_country(text, country):
+    ref = identity(country)
+    names = [country] if not ref else [ref["ko"], *ref["aliases"]]
+    normalized = key(text)
+    # Searching for Sudan or India also returns South Sudan or Indonesia in the bulletin.
+    others = [entry["ko"] for entry in atlas_countries() if entry is not ref] + ["남수단"]
+    for other in others:
+        larger = key(other)
+        if any(key(n) != larger and key(n) in larger for n in names):
+            normalized = normalized.replace(larger, "")
+    return any(key(name) in normalized for name in names)

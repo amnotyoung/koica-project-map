@@ -14,6 +14,7 @@ from urllib.request import Request, urlopen
 
 from lxml import etree, html as dom
 
+from country_names import mentions_country, notice_query
 from common import CACHE_DIR, log
 from portfolio_selection import project_key, title_period
 
@@ -109,7 +110,7 @@ class Bulletin:
 def candidate(country, year, number, listing, body):
     lines = [clean(x).strip(" #") for x in body.splitlines() if clean(x)]
     intro = " ".join(lines[:6])[:1100]
-    if country not in listing or EXCLUDE.search(listing):
+    if not mentions_country(listing, country) or EXCLUDE.search(listing):
         return None
     headline = next((s for s in lines[:6] if country in s and ("사업" in s or "프로그램" in s)
                      and len(s) <= 190 and not s.startswith(("한국국제협력단", "KOICA는"))), listing)
@@ -164,11 +165,11 @@ def discover(country, year, projects, *, force=False, max_pages=4, max_details=1
     board = Bulletin(force)
     report = {"board":BOARD+"artclList.do", "checked_at":datetime.now(timezone.utc).isoformat(),
               "pages":0, "details":0, "errors":[], "limited":False, "stale":False}
-    report["search_url"] = report["board"]+"?"+urlencode({"page":1, "srchColumn":"sj", "srchWrd":country})
+    report["search_url"] = report["board"]+"?"+urlencode({"page":1, "srchColumn":"sj", "srchWrd":notice_query(country)})
     entries = {}
     pages = range(1, max_pages+1) if max_pages is not None else count(1)
     for page in pages:
-        url = report["board"]+"?"+urlencode({"page":page, "srchColumn":"sj", "srchWrd":country})
+        url = report["board"]+"?"+urlencode({"page":page, "srchColumn":"sj", "srchWrd":notice_query(country)})
         try:
             (hits, total), stale = board.get(url, parse_board)
         except (ValueError,OSError) as exc:
@@ -184,7 +185,7 @@ def discover(country, year, projects, *, force=False, max_pages=4, max_details=1
             break
     else:
         report["limited"] = True
-    eligible = [(n,t) for n,t in entries.items() if country in t and not EXCLUDE.search(t)
+    eligible = [(n,t) for n,t in entries.items() if mentions_country(t,country) and not EXCLUDE.search(t)
                 and (STAGE.search(t) or "사업" in t or "프로그램" in t or len(t)>=34)]
     # Prefer newly published items and explicit matches for the requested edition.
     eligible.sort(key=lambda item:(not (year and str(year) in item[1]), -int(item[0])))
