@@ -53,7 +53,8 @@ REGION_EN = {
     "중남미": "Latin America and the Caribbean",
     "중동·CIS": "Middle East and CIS",
     "중동": "Middle East",
-    "동구·CIS": "Eastern Europe and CIS",
+    "동구·CIS": "Middle East and Central Asia",
+    "중동중앙아시아": "Middle East and Central Asia",
 }
 
 
@@ -709,6 +710,33 @@ def compute(doc: dict, lang: str = "ko", index: int = 1,
     return best
 
 
+def distribute_mapped_groups(pages, mapped_groups, trial):
+    """Give a blank overflow page a whole mapped group if both pages still fit."""
+    mapped = {i for group in mapped_groups for i in group}
+    for target_idx, target in enumerate(pages):
+        if mapped.intersection(target):
+            continue
+        for donor_idx, donor in enumerate(pages):
+            donor_groups = [g for g in mapped_groups if set(g).issubset(donor)]
+            if len(donor_groups) < 2:
+                continue
+            for group in sorted(donor_groups, key=len):
+                remainder = [i for i in donor if i not in group]
+                # Move only unlocated rows to make space. Located groups stay intact.
+                for count in range(len(target) + 1):
+                    a = sorted(group + target[count:])
+                    b = sorted(remainder + target[:count])
+                    if trial(a) and trial(b):
+                        pages[target_idx], pages[donor_idx] = a, b
+                        break
+                else:
+                    continue
+                break
+            else:
+                continue
+            break
+
+
 def compute_pages(doc: dict, langs: list, index: int = 1, detail: str = "50m") -> list:
     """Paginate whole place groups, splitting only groups larger than one page.
 
@@ -768,6 +796,12 @@ def compute_pages(doc: dict, langs: list, index: int = 1, detail: str = "50m") -
                     raise ValueError(f"단일 사업도 한 장에 들어가지 않습니다: {doc['projects'][i].get('name_ko', '')[:60]}")
     if current:
         packed.append(current)
+    if len(packed) > 1:
+        mapped_groups = [group for group in groups.values() if any(
+            part.get("ok") and part.get("lon") is not None and part.get("kind") != "nationwide"
+            for part in resolved["places"][group[0]]["parts"])
+            and not resolved["places"][group[0]].get("source_conflicts")]
+        distribute_mapped_groups(packed, mapped_groups, trial)
     assert sorted(i for page in packed for i in page) == list(range(len(doc["projects"])))
     results = []
     for page_index, indices in enumerate(packed, 1):
@@ -924,7 +958,7 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale,
     doc_out = {
         "canvas": {"w": tok["canvas"]["w_in"], "h": tok["canvas"]["h_in"]},
         "lang": lang, "mode": mode, "index": index,
-        "chapter": {"아시아태평양":1, "아프리카":2, "중남미":3, "중동·CIS":4}.get(doc.get("region"), index),
+        "chapter": {"아시아태평양":1, "아프리카":2, "중남미":3, "중동·CIS":4, "동구·CIS":4, "중동":4, "중동중앙아시아":4}.get(doc.get("region"), index),
         # 영문명은 입력에서 덮어쓸 수 있다 — Natural Earth 는 'East Timor' 지만
         # KOICA 표기는 'Timor-Leste' 다.
         "country": country_info,
@@ -1326,11 +1360,11 @@ def _legend(tok: dict, lang: str) -> dict:
              for k in ("E", "H", "G", "A", "T")]
     en = lang == "en"
     gap, sw = 0.09, lg["swatch"]
-    bottom = tok["canvas"]["h_in"] - 0.34          # 쪽번호 자리를 남긴다
+    bottom = min(tok["canvas"]["h_in"] - 0.34, lg["page_num"]["y"] - .25)          # 쪽번호 자리를 남긴다
 
     def label_h(s, size_pt):
         if en:                                      # 회전 → 글자열의 가로폭이 세로높이
-            return text_width(s, size_pt)
+            return max(text_width(s, size_pt), measured_width(s, size_pt) * 1.08)
         n = len([c for c in s if c != " "])
         return n * size_pt / 72.0 + s.count(" ") * size_pt / 144.0
 

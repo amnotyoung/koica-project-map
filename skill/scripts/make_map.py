@@ -57,6 +57,7 @@ def run(inputs: list, outdir: Path, langs: list | None, formats: list,
         if not isinstance(chosen_langs, list) or any(lang not in ("ko","en") for lang in chosen_langs):
             raise ValueError("지도 언어를 확인하세요")
         for L in layout_mod.compute_pages(doc, chosen_langs, idx, detail):
+            L["page_number"] = len(layouts) + 1
             if page_format in {"atlas", "atlas-full"}:
                 L["paper"] = {"w":16.931, "h":11.694}
                 if page_format == "atlas-full":

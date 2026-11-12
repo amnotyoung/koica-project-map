@@ -216,6 +216,20 @@ class CreditTests(unittest.TestCase):
             self.assertIn("geoBoundaries", notes)
 
 
+class AtlasPaginationTests(unittest.TestCase):
+    def test_unlocated_first_page_gets_a_whole_group_within_capacity(self):
+        pages = [[0,1,2,3],[4,5,6]]
+        groups = [[4,5],[6]]
+        layout.distribute_mapped_groups(pages, groups, lambda ids:len(ids)<=4)
+        self.assertEqual(sorted(pages[0]+pages[1]),list(range(7)))
+        self.assertTrue(all(set(page) & {4,5,6} for page in pages))
+        self.assertTrue(any({4,5} <= set(page) for page in pages))
+
+    def test_english_key_leaves_room_above_the_page_number(self):
+        key = layout._legend(design_tokens(), "en")
+        self.assertLess(key["bottom"], key["page_num"]["y"]-.14)
+
+
 class TitleLayoutTests(unittest.TestCase):
     def test_korean_title_uses_one_inline_rich_text_box(self):
         tok = design_tokens()

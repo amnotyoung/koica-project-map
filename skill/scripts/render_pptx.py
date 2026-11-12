@@ -447,7 +447,7 @@ def draw_legend(slide, L: dict, tok: dict) -> None:
                     lg["swatch"] + 0.06, h, list(it["label"]), it["size"],
                     col["body"], align=PP_ALIGN.CENTER, spacing=0.9)
     pn = lg["page_num"]
-    textbox(slide, pn["x"], pn["y"] - 0.14, 0.3, 0.2, f'{L.get("index", 1):02d}',
+    textbox(slide, pn["x"], pn["y"] - 0.14, 0.3, 0.2, f'{L.get("page_number", L.get("index", 1)):02d}',
             pn["size"], col["body"])
 
 

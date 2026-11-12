@@ -472,7 +472,7 @@ def draw_legend(L: dict, tok: dict) -> str:
                 ly += fs
     pn = lg["page_num"]
     out.append(f'<text x="{pn["x"]:.4f}" y="{pn["y"]:.4f}" font-size="{pn["size"]*PT:.5f}" '
-               f'fill="{col["body"]}">{L.get("index", 1):02d}</text>')
+               f'fill="{col["body"]}">{L.get("page_number", L.get("index", 1)):02d}</text>')
     return "\n".join(out)
 
 
