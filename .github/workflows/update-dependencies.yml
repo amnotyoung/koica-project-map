@@ -64,8 +64,6 @@ jobs:
     steps:
       - name: Checkout koica-project-map
         uses: actions/checkout@v6
-        with:
-          token: ${{ secrets.DEPENDENCY_PR_TOKEN }}
 
       - name: Checkout dependency source
         uses: actions/checkout@v6
@@ -73,6 +71,7 @@ jobs:
           repository: ${{ matrix.repository }}
           ref: ${{ matrix.ref }}
           token: ${{ secrets.DEPENDENCY_READ_TOKEN }}
+          persist-credentials: false
           path: ${{ matrix.checkout_path }}
 
       - uses: actions/setup-python@v6
@@ -107,7 +106,7 @@ jobs:
       - name: Create dependency update PR
         if: steps.sync.outputs.changed == 'true'
         env:
-          GH_TOKEN: ${{ secrets.DEPENDENCY_PR_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
           BRANCH: ${{ steps.sync.outputs.branch }}
           SLUG: ${{ steps.sync.outputs.slug }}
           SOURCE_SHA: ${{ steps.sync.outputs.source_sha }}

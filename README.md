@@ -140,24 +140,15 @@ Natural Earth(퍼블릭 도메인) · [geoBoundaries](https://www.geoboundaries.
 
 ## 종속성 업데이트 자동화
 
-`oda-map-lab`의 CI가 성공하면 전달된 커밋을 다시 체크아웃해 `map-base`와
-기여 스키마 계약을 검증하고, 변경된 계약 잠금파일을 PR로 만든다. 매일
-실행되는 점검은 이벤트 누락을 보정한다. 허용된 저장소와 검증 경로는
-[`.github/dependencies.json`](.github/dependencies.json)에 고정되어 있다.
+매일 `oda-map-lab` 원본의 `map-base`와 기여 스키마를 확인한다. 변경이 있으면
+계약 잠금파일을 갱신하고 지도 테스트를 실행한 뒤 이 저장소에 PR을 만든다.
+Actions의 **Update repository dependencies**에서 수동으로도 실행할 수 있다.
+허용된 저장소와 검증 경로는 [의존성 목록](.github/dependencies.json)에 있다.
 
-저장소 관리자는 다음 Actions secret을 등록한다.
-
-- `DEPENDENCY_READ_TOKEN`: `oda-map-lab`의 **Contents: read**만 허용한
-  fine-grained personal access token
-- `DEPENDENCY_PR_TOKEN`: 이 저장소의 **Contents: write**와
-  **Pull requests: write**만 허용한 fine-grained personal access token.
-  자동 PR에서도 일반 CI를 시작하기 위해 사용한다.
-- `DEPENDENCY_DISPATCH_TOKEN`: `country-report-skill`에
-  `repository_dispatch`를 보낼 수 있도록 해당 저장소의 **Contents: write**만
-  허용한 fine-grained personal access token
-
-원천 저장소 이벤트와 별개로 Actions의 **Update repository dependencies**
-워크플로를 수동 실행할 수 있다.
+비공개 원본을 읽으려면 `oda-map-lab`에 **Contents: read** 권한이 있는
+`DEPENDENCY_READ_TOKEN` 시크릿이 필요하다. 지도 저장소의 체크아웃과 PR 생성은
+GitHub Actions 기본 `GITHUB_TOKEN`을 사용한다. 저장소 Actions 설정에서
+**Allow GitHub Actions to create and approve pull requests**를 켜야 한다.
 
 ## 라이선스
 
