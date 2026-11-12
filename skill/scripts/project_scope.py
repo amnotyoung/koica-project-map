@@ -44,8 +44,14 @@ def prepare_projects(doc):
             continue
         project = sites[0]
         project["source_ids"] = [s.get("id") or s["_id"] for s in sites]
-        if project.get("coverage") not in {"nationwide", "unknown", "admin1", "admin2", "external"}:
-            project["sites"] = [{k:s[k] for k in ("place","place_en","kind","aliases","source_coord","_location_basis","name_en") if k in s} for s in sites]
+        scope = project.get("coverage")
+        if scope in {"admin1","admin2"} and all(s.get(scope+"_ids") for s in sites):
+            for field in (scope+"_ids",scope+"_names"):
+                project[field] = list(dict.fromkeys(value for s in sites for value in s.get(field, [])))
+            project["place"] = "/".join(dict.fromkeys(s["place"] for s in sites))
+        if scope not in {"nationwide", "unknown", "admin1", "admin2", "external"}:
+            project["sites"] = [{k:s[k] for k in ("place","place_en","kind","aliases","source_coord","reviewed_pins","reviewed_unresolved","coverage","_location_basis","name_en") if k in s} for s in sites]
+            project.pop("reviewed_pins", None)
             project["place"] = "/".join(dict.fromkeys(s["place"] for s in sites))
             project.pop("place_en", None)
         project["id"] = activity

@@ -1,0 +1,191 @@
+// The country outline, GeoNames index and both boundary layers travel with the HTML.
+const geo = JSON.parse(document.getElementById('geo-data').textContent);
+const modes = {site:'핀', admin1:'주 권역', admin2:'군 권역', nationwide:'전국'};
+let currentLocation = null, locationView = [0,0,640,320], activePin = 0, gesture = null;
+const normPlace = s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').normalize('NFC').toLowerCase().replace(/[\s'’.·_-]/g,'');
+function soundKey(s){
+ const initials='g kk n d tt r m b pp s ss _ j jj ch k t p h'.split(' ');
+ const vowels='a ae ya yae eo e yeo ye o wa wae oe yo u wo we wi yu eu ui i'.split(' ');
+ const ends='_ k k k n n n t l k m l l l p l m p p t t ng t t k t p t'.split(' ');
+ s=s.replace(/[가-힣]/g,c=>{let n=c.charCodeAt(0)-44032;return initials[Math.floor(n/588)]+vowels[Math.floor(n%588/28)]+ends[n%28]});
+ return normPlace(s).replace(/[^a-z]/g,'').replace(/eu/g,'').replace(/l/g,'r').replace(/(.)\1+/g,'$1').replace(/[aeiou]+$/,'');
+}
+const lookupNames=c=>[c.name,...(c.alt||[])];
+const cityIndex=(geo.cities||[]).map(c=>({city:c,names:lookupNames(c).map(normPlace),sounds:lookupNames(c).map(soundKey)}));
+function cityMatch(term){
+ const name=normPlace(term),sound=soundKey(term);
+ if(!name)return null;
+ const exact=cityIndex.filter(c=>c.names.includes(name));
+ const matches=exact.length?exact:cityIndex.filter(c=>sound.length>=3&&c.sounds.includes(sound));
+ return matches.length===1?matches[0].city:null;
+}
+const asLon=lon=>((lon+180)%360+360)%360-180;
+function mapXY(lon,lat){
+ const [s,x,y,mid]=geo.transform;
+ return [x+(lon+360*Math.round((mid-lon)/360))*s,y-Math.asinh(Math.tan(Math.max(-85,Math.min(85,lat))*Math.PI/180))*180/Math.PI*s];
+}
+function mapCoord(x,y){
+ const [s,tx,ty]=geo.transform;
+ return {lon:+asLon((x-tx)/s).toFixed(6),lat:+(Math.atan(Math.sinh((ty-y)/s*Math.PI/180))*180/Math.PI).toFixed(6)};
+}
+function findArea(term,mode){
+ const text=term.trim().replace(/\s*(?:주|도|군|구)$/,'');
+ if(!text)return null;
+ const options=geo.regions[mode]||[];
+ const same=options.filter(f=>normPlace(f.name)===normPlace(text));
+ const hits=same.length?same:options.filter(f=>soundKey(f.name)===soundKey(text));
+ return hits.length===1?hits[0]:null;
+}
+function pinsFromText(text, previous=[]){
+ return text.split('/').map(s=>s.trim()).filter(Boolean).map(name=>{
+  const kept=previous.find(p=>normPlace(p.query||p.name)===normPlace(name));
+  if(kept && hasPin(kept))return {...kept};
+  const city=cityMatch(name);
+  return city?{query:name,name:city.name,lon:+asLon(city.lon).toFixed(6),lat:city.lat,source:'GeoNames'}:{name};
+ });
+}
+function existingPins(row){
+ if(row.reviewed_pins)return [...row.reviewed_pins,...(row.reviewed_unresolved||[]).map(name=>({name}))].map(p=>({...p}));
+ if(['external','unknown','nationwide'].includes(row.coverage))return [];
+ if(row.sites)return row.sites.flatMap(existingPins);
+ const coord=row.geonames_locality||row.source_coord;
+ if(coord&&Number.isFinite(coord.lon)&&Number.isFinite(coord.lat))return [{name:coord.name||row.place,lon:coord.lon,lat:coord.lat,source:coord.source||'GeoNames'}];
+
+ return pinsFromText(row.place||'');
+}
+function initialGeo(row){
+ const mode=modes[row.coverage]?row.coverage:'site';
+ const regions=geo.regions?.[mode]||[];
+ const oldNames=row[mode+'_names']||[row[mode+'_name']];
+ const ids=row[mode+'_ids']||regions.filter(f=>oldNames.some(n=>n&&normPlace(n)===normPlace(f.name.replace(/\s+(Region|Province|District|County)$/i,'')))).map(f=>f.id);
+ return {mode,pins:mode==='site'?existingPins(row):[],ids:[...ids]};
+}
+function geoState(){return currentLocation._geoEdit||initialGeo(currentLocation)}
+function editGeo(){return currentLocation._geoEdit ||= initialGeo(currentLocation)}
+const hasPin=p=>Number.isFinite(p.lon)&&Number.isFinite(p.lat);
+function setPlace(label){
+ currentLocation.place=label;
+ const field=document.querySelector(`article[data-key="${currentLocation._key}"] [data-field=place]`);
+ if(field)field.value=label;
+}
+function activateLocation(row,fieldChange=false){
+ if(!row)return;
+ const changed=currentLocation!==row;
+ if(changed){currentLocation=row;activePin=0;locationView=[0,0,640,320]}
+ const article=document.querySelector(`article[data-key="${row._key}"]`);
+ if(!article)return;
+ const panel=$('location-panel');
+ article.append(panel);panel.hidden=false;
+ if(!geo.transform){$('location-controls').hidden=true;$('geo-status').textContent='이 국가의 지도 자료를 불러오지 못했습니다.';return}
+ if(fieldChange){
+  const text=row.place.trim(), national=[data.country+'전역',data.country+'전국','전국','전역'].includes(text.replace(/\s/g,''));
+  const previous=row._geoEdit?.mode;
+  const level=/주$|도$/.test(text)?'admin1':/군$|구$/.test(text)?'admin2':previous?.startsWith('admin')?previous:null;
+  const terms=text.split('/').map(t=>t.trim()).filter(Boolean);
+  const areas=level?terms.map(t=>findArea(t,level)): [];
+  if(level && !national){
+   row._geoEdit={mode:level,pins:[],ids:areas.every(Boolean)?[...new Set(areas.map(a=>a.id))]:[]};
+  }else{
+   row._geoEdit={mode:national?'nationwide':'site',pins:national?[]:pinsFromText(text,row._geoEdit?.pins),ids:[]};
+  }
+  const term=normPlace(terms.at(-1)||'');
+  $('geo-citylist').innerHTML=(term&&terms.length===1?cityIndex.filter(c=>c.names.some(n=>n.startsWith(term))):[])
+   .slice(0,12).map(c=>`<option value="${esc(c.city.name)}"></option>`).join('');
+  activePin=Math.max(0,row._geoEdit.pins.findIndex(p=>!hasPin(p)));
+ }
+ if(changed||fieldChange)$('region-filter').value='';
+ renderLocation();
+}
+function renderLocation(){
+ const state=geoState(),mode=state.mode,regions=geo.regions[mode]||[],area=mode.startsWith('admin');
+ $('geo-mode').value=mode;$('area-controls').hidden=!area;$('pin-controls').hidden=mode!=='site';
+ const label=geo.years?.[mode];$('geo-year').textContent=area&&label?`geoBoundaries · ${label}년 기준`:'';
+ const nameCounts=new Map();for(const region of regions)nameCounts.set(region.name,(nameCounts.get(region.name)||0)+1);
+ const filtered=regions.filter(f=>normPlace(f.name).includes(normPlace($('region-filter').value)));
+ $('region-options').innerHTML=filtered.map(f=>`<option value="${esc(f.id)}">${state.ids.includes(f.id)?'✓ ':''}${esc(f.name)}${nameCounts.get(f.name)>1?' · '+esc(f.id):''}</option>`).join('');
+ $('region-options').value='';
+ const svg=$('geo-map');svg.setAttribute('viewBox',locationView.join(' '));
+ const outlines=area?regions:geo.regions.admin1;
+ const paths=outlines.map(f=>`<path d="${f.path}" fill-rule="evenodd" class="boundary${area?' selectable':''}${area&&state.ids.includes(f.id)?' chosen':''}" data-region="${esc(f.id)}"><title>${esc(f.name)}</title></path>`).join('');
+ const size=locationView[2]/640;
+ const cities=geo.cities.slice(0,10).map(c=>{const [x,y]=mapXY(c.lon,c.lat);return `<g pointer-events="none"><circle cx="${x}" cy="${y}" r="${1.7*size}" fill="#4e6870"/><text x="${x+3*size}" y="${y-3*size}" font-size="${8*size}">${esc(c.name)}</text></g>`}).join('');
+ const pins=mode==='site'?state.pins.filter(hasPin):[];
+ const marks=state.pins.map((p,i)=>{
+  if(mode!=='site'||!hasPin(p))return '';
+  const [x,y]=mapXY(p.lon,p.lat);
+  return `<g class="pin" data-pin="${i}" transform="translate(${x} ${y}) scale(${size})"><circle r="11" fill="transparent"/><circle r="6" fill="${pins.length>1?'white':'#c33936'}" stroke="${pins.length>1?'#39855a':'white'}" stroke-width="2.4"/><title>${esc(p.name)} · 드래그하여 이동</title></g>`;
+ }).join('');
+ svg.innerHTML=`<path d="${geo.land}" fill="#fafaf5" stroke="#78908e" vector-effect="non-scaling-stroke" fill-rule="evenodd"/>${paths}${cities}${marks}`;
+ $('pin-select').innerHTML=state.pins.map((p,i)=>`<option value="${i}">${esc(p.name)}${hasPin(p)?'':' · 위치 지정'}</option>`).join('');$('pin-select').value=String(activePin);
+ const p=state.pins[activePin];
+ $('pin-coord').textContent=p&&hasPin(p)?`${p.lat.toFixed(5)}°, ${p.lon.toFixed(5)}°`:'';
+ $('geo-status').textContent=area?(state.ids.length?regions.filter(f=>state.ids.includes(f.id)).map(f=>f.name).join(' · '):regions.length?'지도나 목록에서 대상 권역을 선택하세요.':'이 단계의 공개 경계가 없습니다.')
+  :mode==='nationwide'?'전국 사업으로 표시합니다.':state.pins.some(p=>!hasPin(p))?'찾지 못한 지명을 선택한 뒤 지도에서 위치를 찍으세요.':'핀을 끌거나 지도를 클릭해 위치를 지정하세요.';
+}
+function toggleArea(id){
+ if(!id)return;
+ const state=editGeo();state.ids=state.ids.includes(id)?state.ids.filter(item=>item!==id):[...state.ids,id];
+ setPlace(geo.regions[state.mode].filter(f=>state.ids.includes(f.id)).map(f=>f.name).join(' · '));renderLocation();
+}
+function svgPoint(e){
+ const svg=$('geo-map');return new DOMPoint(e.clientX,e.clientY).matrixTransform(svg.getScreenCTM().inverse());
+}
+function placePin(point){
+ const state=editGeo();
+ if(!state.pins.length){state.pins.push({name:currentLocation.place.trim()||'지정 위치'});activePin=0}
+ Object.assign(state.pins[activePin],mapCoord(point.x,point.y),{source:'담당자 지정'});
+ if(!currentLocation.place.trim())setPlace(state.pins[activePin].name);
+ renderLocation();
+}
+function changeZoom(ratio){
+ const [x,y,w,h]=locationView, newW=Math.max(5,Math.min(640,w*ratio)),newH=newW/2;
+ const p=geoState().pins[activePin], center=p&&hasPin(p)?mapXY(p.lon,p.lat):[x+w/2,y+h/2];
+ locationView=newW===640?[0,0,640,320]:[center[0]-newW/2,center[1]-newH/2,newW,newH];renderLocation();
+}
+$('geo-mode').onchange=e=>{
+ const mode=e.target.value, query=currentLocation.place||'';
+ const area=mode.startsWith('admin')?findArea(query,mode):null;
+ currentLocation._geoEdit={mode,ids:area?[area.id]:[],pins:mode==='site'?pinsFromText(query):[]};activePin=0;
+ setPlace(mode==='nationwide'?data.country+' 전역':area?area.name:mode==='site'?query:'');$('region-filter').value='';renderLocation();
+};
+$('region-filter').oninput=renderLocation;
+$('region-options').onchange=e=>toggleArea(e.target.value);
+$('pin-select').onchange=e=>{activePin=Number(e.target.value);renderLocation()};
+$('geo-plus').onclick=()=>changeZoom(.5);$('geo-minus').onclick=()=>changeZoom(2);
+$('geo-reset').onclick=()=>{locationView=[0,0,640,320];renderLocation()};
+$('geo-close').onclick=()=>{currentLocation=null;$('location-panel').hidden=true};
+$('geo-map').onpointerdown=e=>{
+ if(e.button!==0)return;
+ const pin=e.target.closest('[data-pin]');if(pin)activePin=Number(pin.dataset.pin);
+ gesture={id:e.pointerId,x:e.clientX,y:e.clientY,start:svgPoint(e),view:[...locationView],pin:!!pin,region:e.target.closest('[data-region]')?.dataset.region,moved:false};
+ e.currentTarget.setPointerCapture(e.pointerId);
+};
+$('geo-map').onpointermove=e=>{
+ if(!gesture||gesture.id!==e.pointerId)return;
+ if(Math.hypot(e.clientX-gesture.x,e.clientY-gesture.y)>3)gesture.moved=true;
+ if(!gesture.moved)return;
+ const point=svgPoint(e);
+ if(gesture.pin){placePin(point);return}
+ locationView[0]+=gesture.start.x-point.x;locationView[1]+=gesture.start.y-point.y;
+ $('geo-map').setAttribute('viewBox',locationView.join(' '));
+};
+$('geo-map').onpointerup=e=>{
+ if(!gesture||gesture.id!==e.pointerId)return;
+ const g=gesture;gesture=null;
+ if(g.moved&&g.pin)placePin(svgPoint(e));
+ if(!g.moved){const state=geoState();if(state.mode==='site'&&!g.pin)placePin(svgPoint(e));else if(state.mode.startsWith('admin'))toggleArea(g.region)}
+ renderLocation();
+};
+$('geo-map').onpointercancel=()=>{gesture=null};
+function applyLocation(p,edit){
+ if(!edit)return;
+ for(const k of ['sites','source_coord','geonames_locality','aliases','kind','place_en','admin1_ids','admin2_ids','admin1_names','admin2_names','admin1_name','admin2_name','scope_label','scope_label_en','_coord_source','_inferred_scope','reviewed_pins','reviewed_unresolved'])delete p[k];
+ p.coverage=edit.mode;p._location_basis='manager-reviewed';
+ if(edit.mode==='site'){
+  p.reviewed_pins=edit.pins.filter(hasPin);p.reviewed_unresolved=edit.pins.filter(x=>!hasPin(x)).map(x=>x.name);
+  if(!p.reviewed_pins.length){p.coverage='unknown';p.scope_label=p.place||'사업 범위 확인 필요'}
+ }else if(edit.mode.startsWith('admin')){
+  p[edit.mode+'_ids']=edit.ids;p[edit.mode+'_names']=geo.regions[edit.mode].filter(f=>edit.ids.includes(f.id)).map(f=>f.name);
+  if(!edit.ids.length){p.coverage='unknown';p.scope_label=p.place||'사업 범위 확인 필요'}
+ }
+}

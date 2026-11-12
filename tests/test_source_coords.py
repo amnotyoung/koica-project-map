@@ -89,6 +89,13 @@ class ResolveSourceCoordTests(unittest.TestCase):
              patch.object(resolve_places, "load_gazetteer", return_value={}):
             return resolve_places.resolve("시험국", entries)
 
+    def test_dragged_pin_keeps_reviewed_coordinates_when_city_matches(self):
+        entry = {"place":"Alpha", "coverage":"site", "source_coord":{
+            "source":"도시", "lon":20, "lat":10}, "reviewed_pins":[
+                {"name":"Alpha","lon":21.23456,"lat":10.56789,"source":"담당자 지정"}]}
+        part = self.resolve([entry])["places"][0]["parts"][0]
+        self.assertEqual((part["lon"],part["lat"],part["source"]), (21.23456,10.56789,"담당자 지정"))
+
     def test_nonfallback_coordinate_overrides_geocoder_coordinate(self):
         result = self.resolve([{
             "place": "Alpha",

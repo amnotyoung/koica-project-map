@@ -38,6 +38,20 @@ class RegionTests(unittest.TestCase):
         self.assertFalse(missing["resolved"])
         self.assertFalse(missing["parts"])
 
+    def test_editor_picks_one_of_two_districts_with_same_name_by_id(self):
+        shape = {"type":"Polygon","coordinates":[[[0,0],[2,0],[2,2],[0,2],[0,0]]]}
+        features = [{"properties":{"shapeName":"Central","shapeID":sid},"geometry":shape}
+                    for sid in ("district-one","district-two")]
+        record = {"coverage":"admin2","admin2_names":["Central"],"admin2_ids":["district-two"]}
+        rows = {"places":[{"parts":[]}]}
+        assign_regions([record], rows, features, level="ADM2")
+        self.assertEqual(rows["places"][0]["region_id"],"district-two")
+        record["admin2_ids"] = ["retired-id"]
+        rows = {"places":[{"parts":[{"kind":"point"}]}]}
+        assign_regions([record], rows, features, level="ADM2")
+        self.assertFalse(rows["places"][0]["resolved"])
+        self.assertEqual(rows["places"][0]["parts"],[])
+
     def test_bilateral_groups_get_opposite_edges(self):
         spec = design_tokens()["layout"]["C"]
         groups = [{"h":.6,"place_w":.3,"nationwide":False,"points":[{"x":x,"y":3}]}

@@ -9,13 +9,14 @@ SITE_WORDS = re.compile(r"\b(?:hospital|campus|sub[- ]county|construction of .*?
 
 
 def assign_regions(records, resolved, features, center_lon=0, level="ADM1"):
-    boundaries = {}
+    boundaries, by_id = {}, {}
     for feature in features:
         props = feature["properties"]
         if (feature.get("geometry") or {}).get("type") not in {"Polygon", "MultiPolygon"}:
             continue
         name = props.get("shapeName", "")
         simple = re.sub(r"\s+" + ADMIN_TYPE + r"$", "", name, flags=re.I)
+        by_id[props.get("shapeID") or name] = feature
         if simple:
             boundaries.setdefault(norm(simple), []).append(feature)
     key = {"ADM1": "admin1", "ADM2": "admin2"}[level]
@@ -28,7 +29,10 @@ def assign_regions(records, resolved, features, center_lon=0, level="ADM1"):
         title = record.get("name_en") or ""
         explicit = record.get(f"{key}_name") if scope == key else None
         listed = record.get(f"{key}_names") if scope == key else None
-        if listed or explicit:
+        ids = record.get(f"{key}_ids") if scope == key else None
+        if ids:
+            names = list(dict.fromkeys(ids))
+        elif listed or explicit:
             names = list(dict.fromkeys(norm(n) for n in (listed or [explicit])))
         elif record.get("_location_basis") == "group-representative" and not SITE_WORDS.search(title):
             names = [name for name in boundaries if re.search(
@@ -39,7 +43,10 @@ def assign_regions(records, resolved, features, center_lon=0, level="ADM1"):
             continue
         regions, parts = [], []
         for name in names:
-            matches = boundaries.get(name, [])
+            if ids:
+                matches = [by_id[name]] if name in by_id else []
+            else:
+                matches = boundaries.get(name, [])
             if len(matches) != 1:
                 break
             feature = matches[0]

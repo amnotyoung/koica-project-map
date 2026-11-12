@@ -212,6 +212,20 @@ def resolve(country: str, entries: list, detail: str = "50m", *, use_gazetteer: 
         if isinstance(e, str):
             e = {"place": e}
         raw = (e.get("place") or "").strip()
+        if e.get("coverage") == "site" and "reviewed_pins" in e:
+            parts = []
+            for pin in e["reviewed_pins"]:
+                lon, lat = float(pin["lon"]), float(pin["lat"])
+                if not (-180 <= lon <= 180 and -90 <= lat <= 90):
+                    raise ValueError(f"저장한 대상지 좌표가 올바르지 않습니다: {raw}")
+                if lon < 0 and any(row[3] > 180 for row in index):
+                    lon += 360
+                parts.append({"ok":True, "name":pin["name"], "matched":pin["name"], "level":"site",
+                              "kind":"point", "lon":lon, "lat":lat, "source":pin.get("source") or "담당자 지정"})
+            missing = e.get("reviewed_unresolved", [])
+            unresolved.extend({"country":country, "place":name, "reason":"지도에서 위치 미지정"} for name in missing)
+            out.append({"query":raw, "label":raw, "resolved":bool(parts) and not missing, "parts":parts})
+            continue
         if e.get("geonames_locality"):
             locality = e["geonames_locality"]
             out.append({"query":raw, "label":raw, "resolved":True, "parts":[{

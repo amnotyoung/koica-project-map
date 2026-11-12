@@ -18,9 +18,19 @@ PAGE = SKILL_DIR / "assets" / "picker.html"
 def editor_html(draft, hosted=False, make_map=False):
     # Serialize last so project text never becomes markup or a template instruction.
     payload = json.dumps(draft, ensure_ascii=False).replace("<", r"\u003c")
+    from preview_geo import preview_geo
+    geo = {}
+    if draft.get("country"):
+        try:
+            geo = preview_geo(draft["country"])
+        except (OSError, ValueError, SystemExit) as exc:
+            log(f"지도 미리보기 자료 준비 실패: {exc}")
+    geo_payload = json.dumps(geo, ensure_ascii=False, separators=(",", ":")).replace("<", r"\u003c")
     return (PAGE.read_text(encoding="utf-8")
             .replace("__HOSTED__", "true" if hosted else "false")
             .replace("__SAVE_LABEL__", "저장하고 지도 만들기" if make_map else "선택 목록 저장")
+            .replace("__LOCATION_JS__", (PAGE.parent / "location_editor.js").read_text(encoding="utf-8"))
+            .replace("__GEO_JSON__", geo_payload)
             .replace("__DRAFT_JSON__", payload))
 
 
