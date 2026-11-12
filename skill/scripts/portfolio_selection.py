@@ -34,10 +34,10 @@ def year_decision(year, structured, title, reviewed):
         s, e = int(structured.split("-")[0]), int(structured.split("-")[-1])
         in_field = s <= year <= e
         if named and (named[0] <= year <= named[1]) != in_field:
-            # Preserve both values. Never turn a title-only extension into proven execution.
-            report["decision"] = ("verified_for_year" if verified else
-                                  "included_by_field_review" if in_field else "needs_evidence")
-            return in_field or verified, report
+            report["decision"] = "needs_evidence"
+            if verified:
+                report["decision"] = "verified_activity_in_year" if in_field else "verified_for_year"
+            return verified, report
         if verified and not in_field:
             report["decision"] = "verified_activity_in_year"
             return True, report

@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import re
 import sys
 import unicodedata
 from copy import deepcopy
@@ -652,6 +653,20 @@ def order_for(pins: list, axis: int) -> list:
 
 # ─────────────────────────────── 본체 ───────────────────────────────
 
+def geographic_region(properties: dict) -> str:
+    continent = properties.get("CONTINENT")
+    subregion = properties.get("SUBREGION")
+    if continent == "Africa":
+        return "아프리카"
+    if continent == "South America" or subregion in {"Caribbean", "Central America"}:
+        return "중남미"
+    if subregion in {"Western Asia", "Central Asia"}:
+        return "중동중앙아시아"
+    if continent in {"Asia", "Oceania"}:
+        return "아시아태평양"
+    return ""
+
+
 def prepare(doc: dict, detail: str = "50m") -> tuple:
     """Resolve geography once, independently of reference slides or layout trials."""
     resolved = resolve_places.resolve(doc["country"], doc["projects"], detail,
@@ -667,6 +682,9 @@ def prepare(doc: dict, detail: str = "50m") -> tuple:
     import cartography
     extent, locator = cartography.extent(base, resolved, doc.get("map_bbox"))
     framed = {**doc, "map_bbox": extent, "_locator": locator}
+    if not framed.get("region"):
+        feature = geo_prepare.find_country(geo_prepare.load_countries(detail, False), resolved["iso3"])
+        framed["region"] = geographic_region(feature["properties"])
     if doc.get("card_layout") == "bilateral" or any(p.get("region") for p in resolved["places"]):
         framed["_mode"] = "C"
     return framed, resolved, base
@@ -958,7 +976,7 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale,
     doc_out = {
         "canvas": {"w": tok["canvas"]["w_in"], "h": tok["canvas"]["h_in"]},
         "lang": lang, "mode": mode, "index": index,
-        "chapter": {"아시아태평양":1, "아프리카":2, "중남미":3, "중동·CIS":4, "동구·CIS":4, "중동":4, "중동중앙아시아":4}.get(doc.get("region"), index),
+        "chapter": {"아시아태평양":1, "아프리카":2, "중남미":3, "중동·CIS":4, "동구·CIS":4, "중동":4, "중동중앙아시아":4}.get(doc.get("region"), 0),
         # 영문명은 입력에서 덮어쓸 수 있다 — Natural Earth 는 'East Timor' 지만
         # KOICA 표기는 'Timor-Leste' 다.
         "country": country_info,
@@ -1039,9 +1057,11 @@ def _place_label(rec: dict, rp: dict, lang: str, country_en: str = "") -> str:
     # 전국사업은 해석 결과가 한글 국가명이다 — 영문 슬라이드에선 영문 국가명을 쓴다
     if parts and all(p.get("kind") == "nationwide" for p in parts) and country_en:
         return f"{country_en} nationwide"
-    names = [p["matched"] for p in parts]
+    names = [p["matched"] for p in parts if not re.search(r"[가-힣]", p["matched"])]
+    if len(names) != len(parts):
+        return "Project site"
     if not names:
-        if rec.get("coverage") == "unknown":
+        if rec.get("coverage") == "unknown" or re.search(r"[가-힣]", rec.get("place", "")):
             return "Location unconfirmed"
         return rec.get("place", "")
     # GeoNames 는 장음부호를 단다(Butwāl·Bardiyā). KOICA 표기는 붙이지 않는다.

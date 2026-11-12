@@ -25,6 +25,12 @@ def project_card(place: str, name: str, point: dict | None = None) -> dict:
 
 
 class PlaceGroupTests(unittest.TestCase):
+    def test_untranslated_heading_and_missing_country_office(self):
+        self.assertEqual(layout._place_label({"place":"데자"}, {"parts":[]}, "en"), "Location unconfirmed")
+        self.assertEqual(layout._place_label({"place":"Dedza"}, {"parts":[]}, "en"), "Dedza")
+        self.assertEqual(layout.geographic_region({"CONTINENT":"Africa"}), "아프리카")
+        self.assertEqual(render_html._roman(0), "")
+
     def test_empty_resolution_is_not_nationwide(self):
         self.assertFalse(layout._is_nationwide([]))
         self.assertTrue(layout._is_nationwide([{"kind": "nationwide"}]))

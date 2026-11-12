@@ -409,7 +409,7 @@ def _roman(n: int) -> str:
         while n >= v:
             out += s
             n -= v
-    return out or "I"
+    return out
 
 
 def draw_region_tab(slide, L: dict, tok: dict) -> None:

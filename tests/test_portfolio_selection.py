@@ -18,6 +18,14 @@ class AnnualMapTests(unittest.TestCase):
         self.assertTrue(year_decision(2026, "2022-2025", title, verified)[0])
         self.assertFalse(year_decision(2027, "2022-2025", title, verified)[0])
 
+    def test_structured_only_extension_needs_confirmation_too(self):
+        title = "교육사업('21-'25/283만불)"
+        accepted, audit = year_decision(2027, "2021-2027", title, None)
+        self.assertFalse(accepted)
+        self.assertEqual(audit["decision"], "needs_evidence")
+        fact = {"verified_years":[2027], "scope_sources":["https://example.org/project"]}
+        self.assertEqual(year_decision(2027, "2021-2027", title, fact)[1]["decision"], "verified_activity_in_year")
+
     def test_later_contract_can_confirm_work_after_both_catalog_dates(self):
         title = "통계사업('23-'26/965만불)"
         verified = {"verified_years":[2027], "scope_sources":["https://example.org/tender"]}
