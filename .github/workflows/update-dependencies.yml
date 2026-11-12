@@ -56,8 +56,6 @@ jobs:
           echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
 
   update:
-    outputs:
-      review_pr: ${{ steps.publish.outputs.review_pr }}
     needs: prepare
     runs-on: ubuntu-latest
     strategy:
@@ -105,8 +103,7 @@ jobs:
           python -m unittest discover -s tests -p "test_*.py"
           python -m compileall -q skill/scripts tools
 
-      - id: publish
-        name: Create dependency update PR
+      - name: Create dependency update PR
         if: steps.sync.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -118,13 +115,9 @@ jobs:
         run: |
           existing="$(gh api --method GET "repos/$GITHUB_REPOSITORY/pulls" \
             -f state=all -f base=main -f head="$GITHUB_REPOSITORY_OWNER:$BRANCH" \
-            --jq '.[0] // empty')"
+            --jq '.[0].html_url // empty')"
           if [[ -n "$existing" ]]; then
-            # Resume a failed comment only for an open PR created by this workflow.
-            if jq -e '.state == "open" and .user.login == "github-actions[bot]" and
-                (.body | contains("<!-- koica-project-map:map-dependency-update -->"))' <<<"$existing" >/dev/null; then
-              echo "review_pr=$(jq -r .number <<<"$existing")" >> "$GITHUB_OUTPUT"
-            fi
+            echo "Dependency PR already exists: $existing"
             exit 0
           fi
 
@@ -146,31 +139,8 @@ jobs:
             echo "- Project-map tests: passed"
           } > "$body_file"
 
-          pr_url="$(gh pr create \
+          gh pr create \
             --base main \
             --head "$BRANCH" \
             --title "Update $SLUG to $SOURCE_SHORT_SHA" \
-            --body-file "$body_file")"
-          echo "review_pr=${pr_url##*/}" >> "$GITHUB_OUTPUT"
-
-  request-review:
-    needs: update
-    if: needs.update.outputs.review_pr != ''
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
-    concurrency:
-      group: codex-map-review-${{ needs.update.outputs.review_pr }}
-      cancel-in-progress: false
-    steps:
-      - name: Request Codex review once for the generated map PR
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR: ${{ needs.update.outputs.review_pr }}
-        run: |
-          comments="repos/$GITHUB_REPOSITORY/issues/$PR/comments"
-          existing="$(gh api --paginate "$comments?per_page=100" \
-            --jq '.[] | select(.user.login == "github-actions[bot]" and .body == "@codex review") | .id')"
-          if [[ -z "$existing" ]]; then
-            gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --body '@codex review'
-          fi
+            --body-file "$body_file"
