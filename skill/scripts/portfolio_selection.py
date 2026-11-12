@@ -28,6 +28,13 @@ def year_decision(year, structured, title, reviewed):
     report = {"source_period":structured, "title_period":list(named) if named else None}
     if year is None:
         return True, None
+    if reviewed and reviewed.get("year") == year and reviewed.get("scope_sources"):
+        if reviewed.get("period_needs_review"):
+            return False, {**report, "decision":"needs_evidence", "reason":reviewed["period_needs_review"]}
+        confirmed = reviewed.get("verified_period")
+        if confirmed:
+            start, end = map(int, confirmed.split("-"))
+            return start <= year <= end, {**report, "decision":"verified_period", "verified_period":confirmed}
     verified = bool(reviewed and year in reviewed.get("verified_years", [])
                     and reviewed.get("scope_sources"))
     if structured:

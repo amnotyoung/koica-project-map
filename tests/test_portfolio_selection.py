@@ -26,6 +26,27 @@ class AnnualMapTests(unittest.TestCase):
         fact = {"verified_years":[2027], "scope_sources":["https://example.org/project"]}
         self.assertEqual(year_decision(2027, "2021-2027", title, fact)[1]["decision"], "verified_activity_in_year")
 
+    def test_reviewed_period_reaches_selection_before_stale_title_and_dates(self):
+        fact = {"year":2027, "verified_period":"2025-2028", "scope_sources":["https://example.org/signed"]}
+        member = {"feature_id":"p", "name":{"ko":"사업(2025-2026/560만불)", "en":"Programme"},
+                  "details":{"agency":"KOICA", "aid":"프로젝트 원조", "biz_type":"국별협력사업",
+                             "start":"2025", "end":"2026"}}
+        sample = {"features":[{"country":"시험국","name":{"ko":"시험국"},"layer":"project","members":[member]}]}
+        def reference(path):
+            return {"시험국":{"p":fact}} if path.name == "public_project_scopes.json" else {}
+        with patch.object(fetch_projects, "load_source", return_value=sample), patch.object(fetch_projects, "read_json", side_effect=reference):
+            row = fetch_projects.collect("시험국",2027,False)["projects"][0]
+        self.assertTrue(row["selected"])
+        self.assertEqual(row["_period"], "2025-2028")
+        self.assertIn("2025–2028", row["name_ko"])
+        self.assertIn("2025–2028", row["name_en"])
+        self.assertEqual(row["_period_review"]["source_period"], "2025-2026")
+        self.assertEqual(row["_source_name_ko"], member["name"]["ko"])
+        self.assertFalse(year_decision(2027, "2025-2026", "", {**fact, "scope_sources":[]})[0])
+        accepted, audit = year_decision(2027,"2025-2026","",{**fact,"period_needs_review":"출처 간 불일치"})
+        self.assertFalse(accepted)
+        self.assertEqual(audit["decision"], "needs_evidence")
+
     def test_later_contract_can_confirm_work_after_both_catalog_dates(self):
         title = "통계사업('23-'26/965만불)"
         verified = {"verified_years":[2027], "scope_sources":["https://example.org/tender"]}

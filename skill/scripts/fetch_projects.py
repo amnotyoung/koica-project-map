@@ -26,7 +26,7 @@ from datetime import date
 from pathlib import Path
 
 import iati_aid
-from portfolio_selection import project_key, reconcile_notices, title_period, year_decision
+from portfolio_selection import TITLE_PERIOD, project_key, reconcile_notices, title_period, year_decision
 from common import CACHE_DIR, REFERENCE_DIR, fetch, log, read_json, sector_map, write_json
 
 SOURCE = "https://oda-map-lab.pages.dev/generated/map-base.json"
@@ -92,7 +92,7 @@ def complete_card_metadata(row):
         if total > 0 and not money.search(name):
             fields.append(budget_label(total, currency, lang))
         if fields:
-            row["_source_" + key] = name
+            row.setdefault("_source_" + key, name)
             row[key] = name + " (" + " / ".join(fields) + ")"
 
 
@@ -265,10 +265,24 @@ def collect(country: str, year: int | None, include_all: bool,
             if source_coord:
                 row["source_coord"] = dict(source_coord)
             if fact and year == fact["year"]:
-                row["source_place"] = place
-                row.pop("source_coord", None)
+                if any(k in fact for k in ("coverage", "place", "sites", "geonames_locality")):
+                    row["source_place"] = place
+                    row.pop("source_coord", None)
+                    row["_location_basis"] = "public-project-evidence"
+                for lang in ("ko", "en"):
+                    field = "name_" + lang
+                    if field in fact and fact[field] != row[field]:
+                        row["_source_" + field] = row[field]
                 row.update({k:v for k,v in fact.items() if k != "year"})
-                row["_location_basis"] = "public-project-evidence"
+                if decision and decision["decision"] == "verified_period":
+                    row["_period"] = decision["verified_period"]
+                    for field in ("name_ko", "name_en"):
+                        match = TITLE_PERIOD.search(row[field])
+                        if match and title_period(row[field]) != tuple(map(int, row["_period"].split("-"))):
+                            row.setdefault("_source_" + field, row[field])
+                            row[field] = (row[field][:match.start(1)] + row["_period"].replace("-", "–")
+                                          + row[field][match.end(2):])
+
             if needs_review:
                 row.update(selected=False, _period_candidate=True)
                 period_candidates.append(row)
