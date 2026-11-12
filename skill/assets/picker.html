@@ -26,6 +26,11 @@ label.caption{display:block;margin-bottom:4px}.empty{padding:32px;text-align:cen
 #geo-status{margin:6px 0 0;color:var(--navy)}#pin-coord{font-variant-numeric:tabular-nums}
 @media(max-width:720px){#location-controls{grid-template-columns:1fr}#geo-map{height:230px}}
 .lang-control{display:flex;align-items:center;gap:7px;font-size:13px}.lang-control select{width:auto}.row .caption{margin-bottom:5px}.row input[aria-invalid=true]{border-color:#a23419}#feedback:not(:empty),#issue:not([hidden]){padding:9px 0}#lookup{margin-top:14px}
+
+.name-read{display:flex;width:100%;align-items:baseline;justify-content:space-between;gap:.8rem;border:0;padding:2px 0;text-align:left;background:transparent;font-size:16px;line-height:1.55}.name-read span,.compare p{overflow-wrap:anywhere;white-space:pre-wrap}.name-read small{color:var(--muted);flex:none;font-size:12px}
+textarea{font:inherit;font-size:15px;width:100%;resize:vertical;padding:7px}.period-review{display:block;color:#88471d;font-size:13px;margin:7px 0}.period-review select{width:auto;font-size:13px}
+.compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:7px 0}.compare>div{padding:9px;background:#f4f7f8}.compare p{margin:4px 0}.duplicate button[aria-pressed=true]{background:var(--navy);color:white}
+.pin.representative circle:last-of-type{fill:#fff1cd;stroke:#995814;stroke-dasharray:3 2}.coordinate-fields{display:flex;align-items:end;gap:5px;flex-wrap:wrap}.coordinate-fields input{width:8em;font:inherit}.coordinate-fields button{font-size:13px}.map-tools button:disabled{opacity:.45;cursor:default}
 </style></head>
 <body><header><div><div><small>KOICA 프로젝트맵</small><h1 id="heading"></h1></div><span class="grow"></span><label class="lang-control">지도 언어 <select id="languages"><option value="ko">국문</option><option value="en">영문</option><option value="ko,en">국문·영문</option></select></label><span id="count"></span><button class="primary" id="save"></button></div></header>
 <main><p id="issue" hidden role="status"></p><div class="tools"><div class="filters" aria-label="목록 필터"><button data-filter="all">전체</button><button data-filter="notice">공고 후보</button><button data-filter="included">지도에 포함</button></div><input type="search" id="search" aria-label="사업명 또는 지명 검색" placeholder="사업명·지명 검색"><span class="grow"></span><button id="add">+ 직접 추가</button><button id="load">목록 열기</button><input id="restore" type="file" accept=".json,application/json"></div>
@@ -33,10 +38,13 @@ label.caption{display:block;margin-bottom:4px}.empty{padding:32px;text-align:cen
 <datalist id="geo-citylist"></datalist><div id="geo-dock"><section id="location-panel" hidden aria-label="대상지 지도 미리보기">
 <div class="map-tools"><strong>대상지 미리보기</strong><span class="grow"></span><button id="geo-close">닫기</button></div>
 <div id="location-controls"><div><svg id="geo-map" viewBox="0 0 640 320" aria-label="대상지 지도"></svg><div class="map-tools"><button id="geo-plus" aria-label="지도 확대">＋</button><button id="geo-minus" aria-label="지도 축소">−</button><button id="geo-reset">국가 전체</button></div></div>
-<div class="map-choices"><label>표시 방식<select id="geo-mode"><option value="site">지점 핀</option><option value="admin1">주 권역</option><option value="admin2">군 권역</option><option value="nationwide">국가 전역</option></select></label>
-<div id="pin-controls"><label>이동할 핀<select id="pin-select"></select></label><span id="pin-coord"></span></div>
+<div class="map-choices"><label>표시 방식<select id="geo-mode"><option value="unknown" disabled>위치 미확인</option><option value="external" disabled>겸임국</option><option value="site">지점 핀</option><option value="admin1">주 권역</option><option value="admin2">군 권역</option><option value="nationwide">국가 전역</option></select></label>
+<div id="pin-controls"><label>이동할 핀<select id="pin-select"></select></label><span id="pin-coord"></span><div class="coordinate-fields"><label>위도<input id="latitude" type="number" step="any" min="-90" max="90"></label><label>경도<input id="longitude" type="number" step="any" min="-180" max="180"></label>
+<button type="button" id="coord-apply">좌표 미리보기</button></div><span id="coord-error" role="alert"></span></div>
 <div id="area-controls" hidden><input type="search" id="region-filter" placeholder="행정구역 검색" aria-label="행정구역 검색"><label>권역<select id="region-options" size="5"></select></label></div>
-<small id="geo-year"></small></div></div><p id="geo-status" role="status"></p><small>Natural Earth · GeoNames · geoBoundaries</small></section></div>
+<small id="geo-year"></small></div></div><p id="geo-status" role="status"></p><div class="map-tools"><button id="geo-confirm">위치 확정</button><button id="geo-cancel">변경 취소</button><button id="geo-undo">확정 되돌리기</button></div>
+<div>사업지 확인 · <span id="geo-basis"></span> <span id="geo-links"></span></div>
+<label class="caption">확인 근거 (선택)<input type="text" id="geo-evidence" placeholder="현장 확인 메모 또는 근거 문서"></label><small>지도 자료 · Natural Earth · GeoNames · geoBoundaries</small></section></div>
 <details id="lookup"><summary>공고 조회 정보</summary><span id="status"></span> <a id="official" hidden target="_blank" rel="noopener noreferrer">KOICA 게시판 ↗</a></details>
 <details><summary>국가 표기</summary><div class="extra"><label>영문 국가명<input id="cen"></label><label>지역 탭<input id="reg"></label></div></details>
 </main>
@@ -54,7 +62,10 @@ function init(doc){
  if(!doc || typeof doc.country!=='string'||!Array.isArray(doc.projects))throw Error('국가와 사업 목록이 있는 JSON 파일을 선택하세요.');
  let entries=[...doc.projects,...(doc.notice_candidates||[]).map(p=>({...p,selected:false})),...(doc.review_excluded||[]).map(p=>({...p,selected:false}))];
  if(entries.some(p=>!p||typeof p.name_ko!=='string'))throw Error('사업명이 없는 레코드를 읽을 수 없습니다.');
- currentLocation=null;data=doc;rows=entries.map(p=>({...p,selected:p.selected!==false,_key:++seq,_originalPlace:p.place||''}));filter=doc.notice_candidates?.length?'notice':'all';$('search').value='';
+ currentLocation=null;data=doc;rows=entries.map(p=>({...p,selected:p.selected!==false,_key:++seq,_editingNames:new Set()}));filter=doc.notice_candidates?.length?'notice':'all';$('search').value='';
+ for(const row of rows){
+  if(row._similar_project&&!row._similar_project_id)row._similar_project_id=rows.find(p=>!p._notice_candidate&&p.name_ko===row._similar_project)?.id;
+ }
  const preferred=doc.map_languages||['ko'];$('languages').value=preferred.length===2?'ko,en':preferred[0];
  $('heading').textContent=[doc.country,doc.year,'사업 목록 검토'].filter(Boolean).join(' ');$('cen').value=doc.country_en||'';$('reg').value=doc.region||'';
  const s=doc.notice_search;const boardUrl=webUrl(s?.search_url);$('official').hidden=!boardUrl;if(boardUrl)$('official').href=boardUrl;const n=rows.filter(r=>r._notice_candidate).length;
@@ -73,52 +84,63 @@ function draw(){
  $('rows').innerHTML=shown.map(r=>{
  const links=[...new Set([...(r.scope_sources||[]),r._source_info?.url].map(webUrl).filter(Boolean))];
  const lang=languages(), english=lang.includes('en'), korean=lang.includes('ko');
- const inputName=(key,label)=>`<label class="caption">${label}<input type="text" data-field="${key}" value="${esc(r[key])}"></label>`;
+ const inputName=(key,label)=>showName(key,label,r);
  const link=(u,i)=>`<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${i?'출처 '+(i+1):r._notice_candidate?'공고 원문':'출처'} ↗</a>`;
- return `<article class="row" data-key="${r._key}"><div><label class="toggle"><input type="checkbox" data-field="selected" ${r.selected?'checked':''}>포함</label>${r._notice_candidate&&filter!=='notice'?'<span class="tag">공고 후보</span>':''}</div>
+ return `<article class="row" data-key="${r._key}"><div><label class="toggle"><input type="checkbox" data-field="selected" ${r._duplicate_decision==='linked'?'disabled':''} ${r.selected?'checked':''}>포함</label>${r._notice_candidate&&filter!=='notice'?'<span class="tag">공고 후보</span>':''}</div>
  <div>${korean?inputName('name_ko',english?'국문 사업명':'사업명'):''}${english?inputName('name_en','영문 사업명'):''}
  ${english&&!r.name_en&&r.name_ko?`<div class="hint">${esc(r.name_ko)}</div>`:''}
- ${r._similar_project?`<div class="hint alert">유사 사업 · ${esc(r._similar_project)}</div>`:''}
+ <div data-period-slot>${periodControl(r)}</div>${duplicateControl(r)}
  <div class="sources">${links.length?link(links[0],0):''}${r._detail_unavailable?'본문 조회 실패':r._notice_candidate&&!r._period?'기간 확인 필요':''}</div>
  <details><summary>상세</summary><div class="extra">
  ${r._notice_title?`<p class="hint">${esc(r._notice_title)}</p>`:''}${r._notice_evidence?`<p class="hint">${esc(r._notice_evidence)}</p>`:''}
  ${links.slice(1).map((u,i)=>link(u,i+1)).join(' ')}
  <label>사업 단계<input type="text" data-field="_stage" value="${esc(r._stage)}"></label>
  <div class="badges">${Object.entries(badges).map(([k,v])=>`<label><input type="checkbox" data-badge="${k}" ${(r.badges||[]).includes(k)?'checked':''}>${v}</label>`).join('')}</div></div></details></div>
- <div class="location"><label class="caption">대상지<input type="text" list="geo-citylist" data-field="place" value="${esc(r.place)}"></label>
- ${english?`<label class="caption">영문 지명 표기<input type="text" data-field="display_place_en" value="${esc(r.display_place_en??r.place_en??'')}" placeholder="자동 표기"></label>`:''}
+ <div class="location"><label class="caption">대상지<input type="text" list="geo-citylist" data-field="place" value="${esc(geoSessions.has(r)?geoState(r).place:r.place)}"></label>
+ ${english?`<label class="caption">영문 지명 <span data-en-mode>${r.display_place_en?'수동':'자동'}</span><input type="text" data-field="display_place_en" value="${esc(r.display_place_en||'')}" placeholder="${esc(r.place_en||r.scope_label_en||'자동 표기')}"></label>`:''}
  <button type="button" data-open-map>지도에서 편집</button></div></article>`}).join('')||'<div class="empty">해당하는 사업이 없습니다.</div>';
  if(currentLocation && shown.includes(currentLocation))activateLocation(currentLocation);else currentLocation=null;
  count();
 }
 $('rows').oninput=e=>{const t=e.target, row=rows.find(r=>r._key===Number(t.closest('article')?.dataset.key));if(!row)return;
+ if(t.hasAttribute('data-period')){choosePeriod(row,t.value);return}
+ if(t.dataset.field==='place'){activateLocation(row,t.value);return}
  if(t.dataset.badge){row.badges=[...t.closest('.badges').querySelectorAll(':checked')].map(v=>v.dataset.badge)}
- else if(t.dataset.field){row[t.dataset.field]=t.type==='checkbox'?t.checked:t.value}
- if(t.dataset.field==='display_place_en'&&!row.display_place_en){delete row.place_en;delete row.scope_label_en}
- if(t.dataset.field==='place'){delete row.display_place_en;delete row.place_en;const en=t.closest('article').querySelector('[data-field=display_place_en]');if(en)en.value='';activateLocation(row,true)}
+ else if(t.dataset.field){
+  row[t.dataset.field]=t.type==='checkbox'?t.checked:t.value;
+  if(t.dataset.field==='display_place_en')t.closest('label').querySelector('[data-en-mode]').textContent=t.value?'수동':'자동';
+  if(t.dataset.field==='name_ko'){
+   if(row._editor_period&&periodOptions(row).named!==row._editor_period.title)delete row._editor_period;
+   t.closest('article').querySelector('[data-period-slot]').innerHTML=periodControl(row);
+  }
+ }
  if(t.dataset.field==='selected'&&filter==='included')draw();else count();tell('');};
+$('rows').addEventListener('click',e=>{
+ const btn=e.target.closest('button');if(!btn)return;
+ const row=rows.find(r=>r._key===Number(btn.closest('article')?.dataset.key));if(!row)return;
+ if(btn.dataset.duplicate){decideDuplicate(row,btn.dataset.duplicate);return}
+ if(btn.dataset.editName){row._editingNames.add(btn.dataset.editName);draw();document.querySelector(`[data-key="${row._key}"] [data-field="${btn.dataset.editName}"]`).focus()}
+ if(btn.dataset.nameDone){row._editingNames.delete(btn.dataset.nameDone);draw()}
+});
 for(const event of ['focusin','click'])$('rows').addEventListener(event,e=>{
  if(e.target.matches('[data-field=place], [data-open-map]'))activateLocation(rows.find(r=>r._key===Number(e.target.closest('article').dataset.key)));
 });
 $('languages').onchange=()=>{tell('');draw()};
 document.querySelector('.filters').onclick=e=>{if(!e.target.dataset.filter)return;filter=e.target.dataset.filter;draw()};
-$('search').oninput=draw;$('add').onclick=()=>{rows.unshift({_key:++seq,_added:true,id:'manual:'+crypto.randomUUID(),selected:true,place:'',_originalPlace:'',name_ko:'',name_en:'',badges:[]});filter='all';$('search').value='';draw();document.querySelector('[data-field=name_ko], [data-field=name_en]').focus()};
+$('search').oninput=draw;$('add').onclick=()=>{rows.unshift({_key:++seq,_added:true,id:'manual:'+crypto.randomUUID(),selected:true,place:'',_editingNames:new Set(),name_ko:'',name_en:'',badges:[]});filter='all';$('search').value='';draw();document.querySelector('[data-field=name_ko], [data-field=name_en]').focus()};
 $('load').onclick=()=>$('restore').click();$('restore').onchange=async e=>{try{const f=e.target.files[0];if(f){const next=JSON.parse(await f.text());if(next.country!==data.country||String(next.year??'')!==String(data.year??''))throw Error('같은 국가·연도의 저장 목록을 선택하세요.');init(next);tell('저장 목록을 열었습니다.')}}catch(err){tell(err.message,true)}e.target.value=''};
 function record(row){
- let {_key,_originalPlace,_geoEdit,...p}=row;p.name_ko=(p.name_ko||'').trim();p.name_en=(p.name_en||'').trim();p.place=(p.place||'').trim();
- const period = p.name_ko.match(/[(（]\s*['‘’`]?((?:20)?\d{2})\s*[-–—~]\s*['‘’`]?((?:20)?\d{2})\s*[/／)）]/);
- if(period){const full=v=>v.length===2?'20'+v:v;if(!p._period_review)p._period=full(period[1])+'-'+full(period[2])}
- if(p.place!==_originalPlace){
- for(const k of ['sites','source_coord','geonames_locality','kind','aliases','coverage','place_en','admin1_names','admin2_names','admin1_name','admin2_name','scope_label','scope_label_en','_coord_source','_inferred_scope'])delete p[k];
- p._location_basis='manager-reviewed';
- }
- if(!p.place){p.coverage='unknown';p.scope_label='사업 범위 확인 필요'}
- applyLocation(p,_geoEdit);
- if(p._notice_candidate)p._review_decision=p.selected?'accepted':'not_selected';
+ const {_key,_editingNames,...p}=row;
+ if(p._added&&!p.place){p.coverage='unknown';p.scope_label='사업 범위 확인 필요'}
+ if(p._notice_candidate)p._review_decision=p._duplicate_decision==='linked'?'linked':p.selected?'accepted':'not_selected';
  return p;
 }
 $('save').onclick=async()=>{
- const all=rows.map(record), picked=all.filter(r=>r.selected);
+ const pending=rows.find(pendingGeo);
+ if(pending){
+  filter='all';$('search').value='';draw();activateLocation(pending);$('geo-confirm').focus();tell('위치 변경을 확정하거나 취소하세요.',true);return
+ }
+ const all=rows.map(record);attachLinkedNotices(all);const picked=all.filter(r=>r.selected);
  for(const lang of languages()){
   const key='name_'+lang, bad=rows.find(r=>r.selected&&!r[key]?.trim());
   if(bad){filter='included';$('search').value='';draw();const field=document.querySelector(`[data-key="${bad._key}"] [data-field="${key}"]`);field.setAttribute('aria-invalid','true');field.focus();tell((lang==='en'?'영문':'국문')+' 사업명을 입력하세요.',true);return}
@@ -128,6 +150,7 @@ $('save').onclick=async()=>{
  else{const u=URL.createObjectURL(new Blob([JSON.stringify(result,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=u;a.download=`${data.country}-${data.year||'사업'}-검토.json`;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);tell('다운로드했습니다.')}}
  catch(err){tell(err.message,true);$('save').disabled=false}
 };
+__REVIEW_JS__
 __LOCATION_JS__
 init(JSON.parse($('payload').textContent));
 </script></body></html>

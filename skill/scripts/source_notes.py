@@ -14,7 +14,12 @@ def source_notes(L):
     if source.get("build_id"):
         details.append(f"사업 데이터 판본: {source['build_id']}")
     for card in L["cards"]:
-        urls = card.get("provenance", {}).get("scope_sources") or []
+        provenance = card.get("provenance", {})
+        if provenance.get("_location_evidence"):
+            details.append(f"{card['place']} 사업지 확인 근거 · {provenance['_location_evidence']}")
+        for notice in provenance.get("_linked_notices", []):
+            details.append(f"{card['text']} · 연결한 공고 {notice['title']} · " + " · ".join(notice["urls"]))
+        urls = provenance.get("scope_sources") or []
         if urls:
             details.append(f"{card['place']} — {card['text']}: " + " · ".join(urls))
     park_source = source.get("national_parks") or {}

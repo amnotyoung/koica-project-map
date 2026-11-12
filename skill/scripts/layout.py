@@ -26,6 +26,7 @@ import sys
 import unicodedata
 from copy import deepcopy
 from pathlib import Path
+from portfolio_selection import TITLE_PERIOD
 
 from common import GEO_CACHE, design_tokens, log, read_json, write_json
 import geo_prepare
@@ -257,6 +258,11 @@ def build_card(proj_rec: dict, tok: dict, lang: str, scale: float,
     c = tok["card"]
     size = c["name"]["size"] * scale
     name = proj_rec.get(f"name_{lang}") or proj_rec.get("name_ko") or ""
+    decision = proj_rec.get("_editor_period") or {}
+    if decision.get("choice") == "source" and decision.get("source") == proj_rec.get("_period"):
+        match = TITLE_PERIOD.search(name)
+        if match and decision["source"]:
+            name = name[:match.start()+1] + decision["source"] + name[match.end(2):]
     badges = proj_rec.get("badges") or []
     # 배지가 붙는 첫 줄만 배지 폭만큼 좁다
     badge_right = (c["badge"]["dx"] + len(badges) * c["badge"]["w"]
@@ -275,7 +281,7 @@ def build_card(proj_rec: dict, tok: dict, lang: str, scale: float,
         "text": name,
         "external": proj_rec.get("coverage") == "external",
         "project_id": proj_rec.get("id") or proj_rec.get("_id"),
-        "provenance": {k: proj_rec[k] for k in ("_source_info", "_coord_source", "source_coord", "source_ids", "sites", "coverage", "source_place", "scope_sources") if k in proj_rec},
+        "provenance": {k: proj_rec[k] for k in ("_source_info", "_coord_source", "source_coord", "source_ids", "sites", "coverage", "source_place", "scope_sources", "_linked_notices", "_location_evidence") if k in proj_rec},
         "tracking_pt": c["name"].get("tracking_pt", -0.64),
         "lines": lines,
         "first_line_dx": round(first_dx, 4),

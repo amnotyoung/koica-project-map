@@ -3,7 +3,7 @@ import re
 import unicodedata
 
 # Parse a project period in the title's metadata, never two numbers in prose or a budget.
-TITLE_PERIOD = re.compile(r"[(（]\s*['’]?(20\d{2}|\d{2})\s*[-~–—]\s*['’]?(20\d{2}|\d{2})\s*(?=[/／)）])")
+TITLE_PERIOD = re.compile(r"[(（]\s*['‘’`]?(20\d{2}|\d{2})\s*[-~–—]\s*['‘’`]?(20\d{2}|\d{2})\s*(?=[/／)）])")
 
 
 def title_period(title):

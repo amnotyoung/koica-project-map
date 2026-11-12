@@ -215,6 +215,7 @@ def discover(country, year, projects, *, force=False, max_pages=4, max_details=1
             score, other = max(matches, key=lambda x:x[0])
             if score >= .58:
                 row["_similar_project"] = other["name_ko"]
+                row["_similar_project_id"] = other.get("id")
     report["status"] = ("partial" if report["pages"] else "failed") if report["errors"] or report["stale"] else "ok"
     log(f'[KOICA 공고] {country} · 목록 {report["pages"]}쪽 · 본문 {report["details"]}건 · 검토 후보 {len(found)}건 ({report["status"]})')
     return list(found.values()), report

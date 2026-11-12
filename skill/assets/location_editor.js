@@ -1,6 +1,6 @@
 // The country outline, GeoNames index and both boundary layers travel with the HTML.
 const geo = JSON.parse(document.getElementById('geo-data').textContent);
-const modes = {site:'핀', admin1:'주 권역', admin2:'군 권역', nationwide:'전국'};
+const modes = {external:'겸임국',unknown:'위치 미확인',site:'핀', admin1:'주 권역', admin2:'군 권역', nationwide:'전국'};
 let currentLocation = null, locationView = [0,0,640,320], activePin = 0, gesture = null;
 const normPlace = s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').normalize('NFC').toLowerCase().replace(/[\s'’.·_-]/g,'');
 function soundKey(s){
@@ -58,46 +58,98 @@ function initialGeo(row){
  const regions=geo.regions?.[mode]||[];
  const oldNames=row[mode+'_names']||[row[mode+'_name']];
  const ids=row[mode+'_ids']||regions.filter(f=>oldNames.some(n=>n&&normPlace(n)===normPlace(f.name.replace(/\s+(Region|Province|District|County)$/i,'')))).map(f=>f.id);
- return {mode,pins:mode==='site'?existingPins(row):[],ids:[...ids]};
+ return {mode,place:row.place||'',evidence:row._location_evidence||'',pins:mode==='site'?existingPins(row):[],ids:[...ids]};
 }
-function geoState(){return currentLocation._geoEdit||initialGeo(currentLocation)}
-function editGeo(){return currentLocation._geoEdit ||= initialGeo(currentLocation)}
+// Only confirmed values live in the roster. Switching rows or filters keeps each draft.
+const geoSessions=new WeakMap(), geoUndo=new WeakMap();
+const placeKey=s=>(s||'').normalize('NFC').replace(/\s+/g,'');
 const hasPin=p=>Number.isFinite(p.lon)&&Number.isFinite(p.lat);
-function setPlace(label){
- currentLocation.place=label;
- const field=document.querySelector(`article[data-key="${currentLocation._key}"] [data-field=place]`);
- if(field)field.value=label;
+function session(row){
+ if(!geoSessions.has(row)){
+  const original=initialGeo(row);
+  geoSessions.set(row,{original,mode:original.mode,byMode:{[original.mode]:structuredClone(original)}});
+ }
+ return geoSessions.get(row);
 }
-function activateLocation(row,fieldChange=false){
+function geoState(row=currentLocation){
+ const draft=geoSessions.get(row);
+ return draft?draft.byMode[draft.mode]:initialGeo(row);
+}
+function editGeo(){const d=session(currentLocation);return d.byMode[d.mode]}
+function pendingGeo(row){
+ const d=geoSessions.get(row);
+ return !!d && JSON.stringify(d.original)!==JSON.stringify(d.byMode[d.mode]);
+}
+function placeField(row){return document.querySelector(`article[data-key="${row._key}"] [data-field=place]`)}
+function setPlace(label){editGeo().place=label;placeField(currentLocation).value=label}
+function activateLocation(row,text){
  if(!row)return;
  const changed=currentLocation!==row;
  if(changed){currentLocation=row;activePin=0;locationView=[0,0,640,320]}
  const article=document.querySelector(`article[data-key="${row._key}"]`);
  if(!article)return;
- const panel=$('location-panel');
- article.append(panel);panel.hidden=false;
- if(!geo.transform){$('location-controls').hidden=true;$('geo-status').textContent='이 국가의 지도 자료를 불러오지 못했습니다.';return}
- if(fieldChange){
-  const text=row.place.trim(), national=[data.country+'전역',data.country+'전국','전국','전역'].includes(text.replace(/\s/g,''));
-  const previous=row._geoEdit?.mode;
-  const level=/주$|도$/.test(text)?'admin1':/군$|구$/.test(text)?'admin2':previous?.startsWith('admin')?previous:null;
-  const terms=text.split('/').map(t=>t.trim()).filter(Boolean);
-  const areas=level?terms.map(t=>findArea(t,level)): [];
-  if(level && !national){
-   row._geoEdit={mode:level,pins:[],ids:areas.every(Boolean)?[...new Set(areas.map(a=>a.id))]:[]};
+ article.append($('location-panel'));$('location-panel').hidden=false;
+ if(typeof text==='string' && placeKey(text)!==placeKey(geoState(row).place)){
+  const d=session(row),query=text.trim();
+  if(placeKey(query)===placeKey(d.original.place)){
+   d.mode=d.original.mode;d.byMode[d.mode]=structuredClone(d.original);
   }else{
-   row._geoEdit={mode:national?'nationwide':'site',pins:national?[]:pinsFromText(text,row._geoEdit?.pins),ids:[]};
+   const national=['전국','전역',data.country+'전국',data.country+'전역'].includes(placeKey(query));
+   const level=/주$|도$/.test(query)?'admin1':/군$|구$/.test(query)?'admin2':d.mode.startsWith('admin')?d.mode:null;
+   const mode=national?'nationwide':level||'site', terms=query.split('/').map(t=>t.trim()).filter(Boolean);
+   const areas=level&&geo.transform?terms.map(t=>findArea(t,level)):[];
+   const pins=mode==='site'?pinsFromText(query,d.byMode.site?.pins):[];
+   d.byMode[mode]={mode,place:query,evidence:'',pins,ids:areas.every(Boolean)?[...new Set(areas.map(a=>a.id))]:[]};d.mode=mode;
+   activePin=Math.max(0,pins.findIndex(p=>!hasPin(p)));
+   const term=normPlace(terms.at(-1)||'');
+   $('geo-citylist').innerHTML=(term&&terms.length===1?cityIndex.filter(c=>c.names.some(n=>n.startsWith(term))):[])
+    .slice(0,12).map(c=>`<option value="${esc(c.city.name)}"></option>`).join('');
   }
-  const term=normPlace(terms.at(-1)||'');
-  $('geo-citylist').innerHTML=(term&&terms.length===1?cityIndex.filter(c=>c.names.some(n=>n.startsWith(term))):[])
-   .slice(0,12).map(c=>`<option value="${esc(c.city.name)}"></option>`).join('');
-  activePin=Math.max(0,row._geoEdit.pins.findIndex(p=>!hasPin(p)));
  }
- if(changed||fieldChange)$('region-filter').value='';
+ if(changed || typeof text==='string')$('region-filter').value='';
  renderLocation();
 }
+const geoFields=['place','sites','source_coord','geonames_locality','aliases','kind','place_en','admin1_ids','admin2_ids',
+ 'admin1_names','admin2_names','admin1_name','admin2_name','scope_label','scope_label_en','_coord_source','_inferred_scope',
+ 'reviewed_pins','reviewed_unresolved','coverage','_location_basis','_location_evidence'];
+function syncLocationPanel(){
+ placeField(currentLocation).value=geoState().place;
+ renderLocation();
+}
+$('geo-confirm').onclick=()=>{
+ if(!currentLocation||!pendingGeo(currentLocation))return;
+ const row=currentLocation,state=geoState();
+ geoUndo.set(row,Object.fromEntries(geoFields.filter(k=>k in row).map(k=>[k,structuredClone(row[k])])));
+ const keepEnglish=placeKey(row.place)===placeKey(state.place)?row.place_en:undefined;
+ row.place=state.place.trim();
+ applyLocation(row,state);
+ if(keepEnglish!==undefined)row.place_en=keepEnglish;
+ geoSessions.delete(row);activePin=0;syncLocationPanel();
+};
+$('geo-cancel').onclick=()=>{geoSessions.delete(currentLocation);activePin=0;syncLocationPanel()};
+$('geo-undo').onclick=()=>{
+ const snapshot=geoUndo.get(currentLocation);if(!snapshot)return;
+ for(const k of geoFields)delete currentLocation[k];
+ Object.assign(currentLocation,snapshot);geoSessions.delete(currentLocation);geoUndo.delete(currentLocation);
+ activePin=0;syncLocationPanel();
+};
+function locationBasis(row,pin){
+ if(pendingGeo(row))return '미확정 변경';
+ if(row._location_basis==='group-representative')return '그룹 대표 위치 · 사업지 미검증';
+ if(row._location_basis==='manager-reviewed')return '담당자 확정';
+ if(row._location_basis==='public-project-evidence')return '공개 사업자료 기준';
+ return pin?'지명 기준 · 사업지 미검증':'사업지 미확인';
+}
 function renderLocation(){
- const state=geoState(),mode=state.mode,regions=geo.regions[mode]||[],area=mode.startsWith('admin');
+ const state=geoState(),mode=state.mode,regions=geo.regions?.[mode]||[],area=mode.startsWith('admin');
+ const dirty=pendingGeo(currentLocation);
+ $('geo-confirm').disabled=!dirty;$('geo-cancel').disabled=!geoSessions.has(currentLocation);$('geo-undo').disabled=!geoUndo.has(currentLocation);
+ $('geo-basis').textContent=locationBasis(currentLocation,state.pins[activePin]);
+ $('geo-evidence').value=state.evidence||'';
+ const links=currentLocation._location_basis==='public-project-evidence'&&!dirty?currentLocation.scope_sources||[]:[];
+ $('geo-links').innerHTML=links.map(webUrl).filter(Boolean).map((url,i)=>`<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">근거 ${i+1} ↗</a>`).join(' ');
+ $('location-controls').hidden=!geo.transform;
+ if(!geo.transform){$('geo-status').textContent='지도 자료 없음';return}
  $('geo-mode').value=mode;$('area-controls').hidden=!area;$('pin-controls').hidden=mode!=='site';
  const label=geo.years?.[mode];$('geo-year').textContent=area&&label?`geoBoundaries · ${label}년 기준`:'';
  const nameCounts=new Map();for(const region of regions)nameCounts.set(region.name,(nameCounts.get(region.name)||0)+1);
@@ -113,15 +165,21 @@ function renderLocation(){
  const marks=state.pins.map((p,i)=>{
   if(mode!=='site'||!hasPin(p))return '';
   const [x,y]=mapXY(p.lon,p.lat);
-  return `<g class="pin" data-pin="${i}" transform="translate(${x} ${y}) scale(${size})"><circle r="11" fill="transparent"/><circle r="6" fill="${pins.length>1?'white':'#c33936'}" stroke="${pins.length>1?'#39855a':'white'}" stroke-width="2.4"/><title>${esc(p.name)} · 드래그하여 이동</title></g>`;
+  return `<g class="pin ${currentLocation._location_basis==='group-representative'&&!dirty?'representative':''}" data-pin="${i}" transform="translate(${x} ${y}) scale(${size})"><circle r="11" fill="transparent"/><circle r="6" fill="${pins.length>1?'white':'#c33936'}" stroke="${pins.length>1?'#39855a':'white'}" stroke-width="2.4"/><title>${esc(p.name)} · 드래그하여 이동</title></g>`;
  }).join('');
  svg.innerHTML=`<path d="${geo.land}" fill="#fafaf5" stroke="#78908e" vector-effect="non-scaling-stroke" fill-rule="evenodd"/>${paths}${cities}${marks}`;
  $('pin-select').innerHTML=state.pins.map((p,i)=>`<option value="${i}">${esc(p.name)}${hasPin(p)?'':' · 위치 지정'}</option>`).join('');$('pin-select').value=String(activePin);
  const p=state.pins[activePin];
- $('pin-coord').textContent=p&&hasPin(p)?`${p.lat.toFixed(5)}°, ${p.lon.toFixed(5)}°`:'';
+ $('latitude').value=p&&hasPin(p)?p.lat:'';$('longitude').value=p&&hasPin(p)?p.lon:'';
+ $('coord-error').textContent='';
+ $('pin-coord').textContent=p&&hasPin(p)?`좌표 출처 · ${p.source||'미기재'}`:'';
  $('geo-status').textContent=area?(state.ids.length?regions.filter(f=>state.ids.includes(f.id)).map(f=>f.name).join(' · '):regions.length?'지도나 목록에서 대상 권역을 선택하세요.':'이 단계의 공개 경계가 없습니다.')
   :mode==='nationwide'?'전국 사업으로 표시합니다.':state.pins.some(p=>!hasPin(p))?'찾지 못한 지명을 선택한 뒤 지도에서 위치를 찍으세요.':'핀을 끌거나 지도를 클릭해 위치를 지정하세요.';
 }
+$('geo-evidence').oninput=e=>{
+ editGeo().evidence=e.target.value;
+ $('geo-confirm').disabled=!pendingGeo(currentLocation);$('geo-cancel').disabled=false;
+};
 function toggleArea(id){
  if(!id)return;
  const state=editGeo();state.ids=state.ids.includes(id)?state.ids.filter(item=>item!==id):[...state.ids,id];
@@ -130,23 +188,35 @@ function toggleArea(id){
 function svgPoint(e){
  const svg=$('geo-map');return new DOMPoint(e.clientX,e.clientY).matrixTransform(svg.getScreenCTM().inverse());
 }
-function placePin(point){
+function assignPin(coord){
  const state=editGeo();
- if(!state.pins.length){state.pins.push({name:currentLocation.place.trim()||'지정 위치'});activePin=0}
- Object.assign(state.pins[activePin],mapCoord(point.x,point.y),{source:'담당자 지정'});
- if(!currentLocation.place.trim())setPlace(state.pins[activePin].name);
+ if(!state.pins.length){state.pins.push({name:state.place.trim()||'지정 위치'});activePin=0}
+ if(state.pins[activePin].lat===coord.lat && state.pins[activePin].lon===coord.lon)return;
+ Object.assign(state.pins[activePin],coord,{source:'담당자 지정'});
+ if(!state.place.trim())setPlace(state.pins[activePin].name);
  renderLocation();
 }
+function placePin(point){assignPin(mapCoord(point.x,point.y))}
+$('coord-apply').onclick=()=>{
+ const lat=$('latitude').valueAsNumber,lon=$('longitude').valueAsNumber;
+ if(!Number.isFinite(lat)||Math.abs(lat)>90||!Number.isFinite(lon)||Math.abs(lon)>180){
+  $('coord-error').textContent='위도 −90~90, 경도 −180~180을 입력하세요.';return;
+ }
+ assignPin({lat,lon});
+};
 function changeZoom(ratio){
  const [x,y,w,h]=locationView, newW=Math.max(5,Math.min(640,w*ratio)),newH=newW/2;
  const p=geoState().pins[activePin], center=p&&hasPin(p)?mapXY(p.lon,p.lat):[x+w/2,y+h/2];
  locationView=newW===640?[0,0,640,320]:[center[0]-newW/2,center[1]-newH/2,newW,newH];renderLocation();
 }
 $('geo-mode').onchange=e=>{
- const mode=e.target.value, query=currentLocation.place||'';
- const area=mode.startsWith('admin')?findArea(query,mode):null;
- currentLocation._geoEdit={mode,ids:area?[area.id]:[],pins:mode==='site'?pinsFromText(query):[]};activePin=0;
- setPlace(mode==='nationwide'?data.country+' 전역':area?area.name:mode==='site'?query:'');$('region-filter').value='';renderLocation();
+ const d=session(currentLocation), mode=e.target.value, query=geoState().place;
+ if(!d.byMode[mode]){
+  const area=mode.startsWith('admin')?findArea(query,mode):null;
+  d.byMode[mode]={mode,evidence:'',ids:area?[area.id]:[],pins:mode==='site'?pinsFromText(query):[],
+   place:mode==='nationwide'?data.country+' 전역':area?area.name:mode==='site'?query:''};
+ }
+ d.mode=mode;activePin=0;$('region-filter').value='';syncLocationPanel();
 };
 $('region-filter').oninput=renderLocation;
 $('region-options').onchange=e=>toggleArea(e.target.value);
@@ -181,6 +251,7 @@ function applyLocation(p,edit){
  if(!edit)return;
  for(const k of ['sites','source_coord','geonames_locality','aliases','kind','place_en','admin1_ids','admin2_ids','admin1_names','admin2_names','admin1_name','admin2_name','scope_label','scope_label_en','_coord_source','_inferred_scope','reviewed_pins','reviewed_unresolved'])delete p[k];
  p.coverage=edit.mode;p._location_basis='manager-reviewed';
+ if(edit.evidence?.trim())p._location_evidence=edit.evidence.trim();else delete p._location_evidence;
  if(edit.mode==='site'){
   p.reviewed_pins=edit.pins.filter(hasPin);p.reviewed_unresolved=edit.pins.filter(x=>!hasPin(x)).map(x=>x.name);
   if(!p.reviewed_pins.length){p.coverage='unknown';p.scope_label=p.place||'사업 범위 확인 필요'}

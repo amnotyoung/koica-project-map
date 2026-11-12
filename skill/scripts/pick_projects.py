@@ -29,6 +29,7 @@ def editor_html(draft, hosted=False, make_map=False):
     return (PAGE.read_text(encoding="utf-8")
             .replace("__HOSTED__", "true" if hosted else "false")
             .replace("__SAVE_LABEL__", "저장하고 지도 만들기" if make_map else "선택 목록 저장")
+            .replace("__REVIEW_JS__", (PAGE.parent / "roster_review.js").read_text(encoding="utf-8"))
             .replace("__LOCATION_JS__", (PAGE.parent / "location_editor.js").read_text(encoding="utf-8"))
             .replace("__GEO_JSON__", geo_payload)
             .replace("__DRAFT_JSON__", payload))
