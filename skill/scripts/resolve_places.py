@@ -206,6 +206,9 @@ def resolve(country: str, entries: list, detail: str = "50m", *, use_gazetteer: 
     index = build_index(doc)
     gaz = load_gazetteer() if use_gazetteer else {}
     iso3 = doc["iso3"]
+    basemap = GEO_CACHE / f"{iso3}_basemap.json"
+    has_source_points = any(isinstance(e, dict) and e.get("source_coord") for e in entries)
+    bounds = read_json(basemap).get("bbox") if has_source_points and basemap.exists() else None
     out, unresolved = [], []
 
     for e in entries:
@@ -265,6 +268,13 @@ def resolve(country: str, entries: list, detail: str = "50m", *, use_gazetteer: 
 
         names = [p.strip() for p in body.split("/") if p.strip()]
         trusted = source_coord(e, raw, index, len(names))
+        if trusted and bounds and not (bounds[0] <= trusted["lon"] <= bounds[2]
+                                       and bounds[1] <= trusted["lat"] <= bounds[3]):
+            reason = "원천 좌표가 대상국 범위를 벗어남"
+            unresolved.append({"country":country, "place":raw, "reason":reason})
+            out.append({"query":raw, "label":raw, "parts":[], "resolved":False,
+                        "source_conflicts":[reason]})
+            continue
         parts = []
         for name in names:
             key = f"{iso3}:{norm(name)}"

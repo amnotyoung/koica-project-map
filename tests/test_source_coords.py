@@ -89,6 +89,15 @@ class ResolveSourceCoordTests(unittest.TestCase):
              patch.object(resolve_places, "load_gazetteer", return_value={}):
             return resolve_places.resolve("시험국", entries)
 
+    def test_out_of_country_source_pin_is_withheld(self):
+        from tempfile import TemporaryDirectory
+        with TemporaryDirectory() as folder, patch.object(resolve_places, "GEO_CACHE", Path(folder)):
+            (Path(folder) / "TST_basemap.json").write_text('{"bbox":[18,9,31,16]}')
+            result = self.resolve([{"place":"Alpha","source_coord":{"source":"IATI","lat":67,"lon":20}}])
+        self.assertFalse(result["places"][0]["resolved"])
+        self.assertFalse(result["places"][0]["parts"])
+        self.assertIn("대상국", result["unresolved"][0]["reason"])
+
     def test_dragged_pin_keeps_reviewed_coordinates_when_city_matches(self):
         entry = {"place":"Alpha", "coverage":"site", "source_coord":{
             "source":"도시", "lon":20, "lat":10}, "reviewed_pins":[
