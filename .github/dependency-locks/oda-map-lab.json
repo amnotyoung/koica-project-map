@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "amnotyoung/oda-map-lab",
   "source_ref": "main",
-  "source_sha": "8e347f70c90a66efddd2a863f7151d445d3571e5",
+  "source_sha": "6ab510c8b2d68fcc9ccc2c65ea5d72600cc858d3",
   "contract": {
     "contributor_required_fields": [
       "author",
@@ -10,7 +10,7 @@
       "office"
     ],
     "contributor_schema_version": 2,
-    "map_feature_count": 1856,
+    "map_feature_count": 1871,
     "map_schema_version": 2
   }
 }
