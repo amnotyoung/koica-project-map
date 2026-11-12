@@ -1,0 +1,275 @@
+{
+  "country": "에티오피아",
+  "country_en": "Ethiopia",
+  "region": "아프리카",
+  "year": 2027,
+  "map_languages": [
+    "ko",
+    "en"
+  ],
+  "card_layout": "bilateral",
+  "use_gazetteer": false,
+  "source": "https://oda-map-lab.pages.dev/generated/map-base.json",
+  "source_build_id": "sha256:68f865ae7f778febd43fcedbedb4fbe86c853068ecbaaa76c5d992f65bc4725f",
+  "fetched_at": "2026-11-12",
+  "projects": [
+    {
+      "selected": true,
+      "place": "에티오피아 전역",
+      "badges": [
+        "H"
+      ],
+      "name_ko": "에티오피아 모자보건 서비스 개선을 위한 결과기반 공동재정지원 프로그램('25-'29/1,300만불)",
+      "name_en": "Results-Based Financing for Primary Health Care and Maternal and Child Health (2025–2029 / USD 13m)",
+      "_period": "2025-2029",
+      "_budget_krw": 17940000000,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "보건정책 및 행정관리",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025010100101",
+      "id": "iati:KR-GOV-051-2025010100101",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "manager-reviewed",
+      "coverage": "nationwide",
+      "_location_evidence": "전국 일차보건의료체계 지원. KOICA 기획조사 공고 https://www.koica.go.kr/bbs/koica_kr/292/387360/artclView.do",
+      "display_place_en": "Nationwide",
+      "_linked_notices": [
+        {
+          "id": "koica-board:387360",
+          "title": "에티오피아 모자보건 서비스 개선을 위한 결과기반 공동재정지원 프로그램 기획조사 전문가 모집",
+          "urls": [
+            "https://www.koica.go.kr/bbs/koica_kr/292/387360/artclView.do"
+          ]
+        }
+      ]
+    },
+    {
+      "selected": true,
+      "place": "아파르/남부에티오피아",
+      "badges": [
+        "G"
+      ],
+      "name_ko": "아파르·남부에티오피아 분쟁·기후위기 피해 청년 회복력 강화사업 (UNFPA·UNHCR, 2025–2028/1,000만 불)",
+      "name_en": "Building Youth Resilience in Conflict- and Climate-Affected Communities (UNFPA/UNHCR, 2025–2028 / USD 10m)",
+      "_period": "2025-2028",
+      "_budget_krw": 13800000000,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "민간주도의 분쟁예방",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025010100019",
+      "id": "iati:KR-GOV-051-2025010100019",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "manager-reviewed",
+      "coverage": "site",
+      "_location_evidence": "두 주의 선정 군 대상. 핀은 OCHA v04 주 경계의 내부 대표점. https://gis.unocha.org/server/rest/services/Hosted/cod_ab_eth_v04/FeatureServer/4 · https://ethiopia.unfpa.org/en/news/joint-youth-focused-project-building-resilience-people-affected-conflict-and-climate-crisis",
+      "reviewed_pins": [
+        {
+          "name": "아파르",
+          "lat": 12.380375,
+          "lon": 41.075141,
+          "source": "담당자 지정"
+        },
+        {
+          "name": "남부에티오피아",
+          "lat": 5.467125,
+          "lon": 36.849871,
+          "source": "담당자 지정"
+        }
+      ],
+      "reviewed_unresolved": [],
+      "display_place_en": "Afar / South Ethiopia",
+      "_linked_notices": [
+        {
+          "id": "koica-board:386658",
+          "title": "사업명 에티오피아 2 개주 분쟁 및 기후위기에 영향을받은 청년 중심의 회복력 강화 사업(UNFPA/UNHCR)",
+          "urls": [
+            "https://www.koica.go.kr/bbs/koica_kr/292/386658/artclView.do"
+          ]
+        }
+      ]
+    },
+    {
+      "selected": true,
+      "place": "아디스아바바",
+      "badges": [
+        "A"
+      ],
+      "name_ko": "에티오피아 농업 및 농가공 제품 경쟁력 향상을 위한 국가 품질 관리 강화 사업('24-'28/1,000만불)",
+      "name_en": "National Quality Infrastructure for Agricultural and Processed Agricultural Products (2024–2028 / USD 10m)",
+      "_period": "2024-2028",
+      "_budget_krw": 13000000000,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "농업정책 및 행정관리",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2024010100021",
+      "id": "iati:KR-GOV-051-2024010100021",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "아디스아바바",
+        "lat": 9,
+        "lon": 38.75,
+        "source": "도시"
+      }
+    },
+    {
+      "selected": true,
+      "place": "오로미아 주",
+      "badges": [
+        "A"
+      ],
+      "name_ko": "에티오피아 낙농가치사슬 및 이해관계자 역량강화를 통한 유제품 품질 개선사업('23-'28/1,000만불)",
+      "name_en": "Improving Milk and Dairy Product Quality through Dairy Value Chain Development (2023–2028 / USD 10m)",
+      "_period": "2023-2028",
+      "_budget_krw": 12900000000,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "축산",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2023010100001",
+      "id": "iati:KR-GOV-051-2023010100001",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "manager-reviewed",
+      "_editor_period": {
+        "source": "2024-2028",
+        "title": "2023-2028",
+        "choice": "title"
+      },
+      "coverage": "admin1",
+      "_location_evidence": "오로미아 주 · 사업목록과 양언어 원본의 대상 권역. 경계는 geoBoundaries 2016년판.",
+      "admin1_ids": [
+        "75662566B9273833721501"
+      ],
+      "admin1_names": [
+        "Oromia"
+      ],
+      "display_place_en": "Oromia"
+    },
+    {
+      "selected": true,
+      "place": "아디스아바바",
+      "badges": [
+        "T"
+      ],
+      "name_ko": "에티오피아 가죽 및 가죽제품 경쟁력 강화 사업('22-'27/1,000만불)",
+      "name_en": "Enhancing the Competitiveness of Leather and Leather Products (2022–2027 / USD 10m)",
+      "_period": "2022-2027",
+      "_budget_krw": 11300000000,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "섬유,피혁 및 대체소재",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2022010100036",
+      "id": "iati:KR-GOV-051-2022010100036",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "manager-reviewed",
+      "coverage": "site",
+      "_location_evidence": "사업도시 아디스아바바의 대표 좌표. 부산테크노파크 사업설명서 https://clik.nanet.go.kr/clikr-collection/policyinfo/212/1051/2026/CLIKC1071710435484095_attach_1.pdf",
+      "reviewed_pins": [
+        {
+          "name": "아디스아바바",
+          "lon": 38.75,
+          "lat": 9,
+          "source": "도시"
+        }
+      ],
+      "reviewed_unresolved": [],
+      "display_place_en": "Addis Ababa (city)"
+    },
+    {
+      "selected": true,
+      "place": "볼레 국제공항",
+      "badges": [
+        "T"
+      ],
+      "name_ko": "볼레 국제공항 디지털 전환 기반 구축 시범사업 (2025–2027/약 25억 원)",
+      "name_en": "Digital Transformation at Addis Ababa Bole International Airport (pilot, 2025–2027 / KRW 2.5bn)",
+      "_period": "2025-2027",
+      "_budget_krw": 2499990498,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "항공운송",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025010103740",
+      "id": "iati:KR-GOV-051-2025010103740",
+      "_source_info": {
+        "name": "ODA Korea IATI",
+        "reference_date": null,
+        "report_year": "2026",
+        "fetched_at": null,
+        "url": null,
+        "file": "IATI_actlist.xlsx"
+      },
+      "_location_basis": "manager-reviewed",
+      "coverage": "site",
+      "_location_evidence": "공항 대표점 HAAB · OurAirports https://ourairports.com/airports/HAAB/",
+      "reviewed_pins": [
+        {
+          "name": "볼레 국제공항",
+          "lat": 8.97789,
+          "lon": 38.799301,
+          "source": "담당자 지정"
+        }
+      ],
+      "reviewed_unresolved": [],
+      "display_place_en": "Bole International Airport"
+    }
+  ]
+}
