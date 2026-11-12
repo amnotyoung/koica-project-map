@@ -72,7 +72,7 @@ class AnnualMapTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             xml = Path(tmp) / "source.xml"
             xml.write_text('<iati-activities><iati-activity><iati-identifier>KR-GOV-010-KR-GOV-051-1</iati-identifier><default-aid-type code="C01"/></iati-activity></iati-activities>')
-            index = iati_aid.read_codes(xml)
+            index = iati_aid.read_index(xml)["codes"]
         member = {"feature_id":"iati:KR-GOV-051-1", "name":{"ko":"시설사업", "en":"Facilities"},
                   "details":{"agency":"KOICA","biz_type":"국별협력사업","budget":100000000,
                   "source_info":{"url":iati_aid.URL}, "start":"2026","end":"2030"}}
@@ -82,6 +82,19 @@ class AnnualMapTests(unittest.TestCase):
         self.assertTrue(row["selected"])
         self.assertEqual(row["name_en"], "Facilities (2026–2030)")
         self.assertEqual(row["_aid_source"], iati_aid.URL)
+
+    def test_triangular_hosts_are_suggested_once_without_foreign_coordinates(self):
+        from iati_aid import partner_candidates
+        group = [{"id":f"iati:{c}", "title":f"({c}) Triangular training II", "description":"Research in Costa Rica.",
+                  "start":"2025","end":"2028"} for c in ["GT","HN"]]
+        args = (group, "코스타리카", "Costa Rica", 2027)
+        row, = partner_candidates(*args, set(), set())
+        self.assertFalse(row["selected"])
+        self.assertEqual(row["partner_activity_ids"], ["iati:GT","iati:HN"])
+        self.assertEqual(row["coverage"], "unknown")
+        self.assertFalse(partner_candidates(*args, {"iati:GT"}, set()))
+        self.assertFalse(partner_candidates(*args, set(), {"iati:HN"}))
+        self.assertFalse(partner_candidates(group, "코스타리카", "Costa Rica", 2029, set(), set()))
 
     def test_reference_budget_floor_handles_both_currencies_and_partial_spending(self):
         check = fetch_projects.meets_budget_floor

@@ -60,7 +60,7 @@ function webUrl(value){try{const u=new URL(value);return ['http:','https:'].incl
 function tell(msg,error=false){$('feedback').textContent=msg;$('feedback').className=error?'error':''}
 function init(doc){
  if(!doc || typeof doc.country!=='string'||!Array.isArray(doc.projects))throw Error('국가와 사업 목록이 있는 JSON 파일을 선택하세요.');
- let entries=[...doc.projects,...(doc.period_candidates||[]).map(p=>({...p,selected:false})),...(doc.notice_candidates||[]).map(p=>({...p,selected:false})),...(doc.review_excluded||[]).map(p=>({...p,selected:false}))];
+ let entries=[...doc.projects,...(doc.partner_candidates||[]).map(p=>({...p,selected:false})),...(doc.period_candidates||[]).map(p=>({...p,selected:false})),...(doc.notice_candidates||[]).map(p=>({...p,selected:false})),...(doc.review_excluded||[]).map(p=>({...p,selected:false}))];
  if(entries.some(p=>!p||typeof p.name_ko!=='string'))throw Error('사업명이 없는 레코드를 읽을 수 없습니다.');
  currentLocation=null;data=doc;rows=entries.map(p=>({...p,selected:p.selected!==false,_key:++seq,_editingNames:new Set()}));filter=doc.notice_candidates?.length?'notice':'all';$('search').value='';
  for(const row of rows){
@@ -145,7 +145,7 @@ $('save').onclick=async()=>{
   const key='name_'+lang, bad=rows.find(r=>r.selected&&!r[key]?.trim());
   if(bad){filter='included';$('search').value='';draw();const field=document.querySelector(`[data-key="${bad._key}"] [data-field="${key}"]`);field.setAttribute('aria-invalid','true');field.focus();tell((lang==='en'?'영문':'국문')+' 사업명을 입력하세요.',true);return}
  }
- const result={...data,map_languages:languages(),country_en:$('cen').value.trim(),region:$('reg').value.trim(),projects:picked,review_excluded:all.filter(p=>!p.selected),reviewed_at:new Date().toISOString()};delete result.notice_candidates;delete result.period_candidates;
+ const result={...data,map_languages:languages(),country_en:$('cen').value.trim(),region:$('reg').value.trim(),projects:picked,review_excluded:all.filter(p=>!p.selected),reviewed_at:new Date().toISOString()};delete result.partner_candidates;delete result.notice_candidates;delete result.period_candidates;
  try{if(HOSTED){$('save').disabled=true;const resp=await fetch('/save'+location.search,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(result)});if(!resp.ok)throw Error('저장하지 못했습니다. 다시 시도하세요.');tell('저장했습니다.');}
  else{const u=URL.createObjectURL(new Blob([JSON.stringify(result,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=u;a.download=`${data.country}-${data.year||'사업'}-검토.json`;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);tell('다운로드했습니다.')}}
  catch(err){tell(err.message,true);$('save').disabled=false}

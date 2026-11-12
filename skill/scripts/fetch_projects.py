@@ -171,7 +171,7 @@ def _trusted_source_coord(feature: dict, place: str) -> dict | None:
 
 
 def collect(country: str, year: int | None, include_all: bool,
-            force: bool = False) -> dict:
+            force: bool = False, *, review_partners: bool = False) -> dict:
     data = load_source(force)
     scopes = read_json(REFERENCE_DIR / "public_project_scopes.json").get(country, {})
     sm = sector_map()
@@ -179,6 +179,7 @@ def collect(country: str, year: int | None, include_all: bool,
     period_candidates = []
     aid_codes = None
     notices = read_json(REFERENCE_DIR / "public_programmes.json").get(country, [])
+    country_en = ""
     region = ""
     for f in data["features"]:
         if f.get("country") == country and f.get("details", {}).get("region"):
@@ -188,6 +189,8 @@ def collect(country: str, year: int | None, include_all: bool,
     for f in data["features"]:
         if f.get("country") != country or not f.get("layer", "").startswith("project"):
             continue
+        if not country_en and "·" in (f.get("name", {}).get("en") or ""):
+            country_en = f["name"]["en"].partition("·")[0].strip()
         done = f["layer"].endswith("_done")
         other = "other" in f["layer"]
         m = re.search(r"·\s*(.+?)\s*$", f["name"]["ko"])
@@ -299,7 +302,13 @@ def collect(country: str, year: int | None, include_all: bool,
     rows.sort(key=lambda r: (not r["selected"], -(r["_budget_krw"] or 0)))
     log(f'[{country}] KOICA 사업 {len(rows)}건 수집 '
         f'· 국별협력사업 후보 {sum(1 for r in rows if r["selected"])}건 기본 선택')
-    return {"country": country, "region": region, "year": year,
+    extra = {}
+    if review_partners:
+        domestic = {fid.partition("@")[0] for fid in seen if fid}
+        confirmed = {fid for row in rows for fid in row.get("partner_activity_ids", [])}
+        activities = iati_aid.load_index(force and aid_codes is None).get("triangular", [])
+        extra["partner_candidates"] = iati_aid.partner_candidates(activities, country, country_en, year, domestic, confirmed)
+    return {**extra, "country": country, "region": region, "year": year,
             "fetched_at": date.today().isoformat(),
             "source": SOURCE, "source_build_id": data.get("build_id"),
             "period_review": review, "period_candidates": period_candidates, "use_gazetteer": False,
@@ -308,7 +317,7 @@ def collect(country: str, year: int | None, include_all: bool,
 
 def collect_for_review(country, year, include_all=False, force=False, all_notices=False):
     from official_notices import add_notices
-    return add_notices(collect(country, year, include_all, force), force=force, all_notices=all_notices)
+    return add_notices(collect(country, year, include_all, force, review_partners=True), force=force, all_notices=all_notices)
 
 
 def main() -> int:
