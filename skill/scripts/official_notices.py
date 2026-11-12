@@ -118,17 +118,25 @@ def candidate(country, year, number, listing, body):
     stage = STAGE.search(headline + " " + listing + " " + intro)
     if not stage:
         return None
-    name = next((s for s in lines[:24] if re.match(r"^[ㅇ○·\s]*사업\s*명\s*[:：\s]", s)), "")
-    name = re.sub(r"^[ㅇ○·\s]*사업\s*명\s*[:：\s]*", "", name)
-    if not name:
-        name = headline
+    name = ""
+    for i, line in enumerate(lines[:24]):
+        label = re.match(r"^[ㅇ○·\s]*사\s*업\s*명\s*[:：\s]+(.*)", line)
+        if not label:
+            continue
+        name = label[1].strip()
+        if re.match(r"사업\s*(기간|규모|내용)", name):
+            # Flattened table: the next row has the project, dates and sometimes the cost.
+            data_line = lines[i+1] if i+1 < len(lines) else ""
+            name = RANGE.split(data_line, maxsplit=1)[0].rstrip(" (/") if country in data_line else ""
+        break
+    name = (name or headline).strip(" <>")
     name = re.sub(r"^(?:\[[^]]+\]|마감)\s*", "", name)
-    project_name = re.split(r"\s+(?:심층\s*)?(?:기획|예비|형성)\s*조사\s*전문가|\s+전문가\s*(?:재?공모|모집)", name)[0].strip()
+    project_name = re.split(r"\s*(?:심층\s*)?(?:기획|예비|형성)\s*조사\s*전문가|\s+전문가\s*(?:재?공모|모집)", name)[0].strip()
     # A form like "사업 모니터링 및 형성 조사" describes an assignment, not a named new project.
     if project_name.endswith((" 및", " 추가", " 내")):
         project_name = headline
     name = project_name
-    period_line = next((" ".join(lines[i:i+2])[:200] for i,l in enumerate(lines)
+    period_line = next((" ".join(lines[i:i+3])[:200] for i,l in enumerate(lines)
                         if re.search(r"사업\s*기간|사업\s*규모\s*및\s*기간", l)), "")
     period = title_period(name) or title_period(headline) or title_period(listing)
     if not period and (m := RANGE.search(period_line)):

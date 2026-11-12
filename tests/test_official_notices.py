@@ -20,6 +20,13 @@ class OfficialNotices(unittest.TestCase):
         self.assertIsNone(candidate("다른국", 2027, "123", t, content))
         self.assertEqual(candidate("예시국", 2027, "123", t, t+"\n접수기간 2025-2026")["_period"], "")
 
+    def test_table_header_does_not_become_the_project_name(self):
+        title = "쿠바 에너지 접근성 개선사업 예비조사 전문가 모집"
+        body = title + "\n사업명 사업기간/규모 사업내용\n쿠바 에너지 접근성 개선사업 2026-2029/\n850 만불•전력공급"
+        row = candidate("쿠바", 2027, "42", title, body)
+        self.assertEqual(row["name_ko"], "쿠바 에너지 접근성 개선사업 (2026-2029/850 만불)")
+        self.assertFalse(row["selected"])
+
     def test_board_filters_domains_and_distinguishes_failure_from_empty(self):
         link = BOARD + "123/artclView.do"
         parsed, _ = parse_board(f'<a href="{link}"><strong>예시국 공고</strong></a>'
