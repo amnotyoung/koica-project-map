@@ -1,0 +1,133 @@
+{
+  "country": "코스타리카",
+  "region": "",
+  "year": 2027,
+  "fetched_at": "2026-11-12",
+  "source": "https://oda-map-lab.pages.dev/generated/map-base.json",
+  "source_build_id": "sha256:f194cf5e897bd14222f33c6efe10fd00d61fa0821d5ffe06aff131bf885c8006",
+  "use_gazetteer": false,
+  "location_status": "source-group-unverified",
+  "projects": [
+    {
+      "selected": true,
+      "place": "산페드로·코스타리카대학교",
+      "badges": [
+        "T"
+      ],
+      "name_ko": "코스타리카 삼각협력을 통한 중미 북부 3개국 기술혁신 기반 창업 및 산학협력 지원 사업('26-'31/500만불)",
+      "name_en": "Korea Innovation Nexus for R&D Partnership at 4 Universities in Central America (K-INNO4U): Korea-Costa Rica Triangular Cooperation (2026–2031 / USD 5m)",
+      "_period": "2026-2031",
+      "_budget_krw": 6900000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "중소기업 개발",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2026010100030",
+      "id": "iati:KR-GOV-051-2026010100030",
+      "_source_info": {
+        "name": "ODA Korea IATI",
+        "reference_date": null,
+        "report_year": "2026",
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/static/IATI/IATI_actlist.xlsx?v=v7",
+        "file": "IATI_actlist.xlsx"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 6900000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "allocation_divisor": 1
+      },
+      "_coord_source": "도시",
+      "source_place": "산호세",
+      "coverage": "site",
+      "place_en": "San Pedro",
+      "geonames_locality": {
+        "name": "San Pedro",
+        "id": 3621717,
+        "lat": 9.92829,
+        "lon": -84.05074
+      },
+      "scope_sources": [
+        "https://rectoria.ucr.ac.cr/index.php/node/236",
+        "https://www.cea.ucr.ac.cr/index.php/es/contactenos",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ],
+      "_annual_plan": [
+        {
+          "resolution": "제58-1호",
+          "basis": "requested",
+          "page": 91,
+          "account": "[405]중남미지역일반협력국가그룹(ODA)",
+          "title": "코스타리카 삼각협력을 통한 중미 북부 3개국 기술혁신 기반 창업 및 산학협력 지원 사업 ('26-'31/500만불)",
+          "period": "2026-2031",
+          "annual_100m_krw": "13.29",
+          "status": "계속"
+        }
+      ],
+      "_source_name_en": "Korea Innovation Nexus for R&D Partnership at 4 Universities in Central America (K-INNO4U): Korea-Costa Rica Triangular Cooperation"
+    },
+    {
+      "id": "plan:코스타리카:29bfe6858b51c440",
+      "_id": "plan:코스타리카:29bfe6858b51c440",
+      "selected": true,
+      "_period": "2025-2028",
+      "name_ko": "코스타리카 삼각협력을 통한 중미 건조회랑 시설원예 역량강화 2차 사업 (2025–2028 / 275만불)",
+      "name_en": "Triangular cooperation for horticulture in the Central American Dry Corridor, phase II (2025–2028 / USD 2.75m)",
+      "place": "과나카스테주",
+      "coverage": "admin1",
+      "badges": [
+        "A"
+      ],
+      "_agency": "한국국제협력단(KOICA)",
+      "_budget_krw": null,
+      "_stage": "계속",
+      "_location_basis": "annual-plan",
+      "_annual_plan": [
+        {
+          "resolution": "제58-1호",
+          "basis": "requested",
+          "page": 90,
+          "account": "[405]중남미지역일반협력국가그룹(ODA)",
+          "title": "코스타리카삼각협력을 통한중미3국건조회랑지역 시설원예기술역량강화2차 사업('25-'27/275만불)",
+          "period": "2025-2027",
+          "annual_100m_krw": "16.00",
+          "status": "계속"
+        },
+        {
+          "resolution": "제56-2호",
+          "basis": "confirmed",
+          "page": 119,
+          "account": "[405]중남미지역일반협력국가그룹(ODA)",
+          "title": "코스타리카 삼각협력을 통한 중미3국 건조회랑지역 시설원예기술 역량강화 2차 사업 ('25-'27/275만불)",
+          "period": "2025-2027",
+          "annual_100m_krw": "1.98",
+          "status": "계속"
+        }
+      ],
+      "scope_sources": [
+        "https://www.odakorea.go.kr/kor/bbs/PlanAndResulList?bbs_id=kor_001",
+        "https://www.rree.go.cr/index.php?cat=prensa&cont=593&id=8193&sec=servicios",
+        "https://www.koica.go.kr/bbs/koica_kr/292/385972/artclView.do",
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml"
+      ],
+      "place_en": "Guanacaste",
+      "admin1_names": [
+        "Provincia Guanacaste"
+      ],
+      "partner_activity_ids": [
+        "iati:KR-GOV-051-2025010103954",
+        "iati:KR-GOV-051-2025010103955",
+        "iati:KR-GOV-051-2025010103956"
+      ]
+    }
+  ],
+  "map_languages": [
+    "ko",
+    "en"
+  ]
+}

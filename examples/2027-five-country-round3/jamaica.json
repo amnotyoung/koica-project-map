@@ -1,0 +1,89 @@
+{
+  "country": "자메이카",
+  "region": "",
+  "year": 2027,
+  "fetched_at": "2026-11-12",
+  "source": "https://oda-map-lab.pages.dev/generated/map-base.json",
+  "source_build_id": "sha256:f194cf5e897bd14222f33c6efe10fd00d61fa0821d5ffe06aff131bf885c8006",
+  "use_gazetteer": false,
+  "location_status": "source-group-unverified",
+  "projects": [
+    {
+      "selected": true,
+      "place": "킹스턴",
+      "badges": [
+        "T"
+      ],
+      "name_ko": "자메이카 토지행정 혁신센터 설립 및 역량강화사업 (2026–2031 / 900만불)",
+      "name_en": "Land Administration Capacity Enhancement Project (2026–2031 / USD 9m)",
+      "_period": "2026-2031",
+      "_budget_krw": 12420000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "도시개발 및 관리",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025010100162",
+      "id": "iati:KR-GOV-051-2025010100162",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 12420000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_place": "킹스턴",
+      "_source_name_ko": "자메이카 토지행정 역량강화 사업('25-'31/900만불)",
+      "_source_name_en": "Land Administration Capacity Enhancement Project in Jamaica",
+      "coverage": "site",
+      "place_en": "Kingston",
+      "geonames_locality": {
+        "name": "Kingston",
+        "id": 3489854,
+        "lat": 17.99702,
+        "lon": -76.79358
+      },
+      "scope_sources": [
+        "https://megid.gov.jm/government-signs-us9m-agreement-with-republic-of-korea-for-the-land-administration-and-capacity-enhancement-project/",
+        "https://jis.gov.jm/govt-partners-with-koica-to-transform-jamaicas-land-administration/",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ],
+      "_annual_plan": [
+        {
+          "resolution": "제58-1호",
+          "basis": "requested",
+          "page": 91,
+          "account": "[405]중남미지역일반협력국가그룹(ODA)",
+          "title": "자메이카토지행정역량강화 사업('25-'31/900만불)",
+          "period": "2025-2031",
+          "annual_100m_krw": "25.00",
+          "status": "계속"
+        },
+        {
+          "resolution": "제56-2호",
+          "basis": "confirmed",
+          "page": 120,
+          "account": "[405]중남미지역일반협력국가그룹(ODA)",
+          "title": "자메이카 토지행정 역량강화 사업 ('25-'31/900만불)",
+          "period": "2025-2031",
+          "annual_100m_krw": "0.50",
+          "status": "계속"
+        }
+      ]
+    }
+  ],
+  "map_languages": [
+    "ko",
+    "en"
+  ]
+}

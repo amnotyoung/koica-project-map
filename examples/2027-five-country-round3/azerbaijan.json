@@ -1,0 +1,217 @@
+{
+  "country": "아제르바이잔",
+  "region": "중동중앙아시아",
+  "year": 2027,
+  "fetched_at": "2026-11-12",
+  "source": "https://oda-map-lab.pages.dev/generated/map-base.json",
+  "source_build_id": "sha256:f194cf5e897bd14222f33c6efe10fd00d61fa0821d5ffe06aff131bf885c8006",
+  "use_gazetteer": false,
+  "location_status": "source-group-unverified",
+  "projects": [
+    {
+      "selected": true,
+      "place": "숨가이트 등 사업지역",
+      "badges": [
+        "T"
+      ],
+      "name_ko": "아제르바이잔 숨가이트시 및 해방 지역 스마트 시티 개발 사업('24-'28/1,000만불)",
+      "name_en": "Development of Smart City Projects in Sumgayit and Liberated Territories of Azerbaijan (2024–2028 / USD 10m)",
+      "_period": "2024-2028",
+      "_budget_krw": 13000000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "도시개발 및 관리",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2024010100114",
+      "id": "iati:KR-GOV-051-2024010100114",
+      "_source_info": {
+        "name": "ODA Korea IATI",
+        "reference_date": null,
+        "report_year": "2025",
+        "fetched_at": null,
+        "url": "https://web.archive.org/web/20250605154036id_/https://www.odakorea.go.kr/static/IATI/IATI_actlist.xlsx?v=v1",
+        "file": "IATI_actlist.xlsx"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 13000000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "allocation_divisor": 1
+      },
+      "_coord_source": "도시",
+      "source_place": "바쿠",
+      "coverage": "site",
+      "place_en": "Sumgayit",
+      "geonames_locality": {
+        "name": "Sumgayit",
+        "id": 584923,
+        "lat": 40.58972,
+        "lon": 49.66861
+      },
+      "scope_sources": [
+        "https://www.koica.go.kr/bbs/koica_kr/292/382614/artclView.do",
+        "https://oda-map-lab.pages.dev/generated/map-base.json",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ],
+      "_source_name_en": "Development of Smart City Projects in Sumgayit and Liberated Territories of Azerbaijan"
+    },
+    {
+      "selected": true,
+      "place": "바쿠",
+      "badges": [
+        "H"
+      ],
+      "name_ko": "아제르바이잔 온라인 교육 플랫폼 구축을 통한 보건 인력 교육 역량강화사업('26-'29/400만불)",
+      "name_en": "The Project for Enhancing Healthcare Workforce Capacity in Azerbaijan through E-Learning Platform (2026–2029 / USD 4m)",
+      "_period": "2026-2029",
+      "_budget_krw": 5520000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "의료교육 및 훈련",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2026010100132",
+      "id": "iati:KR-GOV-051-2026010100132",
+      "_source_info": {
+        "name": "ODA Korea IATI",
+        "reference_date": null,
+        "report_year": "2026",
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/static/IATI/IATI_actlist.xlsx?v=v7",
+        "file": "IATI_actlist.xlsx"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 5520000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "allocation_divisor": 1
+      },
+      "_coord_source": "도시",
+      "source_place": "바쿠",
+      "coverage": "site",
+      "place_en": "Baku",
+      "geonames_locality": {
+        "name": "Baku",
+        "id": 587084,
+        "lat": 40.37767,
+        "lon": 49.89201
+      },
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://www.koica.go.kr/bbs/koica_kr/292/388720/artclView.do",
+        "https://tabib.gov.az/media/xeberler/506",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ],
+      "_annual_plan": [
+        {
+          "resolution": "제58-1호",
+          "basis": "requested",
+          "page": 93,
+          "account": "[402]중동CIS지역일반협력국가그룹(ODA)",
+          "title": "아제르바이잔 온라인 교육 플랫폼 구축을 통한 보건 인력 교육 역량강화사업 ('26-'29/400만불)",
+          "period": "2026-2029",
+          "annual_100m_krw": "1.20",
+          "status": "계속"
+        },
+        {
+          "resolution": "제56-2호",
+          "basis": "confirmed",
+          "page": 124,
+          "account": "[402]중동CIS지역일반협력국가그룹(ODA)",
+          "title": "아제르바이잔 온라인 교육 플랫폼 구축을 통한 보건 인력 교육 역량강화사업 ('26-'29/400만불)",
+          "period": "2026-2029",
+          "annual_100m_krw": "0.05",
+          "status": "신규"
+        }
+      ],
+      "_source_name_en": "The Project for Enhancing Healthcare Workforce Capacity in Azerbaijan through E-Learning Platform"
+    },
+    {
+      "selected": true,
+      "place": "Stepanakert (Khankendi)",
+      "badges": [
+        "T"
+      ],
+      "name_ko": "아제르바이잔 물·식량 안보를 위한 전통적 물공급시스템(카흐리즈) 복원과 재생에너지 활용을 통한 실향민 및 기후취약 지역사회 기후회복력 강화사업(IOM) (2025–2028 / 551만불)",
+      "name_en": "Water and food security for displaced and climate-vulnerable communities through kahriz rehabilitation and renewable energy (IOM) (2025–2028 / USD 5.51m)",
+      "_period": "2025-2028",
+      "_budget_krw": 457000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "기초식수공급",
+      "_stage": "집행중",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025010100053",
+      "id": "iati:KR-GOV-051-2025010100053",
+      "_source_info": {
+        "name": "KOICA IATI XML",
+        "reference_date": "2026-08-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "file": null
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 457000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "original": [
+          {
+            "value": 457000000.0,
+            "currency": "KRW"
+          }
+        ]
+      },
+      "_iati_aid_code": "C01",
+      "_budget_period_only": true,
+      "_aid_source": "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+      "_coord_source": "IATI 원본(공식좌표)",
+      "source_place": "Stepanakert (Khankendi)",
+      "_source_name_ko": "Enhancing Climate Resilience for Internally Displaced Persons and Climate-Vulnerable Communities in Azerbaijan through Kahriz Rehabilitation and Renewable Energy Solutions for Water and Food Securit",
+      "_source_name_en": "Enhancing Climate Resilience for Internally Displaced Persons and Climate-Vulnerable Communities in Azerbaijan through Kahriz Rehabilitation and Renewable Energy Solutions for Water and Food Securit",
+      "coverage": "unknown",
+      "scope_label": "카흐리즈 복원 대상 지역",
+      "scope_label_en": "Kahriz rehabilitation communities",
+      "scope_sources": [
+        "https://www.koica.go.kr/bbs/koica_kr/292/387191/artclView.do",
+        "https://az.mofa.go.kr/az-en/brd/m_8237/view.do?seq=761760"
+      ],
+      "_annual_plan": [
+        {
+          "resolution": "제58-1호",
+          "basis": "requested",
+          "page": 93,
+          "account": "[402]중동CIS지역일반협력국가그룹(ODA)",
+          "title": "아제르바이잔 물·식량 안보를 위한 전통적 물공급시스템(카흐리즈) 복원과 재생에너지 활용을 통한 실향민 및 기후취약 지역사회 기후회복력 강화사업 (IOM)('25-'28/551만불)",
+          "period": "2025-2028",
+          "annual_100m_krw": "10.70",
+          "status": "계속"
+        },
+        {
+          "resolution": "제56-2호",
+          "basis": "confirmed",
+          "page": 124,
+          "account": "[402]중동CIS지역일반협력국가그룹(ODA)",
+          "title": "아제르바이잔 물·식량 안보를 위한 전통적 물공급시스템(카흐리즈) 복원과 재생에너지 활용을 통한 실향민 및 기후취약 지역사회 기후회복력 강화사업(IOM) ('25-'28/551만불)",
+          "period": "2025-2028",
+          "annual_100m_krw": "4.57",
+          "status": "계속"
+        }
+      ]
+    }
+  ],
+  "map_languages": [
+    "ko",
+    "en"
+  ]
+}

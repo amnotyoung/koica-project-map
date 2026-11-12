@@ -1,0 +1,324 @@
+{
+  "country": "쿠바",
+  "region": "",
+  "year": 2027,
+  "fetched_at": "2026-11-12",
+  "source": "https://oda-map-lab.pages.dev/generated/map-base.json",
+  "source_build_id": "sha256:f194cf5e897bd14222f33c6efe10fd00d61fa0821d5ffe06aff131bf885c8006",
+  "use_gazetteer": false,
+  "location_status": "source-group-unverified",
+  "projects": [
+    {
+      "selected": true,
+      "place": "동부 5개 주의 10개 시·군",
+      "badges": [
+        "A"
+      ],
+      "name_ko": "쿠바 동부지역 식량안보 및 영양 개선을 위한 식품공급체계 강화사업(WFP)('25-'29/600만불)",
+      "name_en": "Further strengthening the resilience and sustainability of the local food system for supplying social protection programmes (2025–2029 / USD 6m)",
+      "_period": "2025-2029",
+      "_budget_krw": 8280000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "농업 개발",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025010100098@올긴",
+      "id": "iati:KR-GOV-051-2025010100098@올긴",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 8280000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시(음차)",
+      "source_place": "올긴",
+      "coverage": "admin2",
+      "place_en": "10 municipalities in five eastern provinces",
+      "admin2_names": [
+        "Jiguaní",
+        "Río Cauto",
+        "Urbano Noris",
+        "Rafael Freyre",
+        "Manati",
+        "Jesús Menéndez",
+        "Guamá",
+        "Songo - La Maya",
+        "Niceto Pérez",
+        "Yateras"
+      ],
+      "scope_sources": [
+        "https://es.wfp.org/noticias/wfp-y-koica-amplian-en-cuba-el-proyecto-actua-diferente-hasta-2029",
+        "https://www.koica.go.kr/bbs/koica_kr/292/386759/artclView.do"
+      ],
+      "_annual_plan": [
+        {
+          "resolution": "제58-1호",
+          "basis": "requested",
+          "page": 90,
+          "account": "[405]중남미지역일반협력국가그룹(ODA)",
+          "title": "쿠바 동부지역 식량안보 및 영양 개선을 위한 식품공급체계 강화사업 (WFP)('25-'29/600만불)",
+          "period": "2025-2029",
+          "annual_100m_krw": "25.12",
+          "status": "계속"
+        },
+        {
+          "resolution": "제56-2호",
+          "basis": "confirmed",
+          "page": 119,
+          "account": "[405]중남미지역일반협력국가그룹(ODA)",
+          "title": "쿠바 동부지역 식량안보 및 영양 개선을 위한 식품공급체계 강화사업(WFP) ('25-'29/600만불)",
+          "period": "2025-2029",
+          "annual_100m_krw": "3.37",
+          "status": "계속"
+        }
+      ],
+      "_source_name_en": "Further strengthening the resilience and sustainability of the local food system for supplying social protection programmes"
+    },
+    {
+      "selected": true,
+      "place": "동부 5개 주의 10개 시·군",
+      "badges": [
+        "A"
+      ],
+      "name_ko": "쿠바 동부지역 식량안보 및 영양 개선을 위한 식품공급체계 강화사업(WFP)('25-'29/600만불)",
+      "name_en": "Further strengthening the resilience and sustainability of the local food system for supplying social protection programmes (2025–2029 / USD 6m)",
+      "_period": "2025-2029",
+      "_budget_krw": 8280000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "농업 개발",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025010100098@라스 뚜나스",
+      "id": "iati:KR-GOV-051-2025010100098@라스 뚜나스",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 8280000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시(음차)",
+      "source_place": "라스 뚜나스",
+      "coverage": "admin2",
+      "place_en": "10 municipalities in five eastern provinces",
+      "admin2_names": [
+        "Jiguaní",
+        "Río Cauto",
+        "Urbano Noris",
+        "Rafael Freyre",
+        "Manati",
+        "Jesús Menéndez",
+        "Guamá",
+        "Songo - La Maya",
+        "Niceto Pérez",
+        "Yateras"
+      ],
+      "scope_sources": [
+        "https://es.wfp.org/noticias/wfp-y-koica-amplian-en-cuba-el-proyecto-actua-diferente-hasta-2029",
+        "https://www.koica.go.kr/bbs/koica_kr/292/386759/artclView.do"
+      ],
+      "_annual_plan": [
+        {
+          "resolution": "제58-1호",
+          "basis": "requested",
+          "page": 90,
+          "account": "[405]중남미지역일반협력국가그룹(ODA)",
+          "title": "쿠바 동부지역 식량안보 및 영양 개선을 위한 식품공급체계 강화사업 (WFP)('25-'29/600만불)",
+          "period": "2025-2029",
+          "annual_100m_krw": "25.12",
+          "status": "계속"
+        },
+        {
+          "resolution": "제56-2호",
+          "basis": "confirmed",
+          "page": 119,
+          "account": "[405]중남미지역일반협력국가그룹(ODA)",
+          "title": "쿠바 동부지역 식량안보 및 영양 개선을 위한 식품공급체계 강화사업(WFP) ('25-'29/600만불)",
+          "period": "2025-2029",
+          "annual_100m_krw": "3.37",
+          "status": "계속"
+        }
+      ],
+      "_source_name_en": "Further strengthening the resilience and sustainability of the local food system for supplying social protection programmes"
+    },
+    {
+      "selected": true,
+      "place": "동부 5개 주의 10개 시·군",
+      "badges": [
+        "A"
+      ],
+      "name_ko": "쿠바 동부지역 식량안보 및 영양 개선을 위한 식품공급체계 강화사업(WFP)('25-'29/600만불)",
+      "name_en": "Further strengthening the resilience and sustainability of the local food system for supplying social protection programmes (2025–2029 / USD 6m)",
+      "_period": "2025-2029",
+      "_budget_krw": 8280000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "농업 개발",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025010100098@산티아고 데 쿠바",
+      "id": "iati:KR-GOV-051-2025010100098@산티아고 데 쿠바",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 8280000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시(음차)",
+      "source_place": "산티아고 데 쿠바",
+      "coverage": "admin2",
+      "place_en": "10 municipalities in five eastern provinces",
+      "admin2_names": [
+        "Jiguaní",
+        "Río Cauto",
+        "Urbano Noris",
+        "Rafael Freyre",
+        "Manati",
+        "Jesús Menéndez",
+        "Guamá",
+        "Songo - La Maya",
+        "Niceto Pérez",
+        "Yateras"
+      ],
+      "scope_sources": [
+        "https://es.wfp.org/noticias/wfp-y-koica-amplian-en-cuba-el-proyecto-actua-diferente-hasta-2029",
+        "https://www.koica.go.kr/bbs/koica_kr/292/386759/artclView.do"
+      ],
+      "_annual_plan": [
+        {
+          "resolution": "제58-1호",
+          "basis": "requested",
+          "page": 90,
+          "account": "[405]중남미지역일반협력국가그룹(ODA)",
+          "title": "쿠바 동부지역 식량안보 및 영양 개선을 위한 식품공급체계 강화사업 (WFP)('25-'29/600만불)",
+          "period": "2025-2029",
+          "annual_100m_krw": "25.12",
+          "status": "계속"
+        },
+        {
+          "resolution": "제56-2호",
+          "basis": "confirmed",
+          "page": 119,
+          "account": "[405]중남미지역일반협력국가그룹(ODA)",
+          "title": "쿠바 동부지역 식량안보 및 영양 개선을 위한 식품공급체계 강화사업(WFP) ('25-'29/600만불)",
+          "period": "2025-2029",
+          "annual_100m_krw": "3.37",
+          "status": "계속"
+        }
+      ],
+      "_source_name_en": "Further strengthening the resilience and sustainability of the local food system for supplying social protection programmes"
+    },
+    {
+      "selected": true,
+      "place": "동부 5개 주의 10개 시·군",
+      "badges": [
+        "A"
+      ],
+      "name_ko": "쿠바 동부지역 식량안보 및 영양 개선을 위한 식품공급체계 강화사업(WFP)('25-'29/600만불)",
+      "name_en": "Further strengthening the resilience and sustainability of the local food system for supplying social protection programmes (2025–2029 / USD 6m)",
+      "_period": "2025-2029",
+      "_budget_krw": 8280000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "농업 개발",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025010100098@관따나모",
+      "id": "iati:KR-GOV-051-2025010100098@관따나모",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 8280000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시(음차)",
+      "source_place": "관따나모",
+      "coverage": "admin2",
+      "place_en": "10 municipalities in five eastern provinces",
+      "admin2_names": [
+        "Jiguaní",
+        "Río Cauto",
+        "Urbano Noris",
+        "Rafael Freyre",
+        "Manati",
+        "Jesús Menéndez",
+        "Guamá",
+        "Songo - La Maya",
+        "Niceto Pérez",
+        "Yateras"
+      ],
+      "scope_sources": [
+        "https://es.wfp.org/noticias/wfp-y-koica-amplian-en-cuba-el-proyecto-actua-diferente-hasta-2029",
+        "https://www.koica.go.kr/bbs/koica_kr/292/386759/artclView.do"
+      ],
+      "_annual_plan": [
+        {
+          "resolution": "제58-1호",
+          "basis": "requested",
+          "page": 90,
+          "account": "[405]중남미지역일반협력국가그룹(ODA)",
+          "title": "쿠바 동부지역 식량안보 및 영양 개선을 위한 식품공급체계 강화사업 (WFP)('25-'29/600만불)",
+          "period": "2025-2029",
+          "annual_100m_krw": "25.12",
+          "status": "계속"
+        },
+        {
+          "resolution": "제56-2호",
+          "basis": "confirmed",
+          "page": 119,
+          "account": "[405]중남미지역일반협력국가그룹(ODA)",
+          "title": "쿠바 동부지역 식량안보 및 영양 개선을 위한 식품공급체계 강화사업(WFP) ('25-'29/600만불)",
+          "period": "2025-2029",
+          "annual_100m_krw": "3.37",
+          "status": "계속"
+        }
+      ],
+      "_source_name_en": "Further strengthening the resilience and sustainability of the local food system for supplying social protection programmes"
+    }
+  ],
+  "map_languages": [
+    "ko",
+    "en"
+  ]
+}

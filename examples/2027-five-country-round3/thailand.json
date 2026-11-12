@@ -1,0 +1,89 @@
+{
+  "country": "태국",
+  "region": "아시아태평양",
+  "year": 2027,
+  "fetched_at": "2026-11-12",
+  "source": "https://oda-map-lab.pages.dev/generated/map-base.json",
+  "source_build_id": "sha256:f194cf5e897bd14222f33c6efe10fd00d61fa0821d5ffe06aff131bf885c8006",
+  "use_gazetteer": false,
+  "location_status": "source-group-unverified",
+  "projects": [
+    {
+      "selected": true,
+      "place": "방콕",
+      "badges": [
+        "T"
+      ],
+      "name_ko": "태국 삼각협력 아세안 전기전자산업 탄소중립 역량강화사업('25-'29/600만불)",
+      "name_en": "Thailand Triangular Cooperation for Carbon Neutrality Capacity building in the electrical and electronics industry in ASEAN (2025–2029 / USD 6m)",
+      "_period": "2025-2029",
+      "_budget_krw": 7740000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "환경정책 및 행정관리",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025010100138",
+      "id": "iati:KR-GOV-051-2025010100138",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 7740000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_place": "방콕",
+      "coverage": "site",
+      "place_en": "Bangkok",
+      "geonames_locality": {
+        "name": "Bangkok",
+        "id": 1609350,
+        "lat": 13.75398,
+        "lon": 100.50144
+      },
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://www.koica.go.kr/bbs/koica_kr/292/386785/artclView.do",
+        "https://www.thaieei.com/en/contact-us/",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ],
+      "_annual_plan": [
+        {
+          "resolution": "제58-1호",
+          "basis": "requested",
+          "page": 77,
+          "account": "[411]아시아태평양지역일반협력국가그룹(ODA)",
+          "title": "태국 삼각협력 아세안 전기전자산업 탄소중립 역량강화사업 ('25-'29/600만불)",
+          "period": "2025-2029",
+          "annual_100m_krw": "14.77",
+          "status": "계속"
+        },
+        {
+          "resolution": "제56-2호",
+          "basis": "confirmed",
+          "page": 95,
+          "account": "[411]아시아태평양지역일반협력국가그룹(ODA)",
+          "title": "태국 삼각협력 아세안 전기전자산업 탄소중립 역량강화사업 ('25-'29/600만불)",
+          "period": "2025-2029",
+          "annual_100m_krw": "38.84",
+          "status": "계속"
+        }
+      ],
+      "_source_name_en": "Thailand Triangular Cooperation for Carbon Neutrality Capacity building in the electrical and electronics industry in ASEAN"
+    }
+  ],
+  "map_languages": [
+    "ko",
+    "en"
+  ]
+}
