@@ -1,0 +1,614 @@
+{
+  "country": "방글라데시",
+  "region": "아시아태평양",
+  "year": 2027,
+  "fetched_at": "2026-11-12",
+  "source": "https://oda-map-lab.pages.dev/generated/map-base.json",
+  "source_build_id": "sha256:f194cf5e897bd14222f33c6efe10fd00d61fa0821d5ffe06aff131bf885c8006",
+  "use_gazetteer": false,
+  "location_status": "source-group-unverified",
+  "projects": [
+    {
+      "selected": true,
+      "place": "쿠밀라·페니·보구라 114개 마을",
+      "badges": [
+        "A"
+      ],
+      "name_ko": "혁신적 농촌공동체 개발 프로그램 (2026–2034/3,000만 불)",
+      "name_en": "Saemaul Plus End Poverty Program (2026–2034 / KOICA USD 30m)",
+      "_period": "2026-2034",
+      "_budget_krw": 41400000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "농업정책 및 행정관리",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2026010100044000",
+      "id": "iati:KR-GOV-051-2026010100044000",
+      "_source_info": {
+        "name": "ODA Korea IATI",
+        "reference_date": null,
+        "report_year": "2026",
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/static/IATI/IATI_actlist.xlsx?v=v7",
+        "file": "IATI_actlist.xlsx"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 41400000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "allocation_divisor": 1
+      },
+      "_reconciled_ids": [
+        "iati:KR-GOV-051-2026010100044000",
+        "koica-rod:BGD-SPEPP-20260917"
+      ],
+      "_reconciled_sources": [
+        {
+          "name": "ODA Korea IATI",
+          "reference_date": null,
+          "report_year": "2026",
+          "fetched_at": null,
+          "url": "https://www.odakorea.go.kr/static/IATI/IATI_actlist.xlsx?v=v7",
+          "file": "IATI_actlist.xlsx"
+        }
+      ],
+      "coverage": "admin2",
+      "admin2_names": [
+        "Comilla",
+        "Feni",
+        "Bogra"
+      ],
+      "scope_sources": [
+        "https://erd.gov.bd/pages/press-releases/on-september-17-2026-the-government-of-bangladesh-along-with-south-koreas-koica-mois-and-rda-signed-the-record-of-discussion-rod-and-terms-of-reference-tor-for-the-saemaul-plus-end-poverty-program-spepp-in-bangladesh-1x357f-6aacd2a113916fdf3843753a",
+        "https://www.bssnews.net/business/425724"
+      ]
+    },
+    {
+      "selected": true,
+      "place": "다카",
+      "badges": [
+        "G"
+      ],
+      "name_ko": "플랫폼 기반 통계서비스 역량강화사업 (965만 불·2027년 과업 예정)",
+      "name_en": "Capacity building for platform-based statistics services (USD 9.65m; work scheduled in 2027)",
+      "_period": "2023-2026",
+      "_budget_krw": 12448500000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "통계능력 강화",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2023010100055",
+      "id": "iati:KR-GOV-051-2023010100055",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 12448500000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_period_review": {
+        "source_period": "2023-2026",
+        "title_period": [
+          2023,
+          2026
+        ],
+        "decision": "verified_activity_in_year"
+      },
+      "_coord_source": "도시",
+      "source_place": "다카",
+      "coverage": "site",
+      "scope_sources": [
+        "https://www.eprocure.gov.bd/resources/common/ViewTender.jsp?h=t&id=1319050"
+      ],
+      "verified_years": [
+        2027
+      ],
+      "sites": [
+        {
+          "place": "다카",
+          "aliases": [
+            "Dhaka"
+          ]
+        }
+      ]
+    },
+    {
+      "selected": true,
+      "place": "도로청 시범교량 3곳",
+      "badges": [
+        "T"
+      ],
+      "name_ko": "도로청 교량 스마트 유지관리 역량강화사업 (현지 시행 2026–2029/885만 불)",
+      "name_en": "Smart bridge maintenance capacity building (local implementation 2026–2029 / USD 8.85m)",
+      "_period": "2024-2027",
+      "_budget_krw": 11416500000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "운송정책 및 행정관리",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2024010100143",
+      "id": "iati:KR-GOV-051-2024010100143",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 11416500000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_place": "다카",
+      "coverage": "unknown",
+      "scope_sources": [
+        "https://www.bssnews.net/news/254562",
+        "https://en.sarabangla.net/development/post-25466/tk-115-73cr-project-to-bring-smart-bridge-monitoring/",
+        "https://thefinancialexpress.com.bd/home/tk-116b-project-aims-to-introduce-smart-monitoring-maintenance-of-bridges?amp=true"
+      ],
+      "scope_label": "카마르칼리·뎀라·토라 교량",
+      "scope_label_en": "Kamar Khali, Demra and Tora bridges"
+    },
+    {
+      "selected": true,
+      "place": "차토그램",
+      "badges": [
+        "E"
+      ],
+      "name_ko": "방글라데시 선진시장형 기술인력 양성을 위한 차토그램 한방직업훈련원 직업훈련체계 현대화('24-'27/1,000만불)",
+      "name_en": "Promote Better Quality TVET and Employment through Upgradation of BKTTC, Chattogram, Bangladesh (2024–2027 / USD 10m)",
+      "_period": "2024-2027",
+      "_budget_krw": 11300000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "직업훈련(기초,중등수준)",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2024010100048",
+      "id": "iati:KR-GOV-051-2024010100048",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 11300000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "KOICA 프로젝트맵(사업지) · 도시",
+      "source_place": "차토그램",
+      "coverage": "site",
+      "scope_sources": [
+        "https://www.nabo.go.kr/board/file/down.do?fid=33318827"
+      ],
+      "sites": [
+        {
+          "place": "차토그램",
+          "aliases": [
+            "Chattogram"
+          ]
+        }
+      ],
+      "_source_name_en": "Promote Better Quality TVET and Employment through Upgradation of BKTTC, Chattogram, Bangladesh"
+    },
+    {
+      "selected": true,
+      "place": "다카·쿨나·실렛",
+      "badges": [
+        "E"
+      ],
+      "name_ko": "기술교육 및 청년취업 강화사업 (2018–2028 계획/850만 불)",
+      "name_en": "Strengthening Training System of the Bureau of manpower employment and training with upgrading of three TTCs (2018–2028 / KRW 9.605bn)",
+      "_period": "2018-2028",
+      "_budget_krw": 9605000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "직업훈련(기초,중등수준)",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2016010120200",
+      "id": "iati:KR-GOV-051-2016010120200",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 9605000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_period_review": {
+        "source_period": "2019-2025",
+        "title_period": [
+          2018,
+          2028
+        ],
+        "decision": "verified_for_year"
+      },
+      "_coord_source": "도시",
+      "source_place": "다카",
+      "coverage": "site",
+      "scope_sources": [
+        "https://www.nabo.go.kr/board/file/down.do?fid=33318827",
+        "https://www.adb.org/sites/default/files/project-documents/42466/42466-016-fam-en.pdf"
+      ],
+      "sites": [
+        {
+          "place": "다카",
+          "aliases": [
+            "Dhaka"
+          ]
+        },
+        {
+          "place": "쿨나",
+          "aliases": [
+            "Khulna"
+          ]
+        },
+        {
+          "place": "실렛",
+          "aliases": [
+            "Sylhet"
+          ]
+        }
+      ],
+      "verified_years": [
+        2027
+      ],
+      "_source_name_en": "Strengthening Training System of the Bureau of manpower employment and training with upgrading of three TTCs"
+    },
+    {
+      "selected": true,
+      "place": "다카",
+      "badges": [
+        "E"
+      ],
+      "name_ko": "방글라데시 청년창업 활성화를 위한 대학 창업교육 역량강화 지원사업('18-'27/750만불)",
+      "name_en": "Project for Capacity Building of Universities in Bangladesh to Promote Youth Entrepreneurship (2018–2027 / USD 7.5m)",
+      "_period": "2018-2027",
+      "_budget_krw": 8475000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "중소기업 개발",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2016010120206",
+      "id": "iati:KR-GOV-051-2016010120206",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 8475000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_place": "다카",
+      "coverage": "site",
+      "scope_sources": [
+        "https://du.ac.bd/du_post_details/KOICA-Country-Director--calls-on-DU-VC/21186"
+      ],
+      "sites": [
+        {
+          "place": "다카",
+          "aliases": [
+            "Dhaka"
+          ]
+        }
+      ],
+      "_source_name_en": "Project for Capacity Building of Universities in Bangladesh to Promote Youth Entrepreneurship"
+    },
+    {
+      "selected": true,
+      "place": "다카",
+      "badges": [
+        "H"
+      ],
+      "name_ko": "방글라데시 간호대학원 교육연구 역량강화 사업('25-'29/590만불)",
+      "name_en": "Strengthening Nursing Workforce through Advances in Nursing Education and Practice in Bangladesh (2025–2029 / USD 5.9m)",
+      "_period": "2025-2029",
+      "_budget_krw": 8142000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "의료교육 및 훈련",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025010100106",
+      "id": "iati:KR-GOV-051-2025010100106",
+      "_source_info": {
+        "name": "ODA Korea IATI",
+        "reference_date": null,
+        "report_year": "2026",
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/static/IATI/IATI_actlist.xlsx?v=v7",
+        "file": "IATI_actlist.xlsx"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 8142000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "allocation_divisor": 1
+      },
+      "_coord_source": "도시",
+      "source_place": "다카",
+      "coverage": "site",
+      "scope_sources": [
+        "https://hris.mohfw.gov.bd/public/facility-registry/facilities/33792/profile",
+        "https://www.tbsnews.net/economy/corporates/koica-erd-sign-deal-first-nursing-phd-1225031"
+      ],
+      "sites": [
+        {
+          "place": "다카",
+          "aliases": [
+            "Dhaka"
+          ]
+        }
+      ],
+      "_source_name_en": "Strengthening Nursing Workforce through Advances in Nursing Education and Practice in Bangladesh"
+    },
+    {
+      "selected": true,
+      "place": "다카",
+      "badges": [
+        "E"
+      ],
+      "name_ko": "방글라데시 다카 지역 송전전문인력 양성 사업(2025-2029/3,571백만원)",
+      "name_en": "Bangladesh vocational manpower training for transmission line construction (2025–2029 / KRW 3.571bn)",
+      "_period": "2025-2029",
+      "_budget_krw": 2500000000.0,
+      "_biz_type": "혁신적개발협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "고급기술 및 관리자 교육",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025070101146",
+      "id": "iati:KR-GOV-051-2025070101146",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 2500000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "다카",
+        "lat": 23.76439,
+        "lon": 90.38901,
+        "source": "도시"
+      },
+      "_source_name_en": "Bangladesh vocational manpower training for transmission line construction"
+    },
+    {
+      "selected": true,
+      "place": "랑푸르",
+      "badges": [
+        "H"
+      ],
+      "name_ko": "방글라데시 랑푸르 주 모자보건 시스템 강화 사업('23-'27/14,300백만원)",
+      "name_en": "Strengthening the Maternal and Neonatal Health Service System in Bangladesh Rangpur Division (2023–2027 / KRW 14.3bn)",
+      "_period": "2023-2027",
+      "_budget_krw": 1000000000.0,
+      "_biz_type": "시민사회협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "생식보건",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2023070100548",
+      "id": "iati:KR-GOV-051-2023070100548",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 1000000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "랑푸르",
+        "lat": 25.63761,
+        "lon": 89.08264,
+        "source": "도시"
+      },
+      "_source_name_en": "Strengthening the Maternal and Neonatal Health Service System in Bangladesh Rangpur Division"
+    },
+    {
+      "id": "koica-plan:BGD-BKTTC-ship-recycling",
+      "_id": "koica-plan:BGD-BKTTC-ship-recycling",
+      "selected": true,
+      "_period": "2027-2031",
+      "_stage": "기획조사",
+      "_budget_krw": null,
+      "_agency": "한국국제협력단(KOICA)",
+      "_location_basis": "public-project-evidence",
+      "_source_info": {
+        "name": "KOICA 방글라데시사무소 공개 설명",
+        "url": "https://job.koica.go.kr/application/entrpsDetailPage.do?empmnPblancSn=&entrpsSn=2023020&menuId=MENU0098",
+        "reference_date": "2026-09-13"
+      },
+      "place": "차토그램",
+      "name_ko": "차토그램 한·방직업훈련원 스마트·그린 선박해체 기술 산업인력 양성사업 (기획·2027–2031/1,500만 불)",
+      "name_en": "Smart and green ship recycling workforce training at Chattogram BKTTC (planned, 2027–2031 / USD 15m)",
+      "badges": [
+        "E"
+      ],
+      "coverage": "site",
+      "sites": [
+        {
+          "place": "차토그램",
+          "aliases": [
+            "Chattogram"
+          ]
+        }
+      ],
+      "scope_sources": [
+        "https://job.koica.go.kr/application/entrpsDetailPage.do?empmnPblancSn=&entrpsSn=2023020&menuId=MENU0098",
+        "https://www.tbsnews.net/economy/industry/south-korea-support-skilled-workforce-development-bangladeshs-ship-recycling-sector"
+      ]
+    },
+    {
+      "id": "koica-rod:BGD-AI-20260825",
+      "_id": "koica-rod:BGD-AI-20260825",
+      "selected": true,
+      "_period": "2026-2029",
+      "_stage": "협의의사록 서명",
+      "_budget_krw": null,
+      "_agency": "한국국제협력단(KOICA)",
+      "_location_basis": "public-project-evidence",
+      "_source_info": {
+        "name": "방글라데시 ERD·KOICA 협의의사록 발표",
+        "url": "https://job.koica.go.kr/application/applicationDetailPage.do?empmnPblancSn=16814&entrpsSn=&menuId=MENU0098&pageIndex=1",
+        "reference_date": "2026-08-25"
+      },
+      "place": "다카",
+      "name_ko": "방글라데시 AI 혁신기술 전문인력 양성사업 (2026–2029/1,300만 불)",
+      "name_en": "Fostering innovative technology experts with a focus on AI (2026–2029 / USD 13m)",
+      "badges": [
+        "E"
+      ],
+      "coverage": "site",
+      "sites": [
+        {
+          "place": "다카",
+          "aliases": [
+            "Dhaka"
+          ]
+        }
+      ],
+      "scope_sources": [
+        "https://job.koica.go.kr/application/applicationDetailPage.do?empmnPblancSn=16814&entrpsSn=&menuId=MENU0098&pageIndex=1",
+        "https://www.bssnews.net/others/417915",
+        "https://www.tbsnews.net/economy/corporates/south-korea-provides-13-million-grant-bangladesh-ai-hub-1524536"
+      ]
+    },
+    {
+      "id": "koica-rod:BGD-TTC-expost-20260917",
+      "_id": "koica-rod:BGD-TTC-expost-20260917",
+      "selected": true,
+      "_period": "2026-2028",
+      "_stage": "협의의사록 서명",
+      "_budget_krw": null,
+      "_agency": "한국국제협력단(KOICA)",
+      "_location_basis": "public-project-evidence",
+      "_source_info": {
+        "name": "방글라데시 경제관계부 발표",
+        "url": "https://en.prothomalo.com/bangladesh/03fdo477l5",
+        "reference_date": "2026-09-17"
+      },
+      "place": "차토그램",
+      "name_ko": "차토그램 직업훈련원 교육시설 개선 사후관리사업 (2026–2028/200만 불)",
+      "name_en": "Ex-post management for enhancing vocational training at TTC Chittagong (2026–2028 / USD 2m)",
+      "badges": [
+        "E"
+      ],
+      "coverage": "site",
+      "sites": [
+        {
+          "place": "차토그램",
+          "aliases": [
+            "Chattogram"
+          ]
+        }
+      ],
+      "scope_sources": [
+        "https://en.prothomalo.com/bangladesh/03fdo477l5"
+      ]
+    },
+    {
+      "id": "iati:KR-GOV-051-2026010100046",
+      "_id": "iati:KR-GOV-051-2026010100046",
+      "selected": true,
+      "_period": "2026-2030",
+      "_stage": "협약 서명",
+      "_budget_krw": null,
+      "_agency": "한국국제협력단(KOICA)",
+      "_location_basis": "public-project-evidence",
+      "_source_info": {
+        "name": "WFP·KOICA",
+        "url": "https://oda-map-lab.pages.dev/generated/map-base.json",
+        "reference_date": "2026"
+      },
+      "place": "(겸임) 부탄",
+      "name_ko": "부탄 지역농산물 연계 학교급식을 통한 영양개선 및 농업가치사슬 지원사업(WFP) (2026–2030/950만 불)",
+      "name_en": "Home-grown school feeding and local agriculture in Bhutan (2026–2030 / USD 9.5m)",
+      "badges": [
+        "H"
+      ],
+      "coverage": "external",
+      "place_en": "Bhutan (concurrent office)",
+      "recipient_country": "부탄",
+      "scope_sources": [
+        "https://oda-map-lab.pages.dev/generated/map-base.json",
+        "https://www.wfp.org/news/koica-and-wfp-partner-strengthen-school-nutrition-and-support-local-farmers-bhutan"
+      ]
+    }
+  ],
+  "map_languages": [
+    "ko",
+    "en"
+  ]
+}

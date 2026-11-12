@@ -1,0 +1,490 @@
+{
+  "country": "케냐",
+  "region": "아프리카",
+  "year": 2027,
+  "fetched_at": "2026-11-12",
+  "source": "https://oda-map-lab.pages.dev/generated/map-base.json",
+  "source_build_id": "sha256:f194cf5e897bd14222f33c6efe10fd00d61fa0821d5ffe06aff131bf885c8006",
+  "use_gazetteer": false,
+  "location_status": "source-group-unverified",
+  "projects": [
+    {
+      "selected": true,
+      "place": "키텐겔라",
+      "badges": [
+        "H"
+      ],
+      "name_ko": "케냐 카지아도주 모성과 신생아 전문의료센터(SMC) 구축을 통한 의료역량강화사업('25-'30/1,400만불)",
+      "name_en": "Project for Enhancing Maternal and Child Healthcare by Establishing Modern Maternity, Newborn and Child Health Complex in Kitengela Sub-County Hospital in Kenya (2025–2030 / USD 14m)",
+      "_period": "2025-2030",
+      "_budget_krw": 19320000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "기초보건진료",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025010100006",
+      "id": "iati:KR-GOV-051-2025010100006",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 19320000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_place": "카지아도",
+      "place_en": "Kitengela",
+      "coverage": "site",
+      "sites": [
+        {
+          "place": "키텐겔라",
+          "aliases": [
+            "Kitengela"
+          ]
+        }
+      ],
+      "scope_sources": [
+        "https://www.kajiado.go.ke/koica-deepens-partnership-for-maternal-and-newborn-health-in-kajiado-county/"
+      ],
+      "_source_name_en": "Project for Enhancing Maternal and Child Healthcare by Establishing Modern Maternity, Newborn and Child Health Complex in Kitengela Sub-County Hospital in Kenya"
+    },
+    {
+      "selected": true,
+      "place": "분고마",
+      "badges": [
+        "T"
+      ],
+      "name_ko": "케냐 분고마 주 보편적 식수접근성 향상을 위한 상수도 구축 및 통합적 운영관리 역량강화사업('25-'32/1,300만불)",
+      "name_en": "The Project for Construction of Water Supply System for Sosio -Kamkuywa-Webuye-Tongaren in Bungoma County, Kenya (2025–2032 / USD 13m)",
+      "_period": "2025-2029",
+      "_budget_krw": 17940000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "식수개발(플랜트시설 등)",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025010100005",
+      "id": "iati:KR-GOV-051-2025010100005",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 17940000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "분고마",
+        "lat": 0.57737,
+        "lon": 34.55546,
+        "source": "도시"
+      },
+      "_source_name_en": "The Project for Construction of Water Supply System for Sosio -Kamkuywa-Webuye-Tongaren in Bungoma County, Kenya"
+    },
+    {
+      "selected": true,
+      "place": "나이로비",
+      "badges": [
+        "A"
+      ],
+      "name_ko": "(분쟁취약) (케냐) 아프리카 권역 기후위기 지역의 식량취약성 극복을 위한 선제대응체계구축 및 회복력 개선 사업(WFP)('24-'27/2,250만불)",
+      "name_en": "Building climate resilience for food security in the fragile setting of Horn of Africa (2024–2027 / USD 22.5m)",
+      "_period": "2024-2027",
+      "_budget_krw": 9407051000.0,
+      "_biz_type": "인도적지원사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "식량안전보장 및 행정관리",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2024010103895",
+      "id": "iati:KR-GOV-051-2024010103895",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 9407051000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "나이로비",
+        "lat": -1.289,
+        "lon": 36.81728,
+        "source": "도시"
+      },
+      "_source_name_en": "Building climate resilience for food security in the fragile setting of Horn of Africa"
+    },
+    {
+      "selected": true,
+      "place": "Nairobi",
+      "badges": [
+        "E"
+      ],
+      "name_ko": "케냐 청년 생산적 고용 및 소득 증대를 위한 국가산업훈련청 센터 역량강화사업('24-'30/700만불))",
+      "name_en": "Project for Enhancing Building and Industrial Workforce Development through Capacity Building of NITA in Kenya (2024–2030 / USD 7m)",
+      "_period": "2025-2028",
+      "_budget_krw": 9100000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "직업훈련(기초,중등수준)",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2024010100065",
+      "id": "iati:KR-GOV-051-2024010100065",
+      "_source_info": {
+        "name": "ODA Korea IATI",
+        "reference_date": null,
+        "report_year": "2026",
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/static/IATI/IATI_actlist.xlsx?v=v7",
+        "file": "IATI_actlist.xlsx"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 9100000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "allocation_divisor": 1
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "Nairobi",
+        "lat": -1.3024,
+        "lon": 36.82885,
+        "source": "도시"
+      },
+      "_source_name_en": "Project for Enhancing Building and Industrial Workforce Development through Capacity Building of NITA in Kenya"
+    },
+    {
+      "selected": true,
+      "place": "투르카나",
+      "badges": [
+        "T"
+      ],
+      "name_ko": "케냐 투르카나주의 기후변화 회복력 강화를 위한 통합적 식수위생 위기 대응 및 개선사업(UNICEF)('24-'27/683만불)",
+      "name_en": "Strengthening Community Resilience to Climate Change through Integrated Water Resource Management (IWRM), Sanitation and Hygiene in Turkana County (2024–2027 / USD 6.83m)",
+      "_period": "2024-2027",
+      "_budget_krw": 8879000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "기초식수공급",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2024010100091",
+      "id": "iati:KR-GOV-051-2024010100091",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 8879000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시(음차)",
+      "source_coord": {
+        "place": "투르카나",
+        "lat": 3.2,
+        "lon": 35.46667,
+        "source": "도시(음차)"
+      },
+      "_source_name_en": "Strengthening Community Resilience to Climate Change through Integrated Water Resource Management (IWRM), Sanitation and Hygiene in Turkana County"
+    },
+    {
+      "selected": true,
+      "place": "나이로비",
+      "badges": [
+        "G"
+      ],
+      "name_ko": "(분쟁취약) (케냐) 아프리카 권역 평화구축 및 폭력적 극단주의 예방 사업(UNDP)('24-'27/1,800만불)",
+      "name_en": "Peacebuilding and Preventing Violent Extremism in East Africa (2024–2027 / USD 18m)",
+      "_period": "2024-2027",
+      "_budget_krw": 7805036000.0,
+      "_biz_type": "인도적지원사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "민간주도의 분쟁예방",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2024010103877",
+      "id": "iati:KR-GOV-051-2024010103877",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 7805036000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "나이로비",
+        "lat": -1.289,
+        "lon": 36.81728,
+        "source": "도시"
+      },
+      "_source_name_en": "Peacebuilding and Preventing Violent Extremism in East Africa"
+    },
+    {
+      "selected": true,
+      "place": "카지아도",
+      "badges": [
+        "T"
+      ],
+      "name_ko": "케냐 차보생태지역 복원 기반 통합적 기후변화 대응사업 (2023–2027 / 75억 원)",
+      "name_en": "Sustainable Environment and Economy against Drought and Degradation in TEDA (K-SEED Project) (2023–2027 / KRW 7.5bn)",
+      "_period": "2023-2027",
+      "_budget_krw": 7500000000.0,
+      "_biz_type": "시민사회협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "환경정책 및 행정관리",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2023070100524",
+      "id": "iati:KR-GOV-051-2023070100524",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 7500000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "카지아도",
+        "lat": -1.89653,
+        "lon": 37.08799,
+        "source": "도시"
+      },
+      "_source_name_ko": "케냐 차보생태지역 복원 기반 통합적 기후변화 대응사업",
+      "_source_name_en": "Sustainable Environment and Economy against Drought and Degradation in TEDA (K-SEED Project)"
+    },
+    {
+      "selected": true,
+      "place": "투르카나",
+      "badges": [
+        "G"
+      ],
+      "name_ko": "ITC 케냐 난민 및 호스트 커뮤니티 대상 시장 중심 소득 기회 창출을 통한 지속가능한 사회경제적 발전 촉진 사업('23-'27/560만불)",
+      "name_en": "Kenya: Promoting sustainable socio-economic development and creating market-based livelihoods opportunities for refugees (2023–2027 / USD 5.6m)",
+      "_period": "2023-2027",
+      "_budget_krw": 7224000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "구호 물자지원 및 서비스",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2023090100571",
+      "id": "iati:KR-GOV-051-2023090100571",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 7224000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시(음차)",
+      "source_coord": {
+        "place": "투르카나",
+        "lat": 3.2,
+        "lon": 35.46667,
+        "source": "도시(음차)"
+      },
+      "_source_name_en": "Kenya: Promoting sustainable socio-economic development and creating market-based livelihoods opportunities for refugees"
+    },
+    {
+      "selected": true,
+      "place": "나이로비",
+      "badges": [
+        "G"
+      ],
+      "name_ko": "(분쟁취약) (케냐) 아프리카 권역 분쟁 및 취약지역 내 생계 강화 및 경제 활성화 사업(IOM)('24-'27/1,280만불)",
+      "name_en": "Empowering Livelihoods and Economic Vitality in Fragile and Conflict Zones (2024–2027 / USD 12.8m)",
+      "_period": "2024-2027",
+      "_budget_krw": 6144598000.0,
+      "_biz_type": "인도적지원사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "민간주도의 분쟁예방",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2024010103883",
+      "id": "iati:KR-GOV-051-2024010103883",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 6144598000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "나이로비",
+        "lat": -1.289,
+        "lon": 36.81728,
+        "source": "도시"
+      },
+      "_source_name_en": "Empowering Livelihoods and Economic Vitality in Fragile and Conflict Zones"
+    },
+    {
+      "selected": true,
+      "place": "Nairobi",
+      "badges": [
+        "E"
+      ],
+      "name_ko": "케냐 나이로비주 미용서비스 산업 여성 전문기술인력 양성 및 일자리 창출 사업(2026-2030/4,017백만원)",
+      "name_en": "A Specialized Skills Training and Employment Creation Initiative for Women in the Beauty Service Industry in Nairobi County, Kenya (2026–2030 / KRW 4.017bn)",
+      "_period": "2026-2030",
+      "_budget_krw": 2410540418.0,
+      "_biz_type": "혁신적개발협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "직업훈련(기초,중등수준)",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2026070100310",
+      "id": "iati:KR-GOV-051-2026070100310",
+      "_source_info": {
+        "name": "ODA Korea IATI",
+        "reference_date": null,
+        "report_year": "2026",
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/static/IATI/IATI_actlist.xlsx?v=v7",
+        "file": "IATI_actlist.xlsx"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 2410540418.0,
+        "currency": "KRW",
+        "status": "reported",
+        "allocation_divisor": 1
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "Nairobi",
+        "lat": -1.3024,
+        "lon": 36.82885,
+        "source": "도시"
+      },
+      "_source_name_en": "A Specialized Skills Training and Employment Creation Initiative for Women in the Beauty Service Industry in Nairobi County, Kenya"
+    },
+    {
+      "selected": true,
+      "place": "키수무",
+      "badges": [
+        "G"
+      ],
+      "name_ko": "케냐 키수무주 니얀도 지역 장애아동 사회통합 지원사업 2단계 (2025–2027 / 22.975억 원)",
+      "name_en": "Social inclusion projcet for Children with disabilities in Nyando sub-county, Kisumu County, Kenya (2025–2027 / KRW 2.2975bn)",
+      "_period": "2025-2027",
+      "_budget_krw": 2297500000.0,
+      "_biz_type": "시민사회협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "사회보호/보장",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025070100617",
+      "id": "iati:KR-GOV-051-2025070100617",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 2297500000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "키수무",
+        "lat": -0.10291,
+        "lon": 34.75418,
+        "source": "도시"
+      },
+      "_source_name_ko": "케냐 키수무주 니얀도 지역 장애아동 사회통합 지원사업 2단계",
+      "_source_name_en": "Social inclusion projcet for Children with disabilities in Nyando sub-county, Kisumu County, Kenya"
+    }
+  ],
+  "map_languages": [
+    "ko",
+    "en"
+  ]
+}

@@ -1,0 +1,665 @@
+{
+  "country": "네팔",
+  "region": "아시아태평양",
+  "year": 2027,
+  "fetched_at": "2026-11-12",
+  "source": "https://oda-map-lab.pages.dev/generated/map-base.json",
+  "source_build_id": "sha256:f194cf5e897bd14222f33c6efe10fd00d61fa0821d5ffe06aff131bf885c8006",
+  "use_gazetteer": false,
+  "location_status": "source-group-unverified",
+  "projects": [
+    {
+      "selected": true,
+      "place": "Lumbini",
+      "badges": [
+        "A"
+      ],
+      "name_ko": "네팔 떠라이 지역 기후탄력적 벼 품종 재배 및 쌀 생산량 증대사업('26-'31/1,200만불)",
+      "name_en": "Climate-Resilient Rice Production and Productivity Increase in the Terai Region,Nepal('26-'31/USD 12 million)",
+      "_period": "2026-2031",
+      "_budget_krw": 16560000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "농업 개발",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2026010100021000",
+      "id": "iati:KR-GOV-051-2026010100021000",
+      "_source_info": {
+        "name": "ODA Korea IATI",
+        "reference_date": null,
+        "report_year": "2026",
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/static/IATI/IATI_actlist.xlsx?v=v7",
+        "file": "IATI_actlist.xlsx"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 16560000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "allocation_divisor": 1
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "Lumbini",
+        "lat": 27.98071,
+        "lon": 82.95319,
+        "source": "도시"
+      }
+    },
+    {
+      "selected": true,
+      "place": "카트만두",
+      "badges": [
+        "A"
+      ],
+      "name_ko": "네팔 과일 및 채소 가치사슬 개발사업(2단계)('25-'31/1,000만불)",
+      "name_en": "Value Chain Development for Fruits and Vegetables Project, 2nd phase in Nepal (2025–2031 / USD 10m)",
+      "_period": "2025-2031",
+      "_budget_krw": 13800000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "농업 개발",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025010100028",
+      "id": "iati:KR-GOV-051-2025010100028",
+      "_source_info": {
+        "name": "ODA Korea IATI",
+        "reference_date": null,
+        "report_year": "2026",
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/static/IATI/IATI_actlist.xlsx?v=v7",
+        "file": "IATI_actlist.xlsx"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 13800000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "allocation_divisor": 1
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "카트만두",
+        "lat": 27.70832,
+        "lon": 85.32058,
+        "source": "도시"
+      },
+      "_source_name_en": "Value Chain Development for Fruits and Vegetables Project, 2nd phase in Nepal"
+    },
+    {
+      "selected": true,
+      "place": "카트만두",
+      "badges": [
+        "E"
+      ],
+      "name_ko": "네팔 Province7 지역 숙련인력 양성을 위한 폴리테크닉 설립사업('25-'29/1,000만불)",
+      "name_en": "Establishing Polytechnic in Sudurpashchim Province leading to cultivate skilled workforce in Automobile and Mechatronics Sector (2025–2029 / USD 10m)",
+      "_period": "2025-2029",
+      "_budget_krw": 13800000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "직업훈련(기초,중등수준)",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025010100032",
+      "id": "iati:KR-GOV-051-2025010100032",
+      "_source_info": {
+        "name": "ODA Korea IATI",
+        "reference_date": null,
+        "report_year": "2026",
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/static/IATI/IATI_actlist.xlsx?v=v7",
+        "file": "IATI_actlist.xlsx"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 13800000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "allocation_divisor": 1
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "카트만두",
+        "lat": 27.70832,
+        "lon": 85.32058,
+        "source": "도시"
+      },
+      "_source_name_en": "Establishing Polytechnic in Sudurpashchim Province leading to cultivate skilled workforce in Automobile and Mechatronics Sector"
+    },
+    {
+      "selected": true,
+      "place": "포카라",
+      "badges": [
+        "T"
+      ],
+      "name_ko": "네팔 포카라시 리사이클/업사이클 플랫폼 및 친환경 시범마을 구축을 통한 녹색일자리 창출지원사업('23-'29/980만불)",
+      "name_en": "Green Job Creation through Recycling and Upcycling Project at Pokhara Metropolitan City, Nepal (2023–2029 / USD 9.8m)",
+      "_period": "2023-2029",
+      "_budget_krw": 12642000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "환경정책 및 행정관리",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2023010100052",
+      "id": "iati:KR-GOV-051-2023010100052",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 12642000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시(음차)",
+      "source_place": "박타푸르",
+      "place_en": "Pokhara",
+      "coverage": "site",
+      "sites": [
+        {
+          "place": "포카라",
+          "aliases": [
+            "Pokhara"
+          ]
+        }
+      ],
+      "scope_sources": [
+        "https://www.undp.org/nepal/projects/green-job-creation-through-recycling-and-upcycling"
+      ],
+      "_source_name_en": "Green Job Creation through Recycling and Upcycling Project at Pokhara Metropolitan City, Nepal"
+    },
+    {
+      "selected": true,
+      "place": "간다키",
+      "badges": [
+        "E"
+      ],
+      "name_ko": "네팔 Province4 직업교육학교 건립사업('24-'30/900만불)",
+      "name_en": "Infrastructure Development of Gandaki Institute of Technology(GIT) under the Gandaki Technical Education and Vocational Training Academy (2024–2030 / USD 9m)",
+      "_period": "2024-2028",
+      "_budget_krw": 11700000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "직업훈련(기초,중등수준)",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2024010100053",
+      "id": "iati:KR-GOV-051-2024010100053",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 11700000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "간다키",
+        "lat": 28.21568,
+        "lon": 83.67441,
+        "source": "도시"
+      },
+      "_source_name_en": "Infrastructure Development of Gandaki Institute of Technology(GIT) under the Gandaki Technical Education and Vocational Training Academy"
+    },
+    {
+      "selected": true,
+      "place": "박타푸르",
+      "badges": [
+        "H"
+      ],
+      "name_ko": "네팔 박타푸르 취약지역의 빈곤층 건강수준 향상을 위한 역량강화 및 의료인프라 개선사업 ('22-'27/950만불)",
+      "name_en": "The Second Phase Project for Establishing the Nepal-KoreaFriendship Municipality Hospital (2022–2027 / USD 9.5m)",
+      "_period": "2023-2027",
+      "_budget_krw": 10735000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "기초의료설비",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2022010100009",
+      "id": "iati:KR-GOV-051-2022010100009",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 10735000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시(음차)",
+      "source_place": "박타푸르",
+      "place_en": "Bhaktapur",
+      "coverage": "site",
+      "sites": [
+        {
+          "place": "박타푸르",
+          "aliases": [
+            "Bhaktapur"
+          ]
+        }
+      ],
+      "scope_sources": [
+        "https://np.mofa.go.kr/np-en/brd/m_1716/view.do?seq=759495"
+      ],
+      "_source_name_en": "The Second Phase Project for Establishing the Nepal-KoreaFriendship Municipality Hospital"
+    },
+    {
+      "selected": true,
+      "place": "바디바스",
+      "badges": [
+        "E"
+      ],
+      "name_ko": "네팔 Province 2 지역 건설기술인력 양성을 위한 모델 폴리텍 설립사업('21-'27/860만불)",
+      "name_en": "Establishment of Construction Sector Focused Technical and Vocational Education and Training(TVET) School (2021–2027 / USD 8.6m)",
+      "_period": "2021-2027",
+      "_budget_krw": 10406000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "직업훈련(기초,중등수준)",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2021010100139",
+      "id": "iati:KR-GOV-051-2021010100139",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 10406000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "KOICA 프로젝트맵(사업지)",
+      "source_place": "바디바스",
+      "place_en": "Bardibas",
+      "coverage": "site",
+      "sites": [
+        {
+          "place": "바디바스",
+          "aliases": [
+            "Bardibas"
+          ]
+        }
+      ],
+      "scope_sources": [
+        "https://overseas.mofa.go.kr/np-en/brd/m_1716/view.do?seq=759048"
+      ],
+      "_source_name_en": "Establishment of Construction Sector Focused Technical and Vocational Education and Training(TVET) School"
+    },
+    {
+      "selected": true,
+      "place": "룸비니",
+      "badges": [
+        "A"
+      ],
+      "name_ko": "네팔 버르디야 지역 포용적 농촌공동체 개발사업('24-'29/800만불)",
+      "name_en": "Inclusive Raral Development Project in Bardiya District, Nepal (2024–2029 / USD 8m)",
+      "_period": "2024-2029",
+      "_budget_krw": 10400000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "농업 개발",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2024010100096",
+      "id": "iati:KR-GOV-051-2024010100096",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 10400000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "룸비니",
+        "lat": 27.4691,
+        "lon": 83.24748,
+        "source": "도시"
+      },
+      "_source_name_en": "Inclusive Raral Development Project in Bardiya District, Nepal"
+    },
+    {
+      "selected": true,
+      "place": "카트만두",
+      "badges": [
+        "E"
+      ],
+      "name_ko": "네팔 마데시주 기초교육 및 직업준비도 향상을 통한 포용적 미래세대 양성 시스템 강화 사업 (2025–2029 / 97.8407304억 원)",
+      "name_en": "KOICA-SC Future-proofing Education: strengthening inclusive nurturing systems for the next generation by improving basic education and job readiness in Madhesh province, Nepal (2025–2029 / KRW 9.78407304bn)",
+      "_period": "2025-2029",
+      "_budget_krw": 9784073040.0,
+      "_biz_type": "시민사회협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "초등교육",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025070101064",
+      "id": "iati:KR-GOV-051-2025070101064",
+      "_source_info": {
+        "name": "ODA Korea IATI",
+        "reference_date": null,
+        "report_year": "2026",
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/static/IATI/IATI_actlist.xlsx?v=v7",
+        "file": "IATI_actlist.xlsx"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 9784073040.0,
+        "currency": "KRW",
+        "status": "reported",
+        "allocation_divisor": 1
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "카트만두",
+        "lat": 27.70832,
+        "lon": 85.32058,
+        "source": "도시"
+      },
+      "_source_name_ko": "네팔 마데시주 기초교육 및 직업준비도 향상을 통한 포용적 미래세대 양성 시스템 강화 사업",
+      "_source_name_en": "KOICA-SC Future-proofing Education: strengthening inclusive nurturing systems for the next generation by improving basic education and job readiness in Madhesh province, Nepal"
+    },
+    {
+      "selected": true,
+      "place": "카트만두",
+      "badges": [
+        "G"
+      ],
+      "name_ko": "네팔 한국 귀환노동자 안정적 재정착을 위한 단계별 지원체계 강화사업('22-'28/800만불)",
+      "name_en": "Project for Strengthening Stage-wise Support System for theStable Reintegration ofReturnee Migrants in Nepal (2022–2028 / USD 8m)",
+      "_period": "2022-2028",
+      "_budget_krw": 9040000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "이민 이주 원활화",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2022010100025",
+      "id": "iati:KR-GOV-051-2022010100025",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 9040000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "카트만두",
+        "lat": 27.70832,
+        "lon": 85.32058,
+        "source": "도시"
+      },
+      "_source_name_en": "Project for Strengthening Stage-wise Support System for theStable Reintegration ofReturnee Migrants in Nepal"
+    },
+    {
+      "selected": true,
+      "place": "룸비니",
+      "badges": [
+        "G"
+      ],
+      "name_ko": "UNFPA 네팔 성기반폭력 근절과 포괄적 성교육을 통한 여성을 위한 안전한 환경 조성('24-'27/600만불)",
+      "name_en": "Safe and enabling environment for adolescent girls and young women (SAFE-Girls) (2024–2027 / USD 6m)",
+      "_period": "2024-2027",
+      "_budget_krw": 7800000000.0,
+      "_biz_type": "국제기구협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "여성폭력 근절",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2024090100735",
+      "id": "iati:KR-GOV-051-2024090100735",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 7800000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "룸비니",
+        "lat": 27.4691,
+        "lon": 83.24748,
+        "source": "도시"
+      },
+      "_source_name_en": "Safe and enabling environment for adolescent girls and young women (SAFE-Girls)"
+    },
+    {
+      "selected": true,
+      "place": "카트만두",
+      "badges": [
+        "G"
+      ],
+      "name_ko": "네팔 법령정보 파일럿시스템 구축 사업 (2025–2027 / 25억 원)",
+      "name_en": "Project for Establishing Nepal Law Information System and Capacity Building About Law Information Management (2025–2027 / KRW 2.5bn)",
+      "_period": "2025-2027",
+      "_budget_krw": 2500000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "입법 및 사법제도 개발",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025020103952",
+      "id": "iati:KR-GOV-051-2025020103952",
+      "_source_info": {
+        "name": "ODA Korea IATI",
+        "reference_date": null,
+        "report_year": "2026",
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/static/IATI/IATI_actlist.xlsx?v=v7",
+        "file": "IATI_actlist.xlsx"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 2500000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "allocation_divisor": 1
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "카트만두",
+        "lat": 27.70832,
+        "lon": 85.32058,
+        "source": "도시"
+      },
+      "_source_name_ko": "네팔 법령정보 파일럿시스템 구축 사업",
+      "_source_name_en": "Project for Establishing Nepal Law Information System and Capacity Building About Law Information Management"
+    },
+    {
+      "selected": true,
+      "place": "팔룽타르",
+      "badges": [
+        "A"
+      ],
+      "name_ko": "네팔 팔룽타르시 양돈 창업보육센터 건립을 통한 양돈가치사슬개선 및 농가 소득증대사업 (2022–2027 / 25억 원)",
+      "name_en": "Improvement of Pig's Value Chain and Increase of Farm Income through the Establishment of Pig's Start-up Child Care Center in Palungtar Municipal, Nepal (2022–2027 / KRW 2.5bn)",
+      "_period": "2022-2027",
+      "_budget_krw": 2500000000.0,
+      "_biz_type": "혁신적개발협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "축산",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2022070100261",
+      "id": "iati:KR-GOV-051-2022070100261",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 2500000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "국가(폴백)",
+      "_source_name_ko": "네팔 팔룽타르시 양돈 창업보육센터 건립을 통한 양돈가치사슬개선 및 농가 소득증대사업",
+      "_source_name_en": "Improvement of Pig's Value Chain and Increase of Farm Income through the Establishment of Pig's Start-up Child Care Center in Palungtar Municipal, Nepal"
+    },
+    {
+      "selected": true,
+      "place": "마데시 주",
+      "badges": [
+        "T"
+      ],
+      "name_ko": "네팔 사프타리구 친나마스타시 취약계층 대상 통합적 위생관리 지원 사업 (2025–2027 / 24.0182억 원)",
+      "name_en": "Integrated WASH Management Support for Vulnerable Communities in Chinnamasta, Saptari Distrcit, Nepal (2025–2027 / KRW 2.40182bn)",
+      "_period": "2025-2027",
+      "_budget_krw": 2401820000.0,
+      "_biz_type": "시민사회협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "기초식수공급 및 기초위생에 포함되지 않는 기타",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025070100430",
+      "id": "iati:KR-GOV-051-2025070100430",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 2401820000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시(음차)",
+      "source_coord": {
+        "place": "마데시 주",
+        "lat": 26.94242,
+        "lon": 85.61,
+        "source": "도시(음차)"
+      },
+      "_source_name_ko": "네팔 사프타리구 친나마스타시 취약계층 대상 통합적 위생관리 지원 사업",
+      "_source_name_en": "Integrated WASH Management Support for Vulnerable Communities in Chinnamasta, Saptari Distrcit, Nepal"
+    },
+    {
+      "selected": true,
+      "place": "자잘쿳 지역",
+      "badges": [
+        "T"
+      ],
+      "name_ko": "네팔 내 저탄소 벽돌 제조를 통한 온실가스 감축과 지속 가능한 산업 전환 사업(2025-2028/2,848백만원)",
+      "name_en": "Greenhouse Gas Reduction and Sustainable Industry Transition through Low-Carbon Brick Manufacturing in Nepal (2025-2028/2.19mUSD)",
+      "_period": "2024-2028",
+      "_budget_krw": 1993600000.0,
+      "_biz_type": "혁신적개발협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "전력생산, 재생가능 자원사용 - 복합 기술",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025070101156",
+      "id": "iati:KR-GOV-051-2025070101156",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 1993600000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "국가(폴백)"
+    }
+  ],
+  "map_languages": [
+    "ko",
+    "en"
+  ]
+}

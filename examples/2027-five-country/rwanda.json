@@ -1,0 +1,273 @@
+{
+  "country": "르완다",
+  "region": "아프리카",
+  "year": 2027,
+  "fetched_at": "2026-11-12",
+  "source": "https://oda-map-lab.pages.dev/generated/map-base.json",
+  "source_build_id": "sha256:f194cf5e897bd14222f33c6efe10fd00d61fa0821d5ffe06aff131bf885c8006",
+  "use_gazetteer": false,
+  "location_status": "source-group-unverified",
+  "projects": [
+    {
+      "selected": true,
+      "place": "가치보",
+      "badges": [
+        "A"
+      ],
+      "name_ko": "르완다 건조지역 농업 기후 회복력 지원 및 지역사회 청년층 그린잡 창출지원 사업('25-'29/1,480만불)",
+      "name_en": "Project for supporting agricultural climate resilience and creating green jobs for youth in rural communities (2025–2029 / USD 14.8m)",
+      "_period": "2025-2029",
+      "_budget_krw": 20424000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "경제작물/수출작물",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025010100010",
+      "id": "iati:KR-GOV-051-2025010100010",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 20424000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "KOICA 프로젝트맵(사업지)",
+      "source_coord": {
+        "place": "가치보",
+        "lat": -1.59185,
+        "lon": 30.45535,
+        "source": "KOICA 프로젝트맵(사업지)"
+      },
+      "_source_name_en": "Project for supporting agricultural climate resilience and creating green jobs for youth in rural communities"
+    },
+    {
+      "selected": true,
+      "place": "키갈리",
+      "badges": [
+        "E"
+      ],
+      "name_ko": "르완다 전국 청소년 사회·경제적 자립 역량강화 지원 사업('26-'31/1,400만불)",
+      "name_en": "The project for Improving the Socio-Economic Well-Being of Youth, through strengthening the Capacity of Youth Centers in Rwanda (2026–2031 / USD 14m)",
+      "_period": "2026-2031",
+      "_budget_krw": 19318000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "중고등교육",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2026010100001",
+      "id": "iati:KR-GOV-051-2026010100001",
+      "_source_info": {
+        "name": "ODA Korea IATI",
+        "reference_date": null,
+        "report_year": "2026",
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/static/IATI/IATI_actlist.xlsx?v=v7",
+        "file": "IATI_actlist.xlsx"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 19318000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "allocation_divisor": 1
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "키갈리",
+        "lat": -1.95344,
+        "lon": 30.11401,
+        "source": "도시"
+      },
+      "_source_name_en": "The project for Improving the Socio-Economic Well-Being of Youth, through strengthening the Capacity of Youth Centers in Rwanda"
+    },
+    {
+      "selected": true,
+      "place": "키갈리",
+      "badges": [
+        "E"
+      ],
+      "name_ko": "르완다 제노사이드 회복지원을 통한 지속가능한 평화 구축사업('26-'30/1,300만불)",
+      "name_en": "Preservation, Education, Advocacy, and Commemoration to Empowerment for Post–Genocide in Rwanda (PEACE) (2026–2030 / USD 13m)",
+      "_period": "2026-2030",
+      "_budget_krw": 17940000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "중고등교육",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2026010100003",
+      "id": "iati:KR-GOV-051-2026010100003",
+      "_source_info": {
+        "name": "ODA Korea IATI",
+        "reference_date": null,
+        "report_year": "2026",
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/static/IATI/IATI_actlist.xlsx?v=v7",
+        "file": "IATI_actlist.xlsx"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 17940000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "allocation_divisor": 1
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "키갈리",
+        "lat": -1.95344,
+        "lon": 30.11401,
+        "source": "도시"
+      },
+      "_source_name_en": "Preservation, Education, Advocacy, and Commemoration to Empowerment for Post–Genocide in Rwanda (PEACE)"
+    },
+    {
+      "selected": true,
+      "place": "키갈리",
+      "badges": [
+        "T"
+      ],
+      "name_ko": "르완다 산업 표준화 ICT 역량 강화를 통한 산업 경쟁력 강화사업('23-'28/700만불)",
+      "name_en": "Strengthening the National Quality Infrastructure (NQI) for improving the competitiveness of Rwanda Industry through integrated technical assistance in standardization activities (2023–2028 / USD 7m)",
+      "_period": "2023-2028",
+      "_budget_krw": 9030000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "기술연구개발",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2023010100074",
+      "id": "iati:KR-GOV-051-2023010100074",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 9030000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_place": "키갈리",
+      "place_en": "Kigali",
+      "coverage": "site",
+      "sites": [
+        {
+          "place": "키갈리",
+          "aliases": [
+            "Kigali"
+          ]
+        }
+      ],
+      "scope_sources": [
+        "https://www.rsb.gov.rw/updates/news-detail/rwanda-inaugurates-the-rsb-quality-academy-established-under-the-koica-supported-sisic-project"
+      ],
+      "_source_name_en": "Strengthening the National Quality Infrastructure (NQI) for improving the competitiveness of Rwanda Industry through integrated technical assistance in standardization activities"
+    },
+    {
+      "selected": true,
+      "place": "키갈리",
+      "badges": [
+        "G"
+      ],
+      "name_ko": "르완다 통합적 일자리 정보체계 구축사업('24-'28/650만불)",
+      "name_en": "Development of Sustainable Digital Systems for Skills Development and Employment Promotion (2024–2028 / USD 6.5m)",
+      "_period": "2024-2028",
+      "_budget_krw": 7345000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "고용 창출",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2024010100012",
+      "id": "iati:KR-GOV-051-2024010100012",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 7345000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "키갈리",
+        "lat": -1.95344,
+        "lon": 30.11401,
+        "source": "도시"
+      },
+      "_source_name_en": "Development of Sustainable Digital Systems for Skills Development and Employment Promotion"
+    },
+    {
+      "selected": true,
+      "place": "루치로",
+      "badges": [
+        "G"
+      ],
+      "name_ko": "르완다 UPG 모델을 활용한 여성 가장 가구 극빈상태 개선 사업(2단계) (2025–2027 / 25.8394억 원)",
+      "name_en": "KOICA Ultra Poor Graduation Project for Female-Headed Households in Rwanda (Phase 2) (2025–2027 / KRW 2.58394bn)",
+      "_period": "2025-2027",
+      "_budget_krw": 2583940000.0,
+      "_biz_type": "시민사회협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "사회보호/보장",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025070100691",
+      "id": "iati:KR-GOV-051-2025070100691",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 2583940000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "국가(폴백)",
+      "_source_name_ko": "르완다 UPG 모델을 활용한 여성 가장 가구 극빈상태 개선 사업(2단계)",
+      "_source_name_en": "KOICA Ultra Poor Graduation Project for Female-Headed Households in Rwanda (Phase 2)"
+    }
+  ],
+  "map_languages": [
+    "ko",
+    "en"
+  ]
+}

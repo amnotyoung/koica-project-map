@@ -1,0 +1,729 @@
+{
+  "country": "우즈베키스탄",
+  "region": "중동중앙아시아",
+  "year": 2027,
+  "fetched_at": "2026-11-12",
+  "source": "https://oda-map-lab.pages.dev/generated/map-base.json",
+  "source_build_id": "sha256:f194cf5e897bd14222f33c6efe10fd00d61fa0821d5ffe06aff131bf885c8006",
+  "use_gazetteer": false,
+  "location_status": "source-group-unverified",
+  "projects": [
+    {
+      "selected": true,
+      "place": "타슈켄트",
+      "badges": [
+        "E"
+      ],
+      "name_ko": "우즈베키스탄 산업인재 양성 프로그램('26-'32/3,000만불)",
+      "name_en": "The Project for Industrial Technology Human Resources Development in Uzbekistan (2026–2032 / USD 30m)",
+      "_period": "2026-2032",
+      "_budget_krw": 41400000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "직업훈련(기초,중등수준)",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2026010101174",
+      "id": "iati:KR-GOV-051-2026010101174",
+      "_source_info": {
+        "name": "ODA Korea IATI",
+        "reference_date": null,
+        "report_year": "2026",
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/static/IATI/IATI_actlist.xlsx?v=v7",
+        "file": "IATI_actlist.xlsx"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 41400000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "allocation_divisor": 1
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "타슈켄트",
+        "lat": 41.31234,
+        "lon": 69.27871,
+        "source": "도시"
+      },
+      "_source_name_en": "The Project for Industrial Technology Human Resources Development in Uzbekistan"
+    },
+    {
+      "selected": true,
+      "place": "타슈켄트",
+      "badges": [
+        "G"
+      ],
+      "name_ko": "우즈베키스탄 국가개발전략(우즈베키스탄 2030) 이행을 위한 국가행정아카데미 디지털 혁신사업('26-'30/1,482만불)",
+      "name_en": "Project on Intellectual and Digital Transformation of the Academy of Public Administration under the President of the Republic of Uzbekistan to Support the Strategy “Uzbekistan-2030” (2026–2030 / USD 14.82m)",
+      "_period": "2026-2030",
+      "_budget_krw": 20452000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "공공정책 및 행정관리",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2026010100026",
+      "id": "iati:KR-GOV-051-2026010100026",
+      "_source_info": {
+        "name": "ODA Korea IATI",
+        "reference_date": null,
+        "report_year": "2026",
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/static/IATI/IATI_actlist.xlsx?v=v7",
+        "file": "IATI_actlist.xlsx"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 20452000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "allocation_divisor": 1
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "타슈켄트",
+        "lat": 41.31234,
+        "lon": 69.27871,
+        "source": "도시"
+      },
+      "_source_name_en": "Project on Intellectual and Digital Transformation of the Academy of Public Administration under the President of the Republic of Uzbekistan to Support the Strategy “Uzbekistan-2030”"
+    },
+    {
+      "selected": true,
+      "place": "타슈켄트",
+      "badges": [
+        "G"
+      ],
+      "name_ko": "AI 기반 법률서비스 환경 구축 및 한·우 법센터 건립사업 (2026–2030/1,450만 불)",
+      "name_en": "AI-based legal services and the Korea–Uzbekistan Law Center (2026–2030 / USD 14.5m)",
+      "_period": "2026-2030",
+      "_budget_krw": 20010000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "공공정책 및 행정관리",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2026010102872000",
+      "id": "iati:KR-GOV-051-2026010102872000",
+      "_source_info": {
+        "name": "ODA Korea IATI",
+        "reference_date": null,
+        "report_year": "2026",
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/static/IATI/IATI_actlist.xlsx?v=v7",
+        "file": "IATI_actlist.xlsx"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 20010000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "allocation_divisor": 1
+      },
+      "_reconciled_ids": [
+        "iati:KR-GOV-051-2026010100027",
+        "iati:KR-GOV-051-2026010102872000"
+      ],
+      "_reconciled_sources": [
+        {
+          "name": "ODA Korea IATI",
+          "reference_date": null,
+          "report_year": "2026",
+          "fetched_at": null,
+          "url": "https://www.odakorea.go.kr/static/IATI/IATI_actlist.xlsx?v=v7",
+          "file": "IATI_actlist.xlsx"
+        },
+        {
+          "name": "ODA Korea IATI",
+          "reference_date": null,
+          "report_year": "2026",
+          "fetched_at": null,
+          "url": "https://www.odakorea.go.kr/static/IATI/IATI_actlist.xlsx?v=v7",
+          "file": "IATI_actlist.xlsx"
+        }
+      ],
+      "place_en": "Tashkent",
+      "coverage": "site",
+      "sites": [
+        {
+          "place": "타슈켄트",
+          "aliases": [
+            "Tashkent"
+          ]
+        }
+      ],
+      "scope_sources": [
+        "https://www.digital.gov.uz/en/adliya/news/view/162026",
+        "https://digital.gov.uz/en/adliya/news/view/93584"
+      ]
+    },
+    {
+      "selected": true,
+      "place": "타슈켄트",
+      "badges": [
+        "G"
+      ],
+      "name_ko": "우즈베키스탄 열린 의정활동을 위한 상하원 국회 방송시스템 구축 및 지역 의회와의 연계기반 개선 사업(`23-`27/1,395만불)",
+      "name_en": "Project on Increasing the Openness of the Senate and LCOM in Uzbekistan through the Implementation of Parliament Broadcasting System and Improvement of Connection with Regional and Local Councils (2023–2027 / USD 13.95m)",
+      "_period": "2023-2027",
+      "_budget_krw": 18075000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "입법부 및 정당",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2023010100095",
+      "id": "iati:KR-GOV-051-2023010100095",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 18075000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "타슈켄트",
+        "lat": 41.31234,
+        "lon": 69.27871,
+        "source": "도시"
+      },
+      "_source_name_en": "Project on Increasing the Openness of the Senate and LCOM in Uzbekistan through the Implementation of Parliament Broadcasting System and Improvement of Connection with Regional and Local Councils"
+    },
+    {
+      "selected": true,
+      "place": "타슈켄트",
+      "badges": [
+        "G"
+      ],
+      "name_ko": "우즈베키스탄 지식재산권 공공행정 정보시스템 개선 사업('25-'29/973만불)",
+      "name_en": "Improvement on Intellectual Property Public Administration System in Uzbekistan (2025–2029 / USD 9.73m)",
+      "_period": "2025-2029",
+      "_budget_krw": 13427400000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "공공정책 및 행정관리",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025010100183",
+      "id": "iati:KR-GOV-051-2025010100183",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 13427400000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "타슈켄트",
+        "lat": 41.31234,
+        "lon": 69.27871,
+        "source": "도시"
+      },
+      "_source_name_en": "Improvement on Intellectual Property Public Administration System in Uzbekistan"
+    },
+    {
+      "selected": true,
+      "place": "타슈켄트",
+      "badges": [
+        "G"
+      ],
+      "name_ko": "우즈베키스탄 문화유산 디지털 통합관리 및 활용 역량강화 사업('24-'28/849만불)",
+      "name_en": "Project on Strengthening Capacity for Digital Cultural Heritage Management and Utilization in Uzbekistan (2024–2028 / USD 8.49m)",
+      "_period": "2024-2028",
+      "_budget_krw": 11037000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "문화 및 레크리에이션",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2024010100072",
+      "id": "iati:KR-GOV-051-2024010100072",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 11037000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "타슈켄트",
+        "lat": 41.31234,
+        "lon": 69.27871,
+        "source": "도시"
+      },
+      "_source_name_en": "Project on Strengthening Capacity for Digital Cultural Heritage Management and Utilization in Uzbekistan"
+    },
+    {
+      "selected": true,
+      "place": "타슈켄트",
+      "badges": [
+        "T"
+      ],
+      "name_ko": "우즈베키스탄 파리협정 이행 강화 및 제6조 기반 한-우 협력 지원사업(GGGI)('26-'30/794만불)",
+      "name_en": "Enhancing Uzbekistan's Paris Agreement Implementation and Supporting for Cooperative Action with the Republic of Korea under Article 6 (2026–2030 / USD 7.94m)",
+      "_period": "2026-2030",
+      "_budget_krw": 10957000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "환경정책 및 행정관리",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2026010100023",
+      "id": "iati:KR-GOV-051-2026010100023",
+      "_source_info": {
+        "name": "ODA Korea IATI",
+        "reference_date": null,
+        "report_year": "2026",
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/static/IATI/IATI_actlist.xlsx?v=v7",
+        "file": "IATI_actlist.xlsx"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 10957000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "allocation_divisor": 1
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "타슈켄트",
+        "lat": 41.31234,
+        "lon": 69.27871,
+        "source": "도시"
+      },
+      "_source_name_en": "Enhancing Uzbekistan's Paris Agreement Implementation and Supporting for Cooperative Action with the Republic of Korea under Article 6"
+    },
+    {
+      "selected": true,
+      "place": "타슈켄트 주",
+      "badges": [
+        "A"
+      ],
+      "name_ko": "우즈베키스탄 타슈켄트주 스마트 기술기반 산림 도시녹화 역량강화사업('23-'28/770만불)",
+      "name_en": "Project on Capacity Building for Forest and Urban Greening based on Smart Technology in Tashkent, Uzbekistan (2023–2028 / USD 7.7m)",
+      "_period": "2023-2028",
+      "_budget_krw": 9933000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "임업 개발",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2023010100105",
+      "id": "iati:KR-GOV-051-2023010100105",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "public-project-evidence",
+      "_reported_budget": {
+        "value": 9933000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_place": "타슈켄트",
+      "coverage": "admin1",
+      "place_en": "Tashkent Region",
+      "admin1_ids": [
+        "4885205B31052891590801"
+      ],
+      "admin1_names": [
+        "Tashkent Region"
+      ],
+      "scope_sources": [
+        "https://www.koica.go.kr/koica_kr/990/subview.do?enc=Zm5jdDF8QEB8JTJGYmJzJTJGa29pY2Ffa3IlMkYxNTElMkYzODM3NjQlMkZhcnRjbFZpZXcuZG8lM0Y%3D"
+      ],
+      "_source_name_en": "Project on Capacity Building for Forest and Urban Greening based on Smart Technology in Tashkent, Uzbekistan"
+    },
+    {
+      "selected": true,
+      "place": "타슈켄트",
+      "badges": [
+        "E"
+      ],
+      "name_ko": "우즈베키스탄 세계경제외교대학(UWED) 사이버대학 설립을 위한 온라인교육 제도 구축 및 환경 조성 사업('25-'29/690만불)",
+      "name_en": "Project for Establishment of Cyber University of Uzbekistan for Enhancing Accessibility to Higher Education (2025–2029 / USD 6.9m)",
+      "_period": "2025-2029",
+      "_budget_krw": 9522000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "전문대,대학(원) 교육",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025010100078",
+      "id": "iati:KR-GOV-051-2025010100078",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 9522000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "타슈켄트",
+        "lat": 41.31234,
+        "lon": 69.27871,
+        "source": "도시"
+      },
+      "_source_name_en": "Project for Establishment of Cyber University of Uzbekistan for Enhancing Accessibility to Higher Education"
+    },
+    {
+      "selected": true,
+      "place": "타슈켄트",
+      "badges": [
+        "T"
+      ],
+      "name_ko": "우즈베키스탄 지질재해와 지질자원 통합관리시스템 구축사업('24-'29/700만불)",
+      "name_en": "Establishment of Integrated Management System for Geohazards and Geological Information in Uzbekistan (2024–2029 / USD 7m)",
+      "_period": "2024-2028",
+      "_budget_krw": 9100000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "광물/광업정책 및 행정관리",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2024010100138",
+      "id": "iati:KR-GOV-051-2024010100138",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 9100000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "타슈켄트",
+        "lat": 41.31234,
+        "lon": 69.27871,
+        "source": "도시"
+      },
+      "_source_name_en": "Establishment of Integrated Management System for Geohazards and Geological Information in Uzbekistan"
+    },
+    {
+      "selected": true,
+      "place": "타슈켄트",
+      "badges": [
+        "T"
+      ],
+      "name_ko": "우즈베키스탄 국가화학산업 발전을 위한 화학연구원 설립 역량강화사업('21-'27/700만불)",
+      "name_en": "Establishment of R&D and Design InstituteCenter of Chemical Technology in Uzbekistan(UzCCT) (2021–2027 / USD 7m)",
+      "_period": "2021-2027",
+      "_budget_krw": 8470000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "연구/과학기관",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2021010100187",
+      "id": "iati:KR-GOV-051-2021010100187",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 8470000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "타슈켄트",
+        "lat": 41.31234,
+        "lon": 69.27871,
+        "source": "도시"
+      },
+      "_source_name_en": "Establishment of R&D and Design InstituteCenter of Chemical Technology in Uzbekistan(UzCCT)"
+    },
+    {
+      "selected": true,
+      "place": "타슈켄트",
+      "badges": [
+        "G"
+      ],
+      "name_ko": "우즈베키스탄 시뮬레이션 기반 훈련시설 구축을 통한 경찰역량 강화사업('23-'27/600만불)",
+      "name_en": "Capacity Building Project for Establishment of Simulation-based Police Training facility of Ministry of Internal Affairs of the Republic of Uzbekistan (2023–2027 / USD 6m)",
+      "_period": "2023-2027",
+      "_budget_krw": 7740000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "치안제도 관리 및 개선",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2023010100104",
+      "id": "iati:KR-GOV-051-2023010100104",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 7740000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "타슈켄트",
+        "lat": 41.31234,
+        "lon": 69.27871,
+        "source": "도시"
+      },
+      "_source_name_en": "Capacity Building Project for Establishment of Simulation-based Police Training facility of Ministry of Internal Affairs of the Republic of Uzbekistan"
+    },
+    {
+      "selected": true,
+      "place": "타슈켄트",
+      "badges": [
+        "H"
+      ],
+      "name_ko": "우즈베키스탄 타슈켄트소아의과대학교 교육 연구 역량강화 사업('22-'27/500만불)",
+      "name_en": "Medical and Nursing Education for the Future(MNEF) in Uzbekistan:Project for Education and Research Empowerment for Tashkent Pediatric Medical Institute(TashPMI) (2022–2027 / USD 5m)",
+      "_period": "2022-2027",
+      "_budget_krw": 5650000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "의료교육 및 훈련",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2022010100176",
+      "id": "iati:KR-GOV-051-2022010100176",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 5650000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "타슈켄트",
+        "lat": 41.31234,
+        "lon": 69.27871,
+        "source": "도시"
+      },
+      "_source_name_en": "Medical and Nursing Education for the Future(MNEF) in Uzbekistan:Project for Education and Research Empowerment for Tashkent Pediatric Medical Institute(TashPMI)"
+    },
+    {
+      "selected": true,
+      "place": "타슈켄트",
+      "badges": [
+        "E"
+      ],
+      "name_ko": "우즈베키스탄 타슈켄트정보통신대학교 취창업 연계형 비즈니스 IT 교육 역량강화 사업('22-'27/500만불)",
+      "name_en": "Project for Establishing an Innovative Business IT Education Ecosystem at the Tashkent University of Information Technologies for Better Higher Education in Uzbekistan (2022–2027 / USD 5m)",
+      "_period": "2022-2027",
+      "_budget_krw": 5650000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "교육정책 및 행정관리",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2022010100168",
+      "id": "iati:KR-GOV-051-2022010100168",
+      "_source_info": {
+        "name": "KOICA 공개 사업정보",
+        "reference_date": "2025-07-31",
+        "report_year": null,
+        "fetched_at": null,
+        "url": null,
+        "file": "한국국제협력단_IATI 사업정보_20250731.csv"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 5650000000.0,
+        "currency": "KRW",
+        "status": "reported"
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "타슈켄트",
+        "lat": 41.31234,
+        "lon": 69.27871,
+        "source": "도시"
+      },
+      "_source_name_en": "Project for Establishing an Innovative Business IT Education Ecosystem at the Tashkent University of Information Technologies for Better Higher Education in Uzbekistan"
+    },
+    {
+      "selected": true,
+      "place": "타슈켄트",
+      "badges": [
+        "G"
+      ],
+      "name_ko": "(파일럿사업) 우즈베키스탄 인적자원관리 프로그램 개발 및 역량강화 사업 (2025–2027 / 24.17억 원)",
+      "name_en": "Capacity Building Program for Government Officials in Uzbekistan (2025–2027 / KRW 2.417bn)",
+      "_period": "2025-2027",
+      "_budget_krw": 2417000000.0,
+      "_biz_type": "국별협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "공공정책 및 행정관리",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2025010103713",
+      "id": "iati:KR-GOV-051-2025010103713",
+      "_source_info": {
+        "name": "ODA Korea IATI",
+        "reference_date": null,
+        "report_year": "2026",
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/static/IATI/IATI_actlist.xlsx?v=v7",
+        "file": "IATI_actlist.xlsx"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 2417000000.0,
+        "currency": "KRW",
+        "status": "reported",
+        "allocation_divisor": 1
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "타슈켄트",
+        "lat": 41.31234,
+        "lon": 69.27871,
+        "source": "도시"
+      },
+      "_source_name_ko": "(파일럿사업) 우즈베키스탄 인적자원관리 프로그램 개발 및 역량강화 사업",
+      "_source_name_en": "Capacity Building Program for Government Officials in Uzbekistan"
+    },
+    {
+      "selected": true,
+      "place": "타슈켄트",
+      "badges": [
+        "H"
+      ],
+      "name_ko": "우즈베키스탄 간호인력 디지털 보건역량 강화사업 (2026-2029/2,586백만원)",
+      "name_en": "Digital Health Capacity Building Project for Nursing Workforce in Uzbekistan (2026–2029 / KRW 2.586bn)",
+      "_period": "2026-2029",
+      "_budget_krw": 1810420220.0,
+      "_biz_type": "혁신적개발협력사업",
+      "_aid": "프로젝트 원조",
+      "_agency": "한국국제협력단(KOICA)",
+      "_sector": "보건정책 및 행정관리",
+      "_stage": "사업착수",
+      "_done": false,
+      "_other": false,
+      "_id": "iati:KR-GOV-051-2026070100440",
+      "id": "iati:KR-GOV-051-2026070100440",
+      "_source_info": {
+        "name": "ODA Korea IATI",
+        "reference_date": null,
+        "report_year": "2026",
+        "fetched_at": null,
+        "url": "https://www.odakorea.go.kr/static/IATI/IATI_actlist.xlsx?v=v7",
+        "file": "IATI_actlist.xlsx"
+      },
+      "_location_basis": "group-representative",
+      "_reported_budget": {
+        "value": 1810420220.0,
+        "currency": "KRW",
+        "status": "reported",
+        "allocation_divisor": 1
+      },
+      "_coord_source": "도시",
+      "source_coord": {
+        "place": "타슈켄트",
+        "lat": 41.31234,
+        "lon": 69.27871,
+        "source": "도시"
+      },
+      "_source_name_en": "Digital Health Capacity Building Project for Nursing Workforce in Uzbekistan"
+    }
+  ],
+  "map_languages": [
+    "ko",
+    "en"
+  ]
+}
