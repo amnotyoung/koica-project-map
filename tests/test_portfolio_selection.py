@@ -96,6 +96,18 @@ class AnnualMapTests(unittest.TestCase):
         self.assertFalse(partner_candidates(*args, set(), {"iati:HN"}))
         self.assertFalse(partner_candidates(group, "코스타리카", "Costa Rica", 2029, set(), set()))
 
+    def test_earmarked_country_projects_keep_their_iati_id_but_core_funding_is_excluded(self):
+        import iati_aid
+        members = [{"feature_id":key, "name":{"ko":"Programme","en":"Programme"},
+                    "details":{"agency":"KOICA","biz_type":"국별협력사업","biz_grade":grade,
+                               "source_info":{"url":iati_aid.URL}, "start":"2026","end":"2030"}}
+                   for key,grade in [("earmarked","부서"),("core","부서"),("inferred","번호추정")]]
+        sample = {"features":[{"country":"시험국","name":{"ko":"시험국"},"layer":"project","members":members}]}
+        with patch.object(fetch_projects,"load_source",return_value=sample), patch.object(iati_aid,"load_codes",return_value={"earmarked":"B03","core":"B02","inferred":"B03"}):
+            rows = fetch_projects.collect("시험국",2027,False)["projects"]
+        self.assertEqual([r["id"] for r in rows if r["selected"]], ["earmarked"])
+        self.assertEqual(rows[0]["_iati_aid_code"],"B03")
+
     def test_reference_budget_floor_handles_both_currencies_and_partial_spending(self):
         check = fetch_projects.meets_budget_floor
         self.assertTrue(check("사업(’21-’25/200만불)", {"budget":1}))

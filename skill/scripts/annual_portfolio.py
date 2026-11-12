@@ -55,7 +55,7 @@ def reconcile(rows, pending, country, year, countries, target, previous, display
         fid = f"plan:{country}:{identity}"
         possible = [r["id"] for r in candidates if any(
             SequenceMatcher(None, key, match_key(name), autojunk=False).ratio() >= .64
-            or (not re.search("[가-힣]", name) and r.get("_period") == record["period"])
+            or (not re.search("[가-힣]", name) and (r.get("_period") or "").split("-")[0] == record["period"].split("-")[0])
             for name in (r.get("name_ko"), r.get("_source_name_ko")) if name)]
         selected = funded(record) and not possible and (target["basis"] == "confirmed" or
                                       (record["status"] == "계속" and len(history) == 1))

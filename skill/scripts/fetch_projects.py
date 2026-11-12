@@ -213,23 +213,30 @@ def collect(country: str, year: int | None, include_all: bool,
             per = _period(de)
             aid = de.get("aid") or ""
             xml_source = (de.get("source_info") or {}).get("url") == iati_aid.URL
-            if not aid and xml_source and "KOICA" in agency:
+            aid_code = ""
+            if xml_source and "KOICA" in agency and (not aid or de.get("biz_type") == "국별협력사업"):
                 if aid_codes is None:
                     aid_codes = iati_aid.load_codes(force)
-                if aid_codes.get((fid or "").partition("@")[0]) == "C01":
+                aid_code = aid_codes.get((fid or "").partition("@")[0], "")
+                if not aid and aid_code == "C01":
                     aid = MAIN_AID
+                elif not aid and aid_code == "B03":
+                    aid = "목적지정 프로그램·기금 기여"
             if "KOICA" in agency:
                 catalog_titles.add(project_key(name_ko))
             fact = scopes.get(fid) or scopes.get((fid or "").partition("@")[0])
             applicable, decision = year_decision(year, per, name_ko, fact)
             if decision:
                 review.append({"id":fid, "name":name_ko, **decision})
+            earmarked = (aid_code == "B03" and de.get("biz_type") == "국별협력사업"
+                         and de.get("biz_grade") == "부서")
+            project_aid = aid == MAIN_AID or earmarked
             needs_review = (not applicable and decision and decision["decision"] == "needs_evidence"
-                            and aid == MAIN_AID and "KOICA" in agency)
+                            and project_aid and "KOICA" in agency)
             if not applicable and not needs_review:
                 continue
             explicit_bilateral = de.get("biz_type") == "국별협력사업"
-            main = (aid == MAIN_AID and "KOICA" in agency
+            main = (project_aid and "KOICA" in agency
                     and (explicit_bilateral or (not xml_source or TITLE_BUDGET.search(name_ko)) and meets_budget_floor(name_ko, de)) and not done and not other)
             row = {
                 "selected": main,
@@ -254,6 +261,8 @@ def collect(country: str, year: int | None, include_all: bool,
             reported = (de.get("amounts") or {}).get("budget")
             if isinstance(reported, dict):
                 row["_reported_budget"] = reported
+            if aid_code:
+                row["_iati_aid_code"] = aid_code
             if xml_source:
                 # The XML budget element covers a reporting period, often a single year.
                 row["_budget_period_only"] = True
