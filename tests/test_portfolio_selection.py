@@ -47,6 +47,48 @@ class AnnualMapTests(unittest.TestCase):
         self.assertFalse(check("사업", {}))
         self.assertTrue(check("사업", {"amounts":{"budget":{"currency":"USD", "value":2_000_000}}}))
 
+    def test_bilingual_metadata_preserves_amounts_and_reviewed_differences(self):
+        row = {"name_ko":"시험('25-'29/850만불)", "name_en":"Training",
+               "_period":"2025-2028", "_budget_krw":90}
+        fetch_projects.complete_card_metadata(row)
+        self.assertEqual(row['name_en'], "Training (2025–2029 / USD 8.5m)")
+        self.assertEqual(row['_period'], "2025-2028")
+        self.assertEqual(row['_source_name_en'], "Training")
+        row.update(name_ko="통계사업 (965만 불·2027년 과업 예정)", name_en="Statistics (USD 9.65m; work scheduled in 2027)")
+        expected = row.copy()
+        fetch_projects.complete_card_metadata(row)
+        self.assertEqual(expected,row)
+        row.update(name_ko="시설",name_en="Facility",_reported_budget={"value":4000,"currency":"USD"})
+        fetch_projects.complete_card_metadata(row)
+        self.assertIn("USD",row["name_en"])
+        self.assertNotIn("KRW",row["name_en"])
+
+    def test_confirmed_catalog_and_notice_ids_render_once_with_reviewed_scope(self):
+        from portfolio_selection import reconcile_notices
+        notice = {"id":"official:1","title":"농업","period":"2026-2034","edition_year":2027,
+                  "source_ids":["iati:a","iati:b"],"scope_sources":["https://example.org"],
+                  "coverage":"admin2","admin2_names":["A","B"],"place":"A·B"}
+        rows = [{"id":i,"name_ko":"농업사업","_period":"2026-2034","selected":True,
+                 "source_coord":{"lon":1,"lat":1}} for i in ["iati:a","iati:b"]]
+        reconcile_notices(rows,[notice],2027,set(),set())
+        self.assertEqual(len(rows),1)
+        self.assertEqual(rows[0]["admin2_names"],["A","B"])
+        self.assertNotIn("source_coord",rows[0])
+        self.assertEqual(set(rows[0]["_reconciled_ids"]),{"iati:a","iati:b","official:1"})
+
+    def test_date_conflict_survives_as_unselected_review_candidate(self):
+        member = {"feature_id":"item","name":{"ko":"교육 사업('25-'29/500만불)", "en":"Education"},
+                  "details":{"agency":"KOICA", "aid":"프로젝트 원조", "biz_type":"국별협력사업",
+                             "start":"2025-01", "end":"2025-12", "budget":1_000_000_000}}
+        data = {"features":[{"country":"시험국","name":{"ko":"시험국 · 수도"},
+                              "layer":"project_done","members":[member]}]}
+        with patch.object(fetch_projects, "load_source", return_value=data):
+            doc = fetch_projects.collect("시험국", 2027, False)
+        self.assertEqual(doc["projects"], [])
+        self.assertEqual(doc["period_candidates"][0]["id"], "item")
+        self.assertFalse(doc["period_candidates"][0]["selected"])
+        self.assertEqual(doc["period_candidates"][0]["_period"], "2025-2025")
+
     def test_published_programme_is_not_counted_again_after_inventory_catches_up(self):
         notice = {"edition_year":2026, "title":"예시국 보건 사업", "scope_sources":["https://example.org/programme"],
                   "id":"notice:1","period":"2026-2029","stage":"기획","published":"2025-08-01","publisher":"KOICA"}

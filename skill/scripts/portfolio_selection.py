@@ -58,4 +58,38 @@ def public_additions(notices, year, catalog_titles, catalog_ids):
                "_source_info":{"name":notice["publisher"], "url":notice["scope_sources"][0],
                                "reference_date":notice["published"]},
                **{k:notice[k] for k in ("place","name_ko","name_en","badges","coverage",
-                                         "admin1_names","admin2_names","sites","recipient_country","scope_sources") if k in notice}}
+                                         "admin1_names","admin2_names","sites","place_en","scope_label","scope_label_en","recipient_country","scope_sources") if k in notice}}
+
+
+def reconcile_notices(rows, notices, year, catalog_titles, catalog_ids):
+    """Prefer a catalog identity and the reviewed scope when a verified crosswalk exists."""
+    for notice in notices:
+        if year != notice["edition_year"] or not notice.get("scope_sources"):
+            continue
+        ids = set(notice.get("source_ids", [])) | {notice["id"]}
+        matches = [row for row in rows if row["id"] in ids]
+        if not matches:
+            keys = {project_key(n) for n in (notice["title"], *notice.get("aliases", []))}
+            same = [r for r in rows if project_key(r["name_ko"]) in keys and r["_period"] == notice["period"]]
+            if len(same) == 1 and "@" not in same[0]["id"]:
+                matches = same
+        if not matches:
+            rows.extend(public_additions([notice], year, catalog_titles, catalog_ids))
+            continue
+        kept = next((r for r in matches if r["id"] == notice["id"]), matches[0])
+        kept["_reconciled_ids"] = list(dict.fromkeys([r["id"] for r in matches] + [notice["id"]]))
+        kept["_reconciled_sources"] = [r.get("_source_info", {}) for r in matches]
+        # Remove representative coordinates before attaching the verified project scope.
+        for field in ("source_coord", "_coord_source", "sites", "admin1_names", "admin2_names"):
+            kept.pop(field, None)
+        for field in ("name_ko", "name_en", "place", "place_en", "coverage", "badges", "sites",
+                      "admin1_names", "admin2_names", "scope_label", "scope_label_en",
+                      "scope_sources", "recipient_country"):
+            if field in notice:
+                kept[field] = notice[field]
+        kept["_location_basis"] = "public-project-evidence"
+        kept["_period"] = notice["period"]
+        kept["selected"] = any(r["selected"] for r in matches)
+        for duplicate in matches:
+            if duplicate is not kept:
+                rows.remove(duplicate)

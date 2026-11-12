@@ -257,5 +257,113 @@
       "name_ko": "플랫폼 기반 통계서비스 역량강화사업 (965만 불·2027년 과업 예정)",
       "name_en": "Capacity building for platform-based statistics services (USD 9.65m; work scheduled in 2027)"
     }
+  },
+  "네팔": {
+    "iati:KR-GOV-051-2023010100052": {
+      "year": 2027,
+      "place": "포카라",
+      "place_en": "Pokhara",
+      "coverage": "site",
+      "sites": [
+        {
+          "place": "포카라",
+          "aliases": [
+            "Pokhara"
+          ]
+        }
+      ],
+      "scope_sources": [
+        "https://www.undp.org/nepal/projects/green-job-creation-through-recycling-and-upcycling"
+      ]
+    },
+    "iati:KR-GOV-051-2022010100009": {
+      "year": 2027,
+      "place": "박타푸르",
+      "place_en": "Bhaktapur",
+      "coverage": "site",
+      "sites": [
+        {
+          "place": "박타푸르",
+          "aliases": [
+            "Bhaktapur"
+          ]
+        }
+      ],
+      "scope_sources": [
+        "https://np.mofa.go.kr/np-en/brd/m_1716/view.do?seq=759495"
+      ]
+    },
+    "iati:KR-GOV-051-2021010100139": {
+      "year": 2027,
+      "place": "바디바스",
+      "place_en": "Bardibas",
+      "coverage": "site",
+      "sites": [
+        {
+          "place": "바디바스",
+          "aliases": [
+            "Bardibas"
+          ]
+        }
+      ],
+      "scope_sources": [
+        "https://overseas.mofa.go.kr/np-en/brd/m_1716/view.do?seq=759048"
+      ]
+    }
+  },
+  "르완다": {
+    "iati:KR-GOV-051-2023010100074": {
+      "year": 2027,
+      "place": "키갈리",
+      "place_en": "Kigali",
+      "coverage": "site",
+      "sites": [
+        {
+          "place": "키갈리",
+          "aliases": [
+            "Kigali"
+          ]
+        }
+      ],
+      "scope_sources": [
+        "https://www.rsb.gov.rw/updates/news-detail/rwanda-inaugurates-the-rsb-quality-academy-established-under-the-koica-supported-sisic-project"
+      ]
+    }
+  },
+  "케냐": {
+    "iati:KR-GOV-051-2025010100006": {
+      "year": 2027,
+      "place": "키텐겔라",
+      "place_en": "Kitengela",
+      "coverage": "site",
+      "sites": [
+        {
+          "place": "키텐겔라",
+          "aliases": [
+            "Kitengela"
+          ]
+        }
+      ],
+      "scope_sources": [
+        "https://www.kajiado.go.ke/koica-deepens-partnership-for-maternal-and-newborn-health-in-kajiado-county/"
+      ]
+    }
+  },
+  "우즈베키스탄": {
+    "iati:KR-GOV-051-2023010100105": {
+      "year": 2027,
+      "coverage": "admin1",
+      "place": "타슈켄트 주",
+      "place_en": "Tashkent Region",
+      "admin1_ids": [
+        "4885205B31052891590801"
+      ],
+      "admin1_names": [
+        "Tashkent Region"
+      ],
+      "scope_sources": [
+        "https://www.koica.go.kr/koica_kr/990/subview.do?enc=Zm5jdDF8QEB8JTJGYmJzJTJGa29pY2Ffa3IlMkYxNTElMkYzODM3NjQlMkZhcnRjbFZpZXcuZG8lM0Y%3D"
+      ]
+    }
   }
 }

@@ -14,6 +14,8 @@ resolve_places 가 각 지명을 다시 푼다.
 """
 from __future__ import annotations
 
+from decimal import Decimal
+
 import argparse
 import html
 import json
@@ -23,7 +25,7 @@ import time
 from datetime import date
 from pathlib import Path
 
-from portfolio_selection import project_key, public_additions, year_decision
+from portfolio_selection import project_key, reconcile_notices, title_period, year_decision
 from common import CACHE_DIR, REFERENCE_DIR, fetch, log, read_json, sector_map, write_json
 
 SOURCE = "https://oda-map-lab.pages.dev/generated/map-base.json"
@@ -42,6 +44,53 @@ TITLE_BUDGET = re.compile(
 )
 AMOUNT_SCALE = {"억":100_000_000, "천만":10_000_000, "백만":1_000_000,
                 "십만":100_000, "만":10_000, "천":1_000, None:1}
+
+
+PERIOD_IN_TEXT = re.compile(r"(?<!\d)['‘’`]?(?:20)?\d{2}\s*[-–~—]\s*['‘’`]?(?:20)?\d{2}(?!\d)")
+MONEY_EN = re.compile(r"\$|USD|KRW|dollars?|\bwon\b", re.I)
+MONEY_KO = re.compile(r"\d[\d,.]*\s*(?:억|천만|백만|십만|만|천)?\s*(?:달러|불|원)")
+
+
+def budget_label(total, currency, lang):
+    if lang == "ko":
+        scale, unit = (10**8, "억 원") if currency == "KRW" else (10**4, "만 불")
+    else:
+        scale, unit = (10**9, "bn") if total >= 10**9 else (10**6, "m")
+    number = format((total / scale).normalize(), "f")
+    return f"{number}{unit}" if lang == "ko" else f"{currency} {number}{unit}"
+
+
+def complete_card_metadata(row):
+    """Carry reported dates and total budget into both display titles before review."""
+    ko = row["name_ko"].rstrip().rstrip(")") + ")"
+    title_years = title_period(ko)
+    period = "-".join(map(str, title_years)) if title_years else row.get("_period", "")
+    amount = TITLE_BUDGET.search(ko)
+    if amount:
+        value, unit, currency = amount.groups()
+        total = Decimal(value.replace(",", "")) * AMOUNT_SCALE[unit]
+        currency = "KRW" if currency == "원" else "USD"
+    else:
+        reported = row.get("_reported_budget")
+        if reported is None:
+            total, currency = Decimal(str(row.get("_budget_krw") or 0)), "KRW"
+        else:
+            currency = reported.get("currency")
+            total = Decimal(str(reported.get("value") or 0)) if currency in {"USD","KRW"} else Decimal(0)
+    for lang, money in (("ko", MONEY_KO), ("en", MONEY_EN)):
+        key = "name_" + lang
+        name = row.get(key)
+        if not name:
+            continue
+        fields = []
+        dated_task = re.search(r"scheduled in 20\d{2}|20\d{2}년 과업", name, re.I)
+        if period and not PERIOD_IN_TEXT.search(name) and not dated_task:
+            fields.append(period.replace("-", "–"))
+        if total > 0 and not money.search(name):
+            fields.append(budget_label(total, currency, lang))
+        if fields:
+            row["_source_" + key] = name
+            row[key] = name + " (" + " / ".join(fields) + ")"
 
 
 def meets_budget_floor(title, details):
@@ -124,6 +173,7 @@ def collect(country: str, year: int | None, include_all: bool,
     scopes = read_json(REFERENCE_DIR / "public_project_scopes.json").get(country, {})
     sm = sector_map()
     rows, seen, catalog_titles, review = [], set(), set(), []
+    period_candidates = []
     notices = read_json(REFERENCE_DIR / "public_programmes.json").get(country, [])
     region = ""
     for f in data["features"]:
@@ -159,7 +209,9 @@ def collect(country: str, year: int | None, include_all: bool,
             applicable, decision = year_decision(year, per, name_ko, fact)
             if decision:
                 review.append({"id":fid, "name":name_ko, **decision})
-            if not applicable:
+            needs_review = (not applicable and decision and decision["decision"] == "needs_evidence"
+                            and de.get("aid") == MAIN_AID and "KOICA" in agency)
+            if not applicable and not needs_review:
                 continue
             explicit_bilateral = de.get("biz_type") == "국별협력사업"
             main = (de.get("aid") == MAIN_AID and "KOICA" in agency
@@ -184,6 +236,9 @@ def collect(country: str, year: int | None, include_all: bool,
                 "_source_info": de.get("source_info", {}),
                 "_location_basis": "group-representative",
             }
+            reported = (de.get("amounts") or {}).get("budget")
+            if isinstance(reported, dict):
+                row["_reported_budget"] = reported
             if decision:
                 row["_period_review"] = decision
                 if decision["decision"] == "verified_for_year":
@@ -198,18 +253,26 @@ def collect(country: str, year: int | None, include_all: bool,
                 row.pop("source_coord", None)
                 row.update({k:v for k,v in fact.items() if k != "year"})
                 row["_location_basis"] = "public-project-evidence"
-            rows.append(row)
+            if needs_review:
+                row.update(selected=False, _period_candidate=True)
+                period_candidates.append(row)
+            else:
+                rows.append(row)
 
-    rows.extend(public_additions(notices, year, catalog_titles, seen))
+    reconcile_notices(rows, notices, year, catalog_titles, seen)
+    for row in rows + period_candidates:
+        complete_card_metadata(row)
     for item in review:
         log(f'  · 기간 대조 {item["decision"]}: {item["name"]}')
+    if region == "동구·CIS":
+        region = "중동중앙아시아"
     rows.sort(key=lambda r: (not r["selected"], -(r["_budget_krw"] or 0)))
     log(f'[{country}] KOICA 사업 {len(rows)}건 수집 '
         f'· 국별협력사업 후보 {sum(1 for r in rows if r["selected"])}건 기본 선택')
     return {"country": country, "region": region, "year": year,
             "fetched_at": date.today().isoformat(),
             "source": SOURCE, "source_build_id": data.get("build_id"),
-            "period_review": review, "use_gazetteer": False,
+            "period_review": review, "period_candidates": period_candidates, "use_gazetteer": False,
             "location_status": "source-group-unverified", "projects": rows}
 
 

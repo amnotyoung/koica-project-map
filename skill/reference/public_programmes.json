@@ -116,6 +116,9 @@
       "aliases": [
         "방글라데시 혁신적 농촌공동체 개발 사업",
         "방글라데시 혁신적 농촌공동체 개발 프로그램 사업"
+      ],
+      "source_ids": [
+        "iati:KR-GOV-051-2026010100044000"
       ]
     },
     {
@@ -164,7 +167,43 @@
         "https://www.wfp.org/news/koica-and-wfp-partner-strengthen-school-nutrition-and-support-local-farmers-bhutan"
       ],
       "coverage": "external",
-      "recipient_country": "부탄"
+      "recipient_country": "부탄",
+      "place_en": "Bhutan (concurrent office)"
+    }
+  ],
+  "우즈베키스탄": [
+    {
+      "id": "iati:KR-GOV-051-2026010102872000",
+      "source_ids": [
+        "iati:KR-GOV-051-2026010100027",
+        "iati:KR-GOV-051-2026010102872000"
+      ],
+      "edition_year": 2027,
+      "title": "우즈베키스탄 AI 기반 법률서비스 환경 구축 및 한-우 법 센터 건립사업",
+      "period": "2026-2030",
+      "stage": "협의의사록 서명",
+      "published": "2026",
+      "publisher": "우즈베키스탄 법무부",
+      "name_ko": "AI 기반 법률서비스 환경 구축 및 한·우 법센터 건립사업 (2026–2030/1,450만 불)",
+      "name_en": "AI-based legal services and the Korea–Uzbekistan Law Center (2026–2030 / USD 14.5m)",
+      "coverage": "site",
+      "place": "타슈켄트",
+      "place_en": "Tashkent",
+      "sites": [
+        {
+          "place": "타슈켄트",
+          "aliases": [
+            "Tashkent"
+          ]
+        }
+      ],
+      "badges": [
+        "G"
+      ],
+      "scope_sources": [
+        "https://www.digital.gov.uz/en/adliya/news/view/162026",
+        "https://digital.gov.uz/en/adliya/news/view/93584"
+      ]
     }
   ]
 }
