@@ -98,6 +98,42 @@
       "scope_sources": [
         "https://ghana.un.org/en/289412-un-ghana-and-koica-launch-project-empower-15500-ghanaian-youth"
       ]
+    },
+    "iati:KR-GOV-051-2021010100016": {
+      "year": 2026,
+      "verified_years": [
+        2026
+      ],
+      "coverage": "site",
+      "place": "레곤 (가나대학교)",
+      "sites": [
+        {
+          "place": "레곤",
+          "geonames_locality": {
+            "name": "Legon",
+            "id": 2298423,
+            "lat": 5.65,
+            "lon": -0.18333
+          }
+        }
+      ],
+      "scope_sources": [
+        "https://icsku.korea.ac.kr/center/digital.php",
+        "https://www.ug.edu.gh/node/1109",
+        "https://www.geonames.org/2298423/"
+      ]
+    },
+    "iati:KR-GOV-051-2022020100175": {
+      "year": 2026,
+      "verified_years": [
+        2026
+      ],
+      "coverage": "nationwide",
+      "place": "가나 전역",
+      "scope_sources": [
+        "https://www.mofa.go.kr/gh-en/brd/m_9659/view.do?seq=756244",
+        "https://gna.org.gh/2026/08/korea-backed-plan-seeks-to-broaden-ghanas-tax-base/"
+      ]
     }
   }
 }

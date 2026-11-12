@@ -342,7 +342,7 @@ GeoNames·geoBoundaries 로 라틴 표기와 충돌 회피까지 처리해 직�
 
 ## 데이터 출처
 
-생성물에 아래 출처를 표기한다.
+출처는 발표자 노트와 동봉하는 출처 파일에 표기한다. 지도 하단에는 출처 문구나 사업권역·국립공원 기호표를 넣지 않는다.
 
 - 국가 경계: [Natural Earth](https://www.naturalearthdata.com/) (퍼블릭 도메인)
 - 행정 경계: [geoBoundaries](https://www.geoboundaries.org/) (CC BY 4.0)

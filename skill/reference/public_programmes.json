@@ -1,0 +1,13 @@
+{
+  "가나": [{
+    "id": "koica-notice:16173", "edition_year": 2026,
+    "title": "가나 통합적 보건 시스템 강화 프로그램",
+    "period": "2026-2035", "stage": "기획조사 공고", "published": "2025-06-24",
+    "publisher": "한국국제협력단",
+    "name_ko": "가나 통합적 보건 시스템 강화 프로그램 (기획·2026–2035/1억 불)",
+    "name_en": "Integrated health system strengthening programme in Ghana (planned, 2026–2035 / USD 100 million)",
+    "coverage": "admin1", "place": "그레이터아크라 등 6개 주", "badges": ["H"],
+    "admin1_names": ["Greater Accra","Northern","Ashanti","Central","Volta","Bono"],
+    "scope_sources": ["https://job.koica.go.kr/application/applicationDetailPage.do?empmnPblancSn=16173&menuId=MENU0098&pageIndex=1"]
+  }]
+}

@@ -23,6 +23,7 @@ import time
 from datetime import date
 from pathlib import Path
 
+from portfolio_selection import project_key, public_additions, year_decision
 from common import CACHE_DIR, REFERENCE_DIR, fetch, log, read_json, sector_map, write_json
 
 SOURCE = "https://oda-map-lab.pages.dev/generated/map-base.json"
@@ -99,7 +100,8 @@ def collect(country: str, year: int | None, include_all: bool,
     data = load_source(force)
     scopes = read_json(REFERENCE_DIR / "public_project_scopes.json").get(country, {})
     sm = sector_map()
-    rows, seen = [], set()
+    rows, seen, catalog_titles, review = [], set(), set(), []
+    notices = read_json(REFERENCE_DIR / "public_programmes.json").get(country, [])
     region = ""
     for f in data["features"]:
         if f.get("country") == country and f.get("details", {}).get("region"):
@@ -128,12 +130,17 @@ def collect(country: str, year: int | None, include_all: bool,
             name_en = html.unescape(mem["name"].get("en") or "").strip()
             budget = de.get("budget") or 0
             per = _period(de)
-            if year and per:
-                s, e = per.split("-")[0], per.split("-")[-1]
-                if s and e and not (int(s) <= year <= int(e)):
-                    continue
+            if "KOICA" in agency:
+                catalog_titles.add(project_key(name_ko))
+            fact = scopes.get(fid) or scopes.get((fid or "").partition("@")[0])
+            applicable, decision = year_decision(year, per, name_ko, fact)
+            if decision:
+                review.append({"id":fid, "name":name_ko, **decision})
+            if not applicable:
+                continue
+            explicit_bilateral = de.get("biz_type") == "국별협력사업"
             main = (de.get("aid") == MAIN_AID and "KOICA" in agency
-                    and budget >= MAIN_BUDGET_KRW and not done and not other)
+                    and (explicit_bilateral or budget >= MAIN_BUDGET_KRW) and not done and not other)
             row = {
                 "selected": main,
                 "place": place,
@@ -142,6 +149,7 @@ def collect(country: str, year: int | None, include_all: bool,
                 "name_en": name_en,
                 "_period": per,
                 "_budget_krw": budget,
+                "_biz_type": de.get("biz_type"),
                 "_aid": de.get("aid") or "",
                 "_agency": agency,
                 "_sector": de.get("sector") or "",
@@ -153,11 +161,15 @@ def collect(country: str, year: int | None, include_all: bool,
                 "_source_info": de.get("source_info", {}),
                 "_location_basis": "group-representative",
             }
+            if decision:
+                row["_period_review"] = decision
+                if decision["decision"] == "verified_for_year":
+                    # The target year is verified; retain the raw structured period in the audit.
+                    row["_period"] = "-".join(map(str, decision["title_period"]))
             if coord_source:
                 row["_coord_source"] = coord_source
             if source_coord:
                 row["source_coord"] = dict(source_coord)
-            fact = scopes.get(fid) or scopes.get((fid or "").partition("@")[0])
             if fact and year == fact["year"]:
                 row["source_place"] = place
                 row.pop("source_coord", None)
@@ -165,13 +177,16 @@ def collect(country: str, year: int | None, include_all: bool,
                 row["_location_basis"] = "public-project-evidence"
             rows.append(row)
 
-    rows.sort(key=lambda r: (not r["selected"], -r["_budget_krw"]))
+    rows.extend(public_additions(notices, year, catalog_titles, seen))
+    for item in review:
+        log(f'  · 기간 대조 {item["decision"]}: {item["name"]}')
+    rows.sort(key=lambda r: (not r["selected"], -(r["_budget_krw"] or 0)))
     log(f'[{country}] KOICA 사업 {len(rows)}건 수집 '
         f'· 국별협력사업 후보 {sum(1 for r in rows if r["selected"])}건 기본 선택')
     return {"country": country, "region": region, "year": year,
             "fetched_at": date.today().isoformat(),
             "source": SOURCE, "source_build_id": data.get("build_id"),
-            "use_gazetteer": False,
+            "period_review": review, "use_gazetteer": False,
             "location_status": "source-group-unverified", "projects": rows}
 
 

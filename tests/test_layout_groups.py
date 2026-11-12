@@ -208,15 +208,12 @@ class CityBasemapTests(unittest.TestCase):
 
 
 class CreditTests(unittest.TestCase):
-    def test_tile_credit_follows_slide_language(self):
-        tok = design_tokens()
-        base = {"map": {"tiles": {"png": "/tmp/map.png"}}}
-
-        ko = render_html.draw_credit({**base, "lang": "ko"}, tok)
-        en = render_html.draw_credit({**base, "lang": "en"}, tok)
-
-        self.assertIn("지도 타일 © OpenStreetMap contributors", ko)
-        self.assertIn("Map tiles © OpenStreetMap contributors", en)
+    def test_tile_attribution_in_export_sources_only_when_tiles_used(self):
+        from source_notes import source_notes
+        for tiles in (None, {"png":"/tmp/map.png"}):
+            notes = source_notes({"cards":[], "map":{"tiles":tiles}})
+            self.assertEqual("© OpenStreetMap contributors" in notes, bool(tiles))
+            self.assertIn("geoBoundaries", notes)
 
 
 class TitleLayoutTests(unittest.TestCase):

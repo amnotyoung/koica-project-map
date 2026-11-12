@@ -490,49 +490,6 @@ def draw_notes(L: dict, tok: dict) -> str:
             f'{esc(" ".join(L["notes"]))}</text>')
 
 
-def credit_text(L: dict) -> str:
-    tile_credit = ("Map tiles © OpenStreetMap contributors"
-                   if L.get("lang") == "en"
-                   else "지도 타일 © OpenStreetMap contributors")
-    credits = ["geoBoundaries · GeoNames (CC BY)"]
-    if L["map"].get("tiles"):
-        credits.append(tile_credit)
-    if L["map"].get("national_parks"):
-        credits.append("Protected Planet (UNEP-WCMC/IUCN)")
-    src = " · ".join(credits)
-    if L.get("pages", 1) > 1:
-        src += f" · {L['page']}/{L['pages']}"
-    return src
-
-
-def map_key(L):
-    labels = []
-    en = L.get("lang") == "en"
-    if L["map"].get("project_areas"):
-        labels.append(("area", "Project area" if en else "사업 대상 주"))
-    if L["map"].get("national_parks"):
-        labels.append(("park", "National park" if en else "국립공원"))
-    # The outside left margin is clear in all three layouts.
-    return [(kind, label, .38, L["canvas"]["h"]-.64+.17*i)
-            for i,(kind,label) in enumerate(labels)]
-
-
-def draw_map_key(L):
-    out = []
-    for kind,label,x,y in map_key(L):
-        fill = "url(#park-hatch)" if kind=="park" else "#FCF0F0"
-        stroke = "#789C78" if kind=="park" else "#C8343A"
-        out.append(f'<rect x="{x}" y="{y}" width=".19" height=".10" fill="{fill}" stroke="{stroke}" stroke-width=".009"/>')
-        out.append(f'<text x="{x+.24}" y="{y+.093}" font-size=".083" fill="#484848">{esc(label)}</text>')
-    return "".join(out)
-
-
-def draw_credit(L: dict, tok: dict) -> str:
-    src = credit_text(L)
-    return (f'<text x="0.22" y="{tok["canvas"]["h_in"]-0.16:.4f}" '
-            f'font-size="{4.6*PT:.5f}" fill="#B4B4B4">{esc(src)}</text>')
-
-
 # ─────────────────────────────── 조립 ───────────────────────────────
 
 def render(L: dict, layers: str = "all") -> str:
@@ -549,8 +506,6 @@ def render(L: dict, layers: str = "all") -> str:
         draw_region_tab(L, tok),
         draw_legend(L, tok),
 
-        draw_map_key(L),
-        draw_credit(L, tok),
     ]
     body = "\n".join(parts)
     if layers != "map" and L.get("paper"):

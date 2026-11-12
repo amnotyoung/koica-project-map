@@ -18,6 +18,7 @@ from pathlib import Path
 from common import log, read_json, write_json
 import layout as layout_mod
 import render_html
+from source_notes import source_notes
 
 ALL_FORMATS = ["html", "png", "pdf", "pptx"]
 
@@ -59,6 +60,7 @@ def run(inputs: list, outdir: Path, langs: list, formats: list,
             log(f"── {doc['country']} / {lang} / {L['page']} of {L['pages']} ──")
             lp = write_json(outdir / f"{stem}.layout.json", L, indent=1)
             layouts.append(lp)
+            (outdir / f"{stem}.sources.txt").write_text(source_notes(L) + "\n", encoding="utf-8")
             log(f'  카드 {len(L["cards"])} · 마커 {len(L["markers"])} · 지시선 '
                 f'{len(L["leaders"])} · 교차 {L["crossings"]} · 글자가림 {L.get("text_hits", 0)} '
                 f'· 지도밀도 {L["map"].get("density", "standard")} '
@@ -124,7 +126,7 @@ def main() -> int:
     source.add_argument("--country", nargs="+", help="공개 사업자료에서 국가별 KOICA 사업을 수집하여 생성")
     ap.add_argument("--page-format", choices=["atlas","wide"], default="atlas", help="최종 책자 판형 또는 16:9")
     ap.add_argument("--year", type=int, help="사업 기간에 포함되는 기준연도")
-    ap.add_argument("--include-unselected", action="store_true", help="30억원 이상 진행 프로젝트 외 KOICA 사업도 포함")
+    ap.add_argument("--include-unselected", action="store_true", help="기본 지도 선정 대상 외 KOICA 사업도 포함")
     ap.add_argument("--outdir", default="out")
     ap.add_argument("--lang", nargs="+", default=None, choices=["ko", "en"])
     ap.add_argument("--formats", nargs="+", default=None,
