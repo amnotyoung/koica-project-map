@@ -174,6 +174,9 @@ def draw_map(L: dict, tok: dict) -> str:
 def draw_map_labels(labels, style):
     parts=[]
     for label in labels:
+        if label["kind"] == "lake":
+            parts.append(f'<text x="{label["x"]:.4f}" y="{label["y"]:.4f}" font-size="{label["size"]*PT:.5f}" text-anchor="middle" style="font-family:Georgia,serif;font-style:italic" fill="#377B98" paint-order="stroke" stroke="white" stroke-width=".012">{esc(label["name"])}</text>')
+            continue
         admin=label["kind"]=="admin"
         if not admin and not label.get("bold"):
             x,y=label["dot"]
@@ -274,6 +277,8 @@ def draw_cards(L: dict, tok: dict) -> str:
     for c in L["cards"]:
         x, y = c["x"], c["y"]
         body_dy = c.get("body_dy", cd["name"]["dy"])
+        if c.get("nationwide") and c.get("show_place", True):
+            out.append(f'<path d="M{x:.4f},{y-.05:.4f} h{c["w"]:.4f}" stroke="#777" stroke-width=".004"/>')
         if c.get("show_place", True):
             out.append(f'<text x="{x:.4f}" y="{y + cd["place"]["h"]*0.72:.4f}" '
                        f'font-size="{c.get("place_font", cd["place"]["size"])*PT:.5f}" font-weight="700" '
@@ -475,7 +480,9 @@ def credit_text(L: dict) -> str:
            + (f" · {tile_credit}" if L["map"].get("tiles") else ""))
     if L.get("source", {}).get("projects"):
         date = L["source"].get("retrieved_at", "")
-        src += f" · oda-map-lab ({date} 수집)" if L.get("lang") != "en" else f" · oda-map-lab (retrieved {date})"
+        source = L["source"]["projects"]
+        label = "oda-map-lab" if "oda-map-lab.pages.dev" in source else source
+        src += f" · {label}" + (f" ({date})" if date else "")
     if L.get("location_status") == "source-group-unverified":
         src += " · 원천 대표위치: 사업지 확인 필요" if L.get("lang") != "en" else " · Source representative locations; sites need verification"
     if L.get("pages", 1) > 1:
@@ -508,10 +515,17 @@ def render(L: dict, layers: str = "all") -> str:
         draw_credit(L, tok),
     ]
     body = "\n".join(parts)
+    if layers != "map" and L.get("paper"):
+        paper = L["paper"]
+        factor = min(paper["w"]/w, paper["h"]/h)
+        dx, dy = (paper["w"]-w*factor)/2, (paper["h"]-h*factor)/2
+        body = f'<g transform="translate({dx} {dy}) scale({factor})">{body}</g>'
+        w,h = paper["w"],paper["h"]
     svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" '
            f'width="{w}in" height="{h}in" shape-rendering="geometricPrecision">\n'
            f'{body}\n</svg>')
     tpl = (SKILL_DIR / "assets" / "template.html").read_text(encoding="utf-8")
+    tpl = tpl.replace("13.333in",f"{w}in").replace("7.5in",f"{h}in")
     title = f'{L["country"]["ko"]} 프로젝트맵' if L["lang"] == "ko" \
         else f'{L["country"]["en"]} Project Map'
     from text_metrics import font_path

@@ -252,6 +252,10 @@ def draw_slide(prs, L: dict, tok: dict, tmp: Path, layout_path: Path) -> None:
     for card in L["cards"]:
         x, y = card["x"], card["y"]
         body_dy = card.get("body_dy", cd["name"]["dy"])
+        if card.get("nationwide") and card.get("show_place", True):
+            rule = flatten(slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, I(x), I(y-.05), I(x+card["w"]), I(y-.05)))
+            rule.line.color.rgb = rgb("#777777")
+            rule.line.width = Pt(.3)
         if card.get("show_place", True):
             textbox(slide, x, y, cd["name"]["w"], cd["place"]["h"] * 1.4,
                     card["place"], card.get("place_font", cd["place"]["size"]),
@@ -464,14 +468,30 @@ def draw_notes(slide, L: dict, tok: dict) -> None:
 def build(layout_paths: list, out: Path) -> Path:
     tok = design_tokens()
     prs = Presentation()
-    prs.slide_width = I(tok["canvas"]["w_in"])
-    prs.slide_height = I(tok["canvas"]["h_in"])
+    paper = read_json(Path(layout_paths[0])).get("paper")
+    prs.slide_width = I(paper["w"] if paper else tok["canvas"]["w_in"])
+    prs.slide_height = I(paper["h"] if paper else tok["canvas"]["h_in"])
     with tempfile.TemporaryDirectory() as td:
         tmp = Path(td)
         for i, lp in enumerate(layout_paths, 1):
             L = read_json(lp)
             log(f'  [{i}/{len(layout_paths)}] {L["country"]["ko"]} ({L["lang"]})')
+            if L.get("paper") != paper:
+                raise ValueError("한 PPTX의 모든 슬라이드는 같은 판형이어야 합니다")
             draw_slide(prs, L, tok, tmp / f"s{i}", Path(lp))
+            if paper:
+                w,h = L["canvas"]["w"],L["canvas"]["h"]
+                factor = min(paper["w"]/w,paper["h"]/h)
+                dx,dy = I((paper["w"]-w*factor)/2),I((paper["h"]-h*factor)/2)
+                for shape in prs.slides[-1].shapes:
+                    shape.left, shape.top = round(shape.left*factor)+dx, round(shape.top*factor)+dy
+                    shape.width, shape.height = round(shape.width*factor), round(shape.height*factor)
+                    for props in shape._element.xpath(".//a:rPr"):
+                        for attr in ("sz","spc"):
+                            if props.get(attr):
+                                props.set(attr, str(round(int(props.get(attr))*factor)))
+                    for line in shape._element.xpath(".//a:ln[@w]"):
+                        line.set("w",str(round(int(line.get("w"))*factor)))
     out.parent.mkdir(parents=True, exist_ok=True)
     prs.save(str(out))
     log(f"  → {out} ({out.stat().st_size//1024}KB, 슬라이드 {len(layout_paths)}장)")

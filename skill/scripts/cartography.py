@@ -92,3 +92,28 @@ def place_labels(map_data, markers, leaders, tok):
             blocked.append(box)
             break
     return labels
+
+
+def add_lake_labels(map_data, project):
+    from common import GEO_CACHE, read_json, centroid_of
+    source = GEO_CACHE / "ne_10m_lakes.geojson"
+    if not source.exists():
+        return
+    frame = map_data["frame"]
+    west, south, east, north = map_data["bbox"]
+    blocked = [label["box"] for label in map_data["labels"]]
+    for feature in read_json(source)["features"]:
+        box = feature.get("bbox")
+        if not box or box[2] < west or box[0] > east or box[3] < south or box[1] > north:
+            continue
+        name = feature["properties"].get("name_en") or feature["properties"].get("name")
+        if not name:
+            continue
+        x,y = project(*centroid_of(feature["geometry"]))
+        width = measure(name, 6.2, False, 0) + .06
+        box = [x-width/2, y-.08, x+width/2, y+.025]
+        if (frame["x"] <= box[0] and box[2] <= frame["x"]+frame["w"] and
+                frame["y"] <= box[1] and box[3] <= frame["y"]+frame["h"] and
+                not any(overlap(box, other) for other in blocked)):
+            map_data["labels"].append({"name":name,"x":x,"y":y,"size":6.2,"box":box,"kind":"lake"})
+            blocked.append(box)

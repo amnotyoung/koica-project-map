@@ -212,6 +212,18 @@ def resolve(country: str, entries: list, detail: str = "50m", *, use_gazetteer: 
         if isinstance(e, str):
             e = {"place": e}
         raw = (e.get("place") or "").strip()
+        if e.get("coverage") == "unknown":
+            out.append({"query":raw, "label":raw, "resolved":False, "parts":[]})
+            unresolved.append({"country":country, "place":raw, "reason":"사업 범위 확인 필요"})
+            continue
+        if e.get("sites"):
+            result = resolve(country, e["sites"], detail, use_gazetteer=use_gazetteer)
+            site_rows = result["places"]
+            out.append({"query":raw, "label":raw, "parts":[p for row in site_rows for p in row["parts"]],
+                        "resolved":all(row["resolved"] for row in site_rows),
+                        "source_conflicts":[v for row in site_rows for v in row.get("source_conflicts", [])]})
+            unresolved.extend(result["unresolved"])
+            continue
         forced = e.get("kind")
         # `~ 주`, `~ 지역`, `~ 전역` 은 면 단위 사업 신호 — 접미어를 떼고 조회한다
         body, n_sub = AREA_SUFFIX.subn("", raw)

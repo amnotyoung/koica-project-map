@@ -43,7 +43,7 @@ def stamped_dir(base: Path) -> Path:
 
 
 def run(inputs: list, outdir: Path, langs: list, formats: list,
-        detail: str = "50m", scale: int = 2) -> dict:
+        detail: str = "50m", scale: int = 2, page_format: str = "wide") -> dict:
     outdir.mkdir(parents=True, exist_ok=True)
     made = {f: [] for f in formats}
     layouts = []
@@ -51,6 +51,8 @@ def run(inputs: list, outdir: Path, langs: list, formats: list,
     for idx, src in enumerate(inputs, 1):
         doc = read_json(src)
         for L in layout_mod.compute_pages(doc, langs, idx, detail):
+            if page_format == "atlas":
+                L["paper"] = {"w":16.931, "h":11.694}
             lang = L["lang"]
             suffix = f'_p{L["page"]:02d}' if L["pages"] > 1 else ""
             stem = f'{Path(src).stem}_{lang}{suffix}'
@@ -73,7 +75,7 @@ def run(inputs: list, outdir: Path, langs: list, formats: list,
             if {"png", "pdf"} & set(formats):
                 import export
                 if "png" in formats:
-                    made["png"].append(export.to_png(html, outdir / f"{stem}.png", scale))
+                    made["png"].append(export.to_png(html, outdir / f"{stem}.png", scale, window=tuple(round(L.get("paper", L["canvas"])[k]*96) for k in ("w","h"))))
                 if "pdf" in formats:
                     made["pdf"].append(export.to_pdf(html, outdir / f"{stem}.pdf"))
 
@@ -120,6 +122,7 @@ def main() -> int:
     source = ap.add_mutually_exclusive_group(required=True)
     source.add_argument("--input", nargs="+", help="사업 목록 JSON (국가별)")
     source.add_argument("--country", nargs="+", help="공개 사업자료에서 국가별 KOICA 사업을 수집하여 생성")
+    ap.add_argument("--page-format", choices=["atlas","wide"], default="atlas", help="최종 책자 판형 또는 16:9")
     ap.add_argument("--year", type=int, help="사업 기간에 포함되는 기준연도")
     ap.add_argument("--include-unselected", action="store_true", help="30억원 이상 진행 프로젝트 외 KOICA 사업도 포함")
     ap.add_argument("--outdir", default="out")
@@ -168,7 +171,7 @@ def main() -> int:
         inputs = [Path(p) for p in a.input]
     made = run(inputs, outdir, a.lang or ["ko"],
                a.formats or ["html", "pdf", "pptx"],
-               a.detail, a.scale)
+               a.detail, a.scale, a.page_format)
     log(f"\n생성 완료 → {outdir}")
     if not a.flat:
         log(f"  (최신본은 {Path(a.outdir) / 'latest'} 로도 열 수 있습니다)")

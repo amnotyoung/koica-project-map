@@ -274,7 +274,7 @@ def build_card(proj_rec: dict, tok: dict, lang: str, scale: float,
         "badges": badges,
         "text": name,
         "project_id": proj_rec.get("id") or proj_rec.get("_id"),
-        "provenance": {k: proj_rec[k] for k in ("_source_info", "_coord_source", "source_coord") if k in proj_rec},
+        "provenance": {k: proj_rec[k] for k in ("_source_info", "_coord_source", "source_coord", "source_ids", "sites", "coverage", "source_place") if k in proj_rec},
         "tracking_pt": c["name"].get("tracking_pt", -0.64),
         "lines": lines,
         "first_line_dx": round(first_dx, 4),
@@ -660,6 +660,8 @@ def prepare(doc: dict, detail: str = "50m") -> tuple:
 def finish_background(result: dict, base: dict) -> None:
     m = result["map"]
     proj = Projection(m["bbox"], m["frame"], px_per_in=m["projection"]["px_per_in"])
+    import cartography
+    cartography.add_lake_labels(m, proj)
     m["tiles"] = _tile_background(base, proj, m["frame"])
     if not m["tiles"]:
         result["warnings"].append("타일 배경을 가져오지 못해 공개 벡터 지리자료로 대체했습니다")
@@ -697,6 +699,8 @@ def compute_pages(doc: dict, langs: list, index: int = 1, detail: str = "50m") -
     All languages share the same project membership on each page. Trial layouts
     never download tiles. No record is dropped to make a page fit.
     """
+    from project_scope import prepare_projects
+    doc = prepare_projects(doc)
     if not doc.get("projects"):
         raise ValueError("선택된 사업이 없습니다")
     framed, resolved, base = prepare(doc, detail)
@@ -1135,6 +1139,8 @@ def _improve(placed: list, mode: str, rounds: int = 40) -> None:
         for i in range(len(placed)):
             for j in range(i + 1, len(placed)):
                 a, b = placed[i], placed[j]
+                if a.get("nationwide") != b.get("nationwide"):
+                    continue
                 if a["side"] != b["side"] or not (a["points"] or b["points"]):
                     continue
                 _swap_slots(a, b)
