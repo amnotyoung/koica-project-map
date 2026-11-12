@@ -190,15 +190,21 @@ def collect(country: str, year: int | None, include_all: bool,
             "location_status": "source-group-unverified", "projects": rows}
 
 
+def collect_for_review(country, year, include_all=False, force=False, all_notices=False):
+    from official_notices import add_notices
+    return add_notices(collect(country, year, include_all, force), force=force, all_notices=all_notices)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="국가별 KOICA 사업 수집 (초안)")
     ap.add_argument("--country", required=True)
     ap.add_argument("--year", type=int, help="해당 연도에 진행 중인 사업만")
     ap.add_argument("--all", action="store_true", help="타기관 사업까지 포함")
     ap.add_argument("--force", action="store_true", help="캐시 무시하고 다시 받기")
+    ap.add_argument("--all-notices", action="store_true", help="국가 검색 결과의 모든 페이지에서 공고 후보 확인")
     ap.add_argument("--out", default="draft.json")
     a = ap.parse_args()
-    d = collect(a.country, a.year, a.all, a.force)
+    d = collect_for_review(a.country, a.year, a.all, a.force, a.all_notices)
     write_json(Path(a.out), d, indent=1)
     log(f"  → {a.out}")
     log("  ! 지명(place)은 그룹 라벨에서 뽑은 **추정값**이다 — 사람이 확인해야 한다")

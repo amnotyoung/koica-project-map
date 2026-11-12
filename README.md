@@ -27,6 +27,8 @@ skill/.venv/bin/python skill/scripts/make_map.py \
 `inputs/`에 저장한다. 사업 수가 많으면 장소별 묶음을 유지하며 여러 장으로
 나누고, 한 장소의 사업만으로 한 장을 넘을 때만 그 묶음을 나눈다.
 
+담당자 검토 화면은 위 명령에 `--review`를 붙여 연다. KOICA 공식 공고에서 찾은 신규사업은 미선택 후보로 표시된다. 원문 확인과 사업명·대상지 수정을 마치고 저장하면 해당 목록으로 지도를 생성한다. 브라우저 파일로 전달하려면 `skill/.venv/bin/python skill/scripts/pick_projects.py --country 에티오피아 --year 2027 --export-html 사업목록.html`을 실행한다. 담당자가 저장한 JSON은 `make_map.py --input`에 사용할 수 있다.
+
 - **출처 추적:** 사업별 원천 ID·자료 기준일·좌표 출처와 전체 데이터 build ID를
   입력 및 layout JSON에 남긴다. 수집일은 원천 자료의 기준일과 구별한다.
 - **위치 신뢰도:** 원천 지도 그룹의 대표좌표는 개별 시설 좌표로 확정하지 않는다.

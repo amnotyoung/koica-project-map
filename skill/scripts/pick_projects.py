@@ -1,116 +1,124 @@
-"""사업 목록을 브라우저에서 체크·수정해 `projects.json` 을 만든다.
-
-    python pick_projects.py --country 네팔 --year 2026 --out projects.json
-    python pick_projects.py --draft draft.json --out projects.json
-
-로컬에만 열리는 임시 HTTP 서버를 띄우고 브라우저를 연다. 저장을 누르면 결과를
-받아 파일로 쓰고 서버는 스스로 닫힌다. 외부로 나가는 통신은 없다.
-
-수집기(fetch_projects)가 채워주는 **지명은 추정값**이라 이 확인 단계가 필수다 —
-그룹 라벨을 옮긴 것이라 실제 대상지와 다를 수 있다.
-"""
-from __future__ import annotations
-
+"""Review a country roster interactively or export a self-contained review page."""
 import argparse
 import http.server
 import json
-import socket
+import secrets
 import sys
+import tempfile
 import threading
-import time
 import webbrowser
 from pathlib import Path
 
-from common import SKILL_DIR, log, read_json, write_json
-
-import fetch_projects
+from common import SKILL_DIR, log, read_json
+from fetch_projects import collect_for_review
 
 PAGE = SKILL_DIR / "assets" / "picker.html"
 
 
-def _free_port() -> int:
-    s = socket.socket()
-    s.bind(("127.0.0.1", 0))
-    p = s.getsockname()[1]
-    s.close()
-    return p
+def editor_html(draft, hosted=False, make_map=False):
+    # Serialize last so project text never becomes markup or a template instruction.
+    payload = json.dumps(draft, ensure_ascii=False).replace("<", r"\u003c")
+    return (PAGE.read_text(encoding="utf-8")
+            .replace("__HOSTED__", "true" if hosted else "false")
+            .replace("__SAVE_LABEL__", "저장하고 지도 만들기" if make_map else "선택 목록 저장")
+            .replace("__DRAFT_JSON__", payload))
 
 
-def serve(draft: dict, timeout: float = 1800) -> dict | None:
-    """브라우저에서 선택·수정을 받아 돌려준다. 닫히거나 시간이 지나면 None."""
-    html = PAGE.read_text(encoding="utf-8").replace(
-        "window.__DRAFT__", json.dumps(draft, ensure_ascii=False))
-    body = html.encode("utf-8")
-    result: dict = {}
+def export_editor(path, draft):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(editor_html(draft), encoding="utf-8")
+    return path
 
-    class H(http.server.BaseHTTPRequestHandler):
-        def log_message(self, *a):
+
+def persist(path, data):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(dir=path.parent, mode="w", encoding="utf-8", delete=False) as tmp:
+        json.dump(data, tmp, ensure_ascii=False, indent=2)
+    Path(tmp.name).replace(path)
+
+
+def serve(draft, out, *, make_map=False, timeout=1800):
+    token = secrets.token_urlsafe(24)
+    saved = threading.Event()
+    result = {}
+    page = editor_html(draft, hosted=True, make_map=make_map).encode()
+
+    class Handler(http.server.BaseHTTPRequestHandler):
+        def log_message(self, *args):
             pass
 
-        def _send(self, code, payload=b"", ctype="text/plain; charset=utf-8"):
+        def send_bytes(self, code, body, mime="text/plain; charset=utf-8"):
             self.send_response(code)
-            self.send_header("Content-Type", ctype)
-            self.send_header("Content-Length", str(len(payload)))
+            self.send_header("Content-Type", mime)
+            self.send_header("Content-Length", str(len(body)))
             self.send_header("Cache-Control", "no-store")
+            self.send_header("Referrer-Policy", "no-referrer")
             self.end_headers()
-            self.wfile.write(payload)
+            self.wfile.write(body)
 
         def do_GET(self):
-            self._send(200, body, "text/html; charset=utf-8")
+            if self.path == "/?" + token:
+                self.send_bytes(200, page, "text/html; charset=utf-8")
+            else:
+                self.send_error(404)
 
         def do_POST(self):
-            n = int(self.headers.get("Content-Length", 0))
+            if self.path != "/save?" + token:
+                return self.send_error(404)
             try:
-                result.update(json.loads(self.rfile.read(n)))
-            except Exception as e:
-                self._send(400, str(e).encode())
-                return
-            self._send(200, b"ok")
-            threading.Thread(target=self.server.shutdown, daemon=True).start()
+                length = int(self.headers.get("Content-Length", 0))
+                if not 0 < length <= 20_000_000:
+                    raise ValueError("목록 크기를 확인하세요.")
+                doc = json.loads(self.rfile.read(length))
+                if (not isinstance(doc, dict) or doc.get("country") != draft["country"]
+                        or doc.get("year") != draft.get("year") or not doc.get("projects")
+                        or not isinstance(doc["projects"], list)
+                        or any(not isinstance(p, dict) or not str(p.get("name_ko") or "").strip()
+                               or p.get("selected") is False for p in doc["projects"])):
+                    raise ValueError("선택한 국가·연도와 사업명을 확인하세요.")
+                persist(out, doc)
+            except (ValueError, OSError) as exc:
+                return self.send_bytes(400, str(exc).encode())
+            result.update(doc)
+            saved.set()
+            self.send_bytes(200, b"ok")
 
-    port = _free_port()
-    srv = http.server.HTTPServer(("127.0.0.1", port), H)
-    url = f"http://127.0.0.1:{port}/"
-    threading.Thread(target=srv.serve_forever, daemon=True).start()
-    log(f"\n  브라우저에서 사업을 선택·수정한 뒤 [저장하고 지도 만들기] 를 누르세요")
-    log(f"  → {url}\n  (창이 안 열리면 위 주소를 직접 여세요. Ctrl-C 로 취소)")
-    try:
-        webbrowser.open(url)
-    except Exception:
-        pass
-
-    end = time.time() + timeout
-    try:
-        while time.time() < end and not result:
-            time.sleep(0.3)
-    except KeyboardInterrupt:
-        log("  · 취소했습니다")
-    finally:
-        srv.shutdown()
-        srv.server_close()
+    with http.server.HTTPServer(("127.0.0.1", 0), Handler) as server:
+        url = f"http://127.0.0.1:{server.server_port}/?{token}"
+        worker = threading.Thread(target=server.serve_forever, daemon=True)
+        worker.start()
+        log(f"사업 목록 검토 → {url}")
+        try:
+            webbrowser.open(url)
+            saved.wait(timeout)
+        except KeyboardInterrupt:
+            pass
+        finally:
+            server.shutdown()
     return result or None
 
 
-def main() -> int:
-    ap = argparse.ArgumentParser(description="사업 선택·수정 UI")
-    ap.add_argument("--country", help="국가명 (초안을 새로 수집)")
-    ap.add_argument("--draft", help="이미 만든 초안 JSON")
-    ap.add_argument("--year", type=int, help="해당 연도 진행 사업만")
-    ap.add_argument("--all", action="store_true", help="타기관 사업까지 포함")
-    ap.add_argument("--force", action="store_true", help="원천 데이터 다시 받기")
+def main():
+    ap = argparse.ArgumentParser(description="KOICA 사업·공고 후보 검토")
+    source = ap.add_mutually_exclusive_group(required=True)
+    source.add_argument("--country", help="공식 게시판에서 함께 조회할 국가")
+    source.add_argument("--draft", help="초안 또는 기존 검토 JSON")
+    ap.add_argument("--year", type=int)
+    ap.add_argument("--all", action="store_true", help="타기관 사업도 조회")
+    ap.add_argument("--force", action="store_true", help="캐시 새로 고침")
     ap.add_argument("--out", default="projects.json")
-    a = ap.parse_args()
-    if not (a.country or a.draft):
-        ap.error("--country 또는 --draft 중 하나가 필요합니다.")
-
-    draft = (read_json(Path(a.draft)) if a.draft
-             else fetch_projects.collect(a.country, a.year, a.all, a.force))
-    picked = serve(draft)
-    if not picked:
-        log("  ! 선택 결과를 받지 못했습니다 — 파일을 만들지 않았습니다")
+    ap.add_argument("--all-notices", action="store_true", help="국가 검색 결과의 모든 페이지에서 공고 후보 확인")
+    ap.add_argument("--export-html", type=Path, help="담당자에게 전달할 편집 화면을 파일로 저장")
+    args = ap.parse_args()
+    draft = (read_json(Path(args.draft)) if args.draft else
+             collect_for_review(args.country, args.year, args.all, args.force, args.all_notices))
+    if args.export_html:
+        log(f"검토 화면 → {export_editor(args.export_html, draft)}")
+    elif not serve(draft, args.out):
+        log("저장된 검토 결과가 없습니다.")
         return 1
-    write_json(Path(a.out), picked, indent=1)
-    log(f'  ✓ {len(picked["projects"])}건 선택 → {a.out}')
     return 0
 
 

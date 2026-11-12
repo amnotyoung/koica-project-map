@@ -51,6 +51,8 @@ def run(inputs: list, outdir: Path, langs: list, formats: list,
 
     for idx, src in enumerate(inputs, 1):
         doc = read_json(src)
+        if "notice_search" in doc:
+            doc["projects"] = [p for p in doc["projects"] if p.get("selected", True)]
         for L in layout_mod.compute_pages(doc, langs, idx, detail):
             if page_format in {"atlas", "atlas-full"}:
                 L["paper"] = {"w":16.931, "h":11.694}
@@ -129,6 +131,8 @@ def main() -> int:
     source.add_argument("--country", nargs="+", help="공개 사업자료에서 국가별 KOICA 사업을 수집하여 생성")
     ap.add_argument("--page-format", choices=["atlas","atlas-full","wide"], default="atlas", help="최종 책자 판형 또는 16:9")
     ap.add_argument("--year", type=int, help="사업 기간에 포함되는 기준연도")
+    ap.add_argument("--all-notices", action="store_true", help="국가 검색 결과의 모든 페이지에서 공고 후보 확인")
+    ap.add_argument("--review", action="store_true", help="사업 목록을 브라우저에서 검토한 뒤 지도 생성")
     ap.add_argument("--include-unselected", action="store_true", help="기본 지도 선정 대상 외 KOICA 사업도 포함")
     ap.add_argument("--outdir", default="out")
     ap.add_argument("--lang", nargs="+", default=None, choices=["ko", "en"])
@@ -141,6 +145,9 @@ def main() -> int:
     ap.add_argument("--flat", action="store_true",
                     help="날짜 하위폴더 없이 outdir 에 바로 쓴다 (덮어쓰기)")
     a = ap.parse_args()
+
+    if a.review and not a.country:
+        ap.error("--review는 --country와 함께 사용하세요. 저장 목록 수정은 pick_projects.py --draft를 사용하세요.")
 
     if a.reference_template:
         if not a.input or len(a.input) != 1:
@@ -164,16 +171,30 @@ def main() -> int:
     outdir = Path(a.outdir) if a.flat else stamped_dir(Path(a.outdir))
     if a.country:
         import fetch_projects
+        from pick_projects import export_editor, serve
         inputs = []
         for country in a.country:
-            doc = fetch_projects.collect(country, a.year, False)
+            doc = fetch_projects.collect_for_review(country, a.year, all_notices=a.all_notices)
+            roster = outdir / "inputs" / f"{country}.json"
+            if a.include_unselected:
+                doc["projects"] = [{**p, "selected":True} for p in doc["projects"]]
+            editor = export_editor(outdir / f"{country}_사업목록.html", doc)
+            log(f"사업 목록 검토 화면 → {editor}")
+            if a.review:
+                if not serve(doc, roster, make_map=True):
+                    return 1
+                inputs.append(roster)
+                continue
             if not a.include_unselected:
                 doc["projects"] = [p for p in doc["projects"] if p["selected"]]
             if not doc["projects"]:
-                ap.error(f"{country}: 조건에 맞는 사업이 없습니다. 연도·선택 조건을 확인하세요")
-            inputs.append(write_json(outdir / "inputs" / f"{country}.json", doc, indent=2))
+                log(f"{country}: 선택된 사업이 없습니다. 검토 화면에서 공고를 확인한 뒤 저장하세요.")
+                continue
+            inputs.append(write_json(roster, doc, indent=2))
     else:
         inputs = [Path(p) for p in a.input]
+    if not inputs:
+        return 0
     made = run(inputs, outdir, a.lang or ["ko"],
                a.formats or ["html", "pdf", "pptx"],
                a.detail, a.scale, a.page_format)
