@@ -77,6 +77,12 @@ def draw_map(L: dict, tok: dict) -> str:
             s.append(f'<path d="{path_of(m["lakes"])}" fill="{ms["lake"]}" '
                      f'stroke="{ms["river"]}" stroke-width="{0.3*PT:.5f}"/>')
 
+    if m.get("national_parks"):
+        s.append('<defs><pattern id="park-hatch" patternUnits="userSpaceOnUse" width=".04" height=".04" patternTransform="rotate(38)"><path d="M0,0 V.04" stroke="#619263" stroke-width=".007"/></pattern></defs>')
+        for park in m["national_parks"]:
+            for polygon in park["polygons"]:
+                s.append(f'<path d="{path_of(polygon)}" fill="url(#park-hatch)" fill-rule="evenodd" stroke="#789C78" stroke-width=".003"><title>{esc(park["name"] or "")}</title></path>')
+
     # Shortbread water_lines start at z9. At national scales, supplement with
     # Natural Earth 10m rivers instead of silently losing the entire river net.
     # https://shortbread-tiles.org/schema/1.1/#layer-water_lines
@@ -174,6 +180,9 @@ def draw_map(L: dict, tok: dict) -> str:
 def draw_map_labels(labels, style):
     parts=[]
     for label in labels:
+        if label["kind"] == "park":
+            parts.append(f'<text x="{label["x"]:.4f}" y="{label["y"]:.4f}" font-size="{label["size"]*PT:.5f}" text-anchor="middle" style="font-style:italic" fill="#387344" paint-order="stroke" stroke="white" stroke-width=".012">{esc(label["name"])}</text>')
+            continue
         if label["kind"] == "lake":
             parts.append(f'<text x="{label["x"]:.4f}" y="{label["y"]:.4f}" font-size="{label["size"]*PT:.5f}" text-anchor="middle" style="font-family:Georgia,serif;font-style:italic" fill="#377B98" paint-order="stroke" stroke="white" stroke-width=".012">{esc(label["name"])}</text>')
             continue
@@ -485,6 +494,9 @@ def credit_text(L: dict) -> str:
         src += f" · {label}" + (f" ({date})" if date else "")
     if L.get("location_status") == "source-group-unverified":
         src += " · 원천 대표위치: 사업지 확인 필요" if L.get("lang") != "en" else " · Source representative locations; sites need verification"
+    if L.get("map", {}).get("national_parks"):
+        key = "Hatching: national parks" if L.get("lang") == "en" else "녹색 사선: 국립공원"
+        src += f" · {key} (Protected Planet, UNEP-WCMC/IUCN)"
     if L.get("pages", 1) > 1:
         src += f" · {L['page']}/{L['pages']}"
     return src

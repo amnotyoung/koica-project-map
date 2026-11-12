@@ -662,6 +662,8 @@ def finish_background(result: dict, base: dict) -> None:
     proj = Projection(m["bbox"], m["frame"], px_per_in=m["projection"]["px_per_in"])
     import cartography
     cartography.add_lake_labels(m, proj)
+    import national_parks
+    national_parks.add_to_layout(result, proj)
     m["tiles"] = _tile_background(base, proj, m["frame"])
     if not m["tiles"]:
         result["warnings"].append("타일 배경을 가져오지 못해 공개 벡터 지리자료로 대체했습니다")
