@@ -784,13 +784,20 @@ def compute_pages(doc: dict, langs: list, index: int = 1, detail: str = "50m") -
             candidates = [compute(subset, lang, index, detail, render_tiles=False,
                                   prepared=prepared) for lang in langs]
         pair_scale = min(c["font_scale"] for c in candidates)
-        if (any(c["font_scale"] != pair_scale for c in candidates)
-                or len({c["mode"] for c in candidates}) > 1):
-            subset = {**subset, "_mode": framed.get("_mode") or ("A" if any(c["mode"] == "A" for c in candidates) else "B")}
-            prepared = (subset, places, base)
-            candidates = [compute(subset, lang, index, detail, pair_scale,
-                                  render_tiles=False, prepared=prepared) for lang in langs]
-        return candidates if all(c["fits"] for c in candidates) else None
+        if (all(c["fits"] and c["font_scale"] == pair_scale for c in candidates)
+                and len({c["mode"] for c in candidates}) == 1):
+            return candidates
+        if framed.get("_mode"):
+            modes = [framed["_mode"]]
+        else:
+            modes = list(dict.fromkeys([c["mode"] for c in candidates] + ["C"]))
+        for mode in modes:
+            shared = {**subset, "_mode": mode}
+            trials = [compute(shared, lang, index, detail, pair_scale, render_tiles=False,
+                              prepared=(shared, places, base)) for lang in langs]
+            if all(c["fits"] for c in trials):
+                return trials
+        return None
 
     packed, current = [], []
     for group in groups.values():
