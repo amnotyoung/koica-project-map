@@ -4,11 +4,17 @@ from pathlib import Path
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "skill/scripts"))
-from official_notices import BOARD, candidate, discover, parse_board
+from official_notices import detail_text, BOARD, candidate, discover, parse_board
 from pick_projects import editor_html
 
 
 class OfficialNotices(unittest.TestCase):
+    def test_article_body_with_empty_legacy_wrapper(self):
+        raw = '<div class="user-article"><p>사업기간 2025–2029</p></div><div class="artclViewTitleWrap"></div>'
+        self.assertIn("2025–2029", detail_text(raw))
+        with self.assertRaises(ValueError):
+            detail_text('<div class="artclViewTitleWrap"></div>')
+
     def test_country_and_project_year_not_application_dates(self):
         t = "예시국 교사 양성사업 예비조사 전문가 공모"
         content = t+"\n접수기간 2025-2026\n사업기간 및 예산 2027-2031 / 300만불"

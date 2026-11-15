@@ -59,14 +59,22 @@ def parse_board(raw):
 
 def detail_text(raw):
     if "Markdown Content:" in raw:
-        return raw.split("Markdown Content:", 1)[1].strip()
+        body = raw.split("Markdown Content:", 1)[1].strip()
+        if not body:
+            raise ValueError("공고 본문이 비어 있습니다")
+        return body
     tree = dom.fromstring(raw)
-    nodes = tree.xpath('//*[contains(concat(" ",normalize-space(@class)," "), " artclView ")]')
+    nodes = tree.xpath('//*[contains(concat(" ",normalize-space(@class)," "), " user-article ")]')
+    if not nodes:
+        nodes = tree.xpath('//*[contains(concat(" ",normalize-space(@class)," "), " artclView ")]')
     if not nodes:
         nodes = tree.xpath('//*[contains(@class,"artclViewBody") or contains(@class,"artclViewTitle")]')
     if not nodes:
         raise ValueError("공고 본문 형식을 확인할 수 없습니다")
-    return "\n".join(clean(t) for node in nodes for t in node.itertext() if t.strip())
+    body = "\n".join(clean(t) for node in nodes for t in node.itertext() if t.strip())
+    if not body:
+        raise ValueError("공고 본문이 비어 있습니다")
+    return body
 
 
 def _download(url, timeout):
@@ -78,7 +86,6 @@ def _download(url, timeout):
 class Bulletin:
     def __init__(self, force=False):
         self.force = force
-        self.reader = False
 
     def get(self, url, parse):
         folder = CACHE_DIR / "koica-notices"
@@ -86,9 +93,11 @@ class Bulletin:
         cache = folder / (hashlib.sha256(url.encode()).hexdigest() + ".txt")
         cached = cache.read_text() if cache.exists() else None
         if cached and not self.force and time.time() - cache.stat().st_mtime < TTL:
-            return parse(cached), False
-        routes = [("https://r.jina.ai/" + url, 18)] if self.reader else [
-            (url, 4), ("https://r.jina.ai/" + url, 18)]
+            try:
+                return parse(cached), False
+            except (ValueError, etree.ParserError):
+                cached = None
+        routes = [(url, 10), ("https://r.jina.ai/" + url, 18)]
         for route, timeout in routes:
             try:
                 raw = _download(route, timeout)
@@ -96,8 +105,6 @@ class Bulletin:
             except (OSError, ValueError, etree.ParserError) as exc:
                 error = exc
                 continue
-            if route != url:
-                self.reader = True
             with tempfile.NamedTemporaryFile(dir=folder, delete=False, mode="w", encoding="utf-8") as out:
                 out.write(raw)
             Path(out.name).replace(cache)
@@ -181,7 +188,11 @@ def discover(country, year, projects, *, force=False, max_pages=4, max_details=1
             report["errors"].append("게시판이 같은 페이지를 반복 반환했습니다")
             break
         entries.update(hits)
-        if not hits or (total is not None and len(entries) >= total) or len(hits)<10:
+        if total is not None and len(entries) >= total:
+            break
+        if not hits or (total is None and len(hits) < 10):
+            if total is not None and len(entries) < total:
+                report["errors"].append(f"목록 {len(entries)}/{total}건 반환 후 종료")
             break
     else:
         report["limited"] = True
@@ -189,6 +200,8 @@ def discover(country, year, projects, *, force=False, max_pages=4, max_details=1
                 and (STAGE.search(t) or "사업" in t or "프로그램" in t or len(t)>=34)]
     # Prefer newly published items and explicit matches for the requested edition.
     eligible.sort(key=lambda item:(not (year and str(year) in item[1]), -int(item[0])))
+    report["listed"] = len(entries)
+    report["eligible"] = len(eligible)
     report["limited"] |= max_details is not None and len(eligible)>max_details
 
     def inspect(item):
