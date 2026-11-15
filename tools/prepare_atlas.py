@@ -2,27 +2,93 @@
 import argparse
 import csv
 from collections import Counter
+import json
 import re
 import sys
 from concurrent.futures import ProcessPoolExecutor
 from datetime import date
 from pathlib import Path
 
+from lxml import html
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "skill/scripts"))
 from country_names import atlas_countries
-from fetch_projects import collect_for_review
+from fetch_projects import collect_for_review, prepare_locations
+from common import REFERENCE_DIR, read_json
+from official_notices import add_notices
 from layout import compute_pages
 from pick_projects import export_editor, persist
 from project_scope import prepare_projects
 
 
+def read_editor(folder, iso):
+    tree = html.fromstring((folder / "editors" / (iso + ".html")).read_text(encoding="utf-8"))
+    return json.loads(tree.get_element_by_id("payload").text)
+
+
+def refresh_review(baseline, iso, year, review_geo):
+    # Refresh locations and candidates without changing the reviewer’s selection.
+    doc = read_editor(baseline, iso)
+    if doc["year"] != year or doc["country_iso3"] != iso:
+        raise ValueError("준비 목록과 검토 국가·연도가 일치하지 않습니다")
+    facts = read_json(REFERENCE_DIR / "public_project_scopes.json").get(doc["country"], {})
+    for row in doc["projects"]:
+        row.pop("_review_location", None)
+        if (not review_geo or not row["selected"] or row.get("_location_basis") == "manager-reviewed"
+                or "reviewed_pins" in row or "reviewed_unresolved" in row):
+            continue
+        fact = facts.get(row["id"], {})
+        if (fact.get("year") == year and fact.get("scope_sources") and "coverage" in fact
+                and row.get("_location_basis") in {"group-representative","annual-plan"}):
+            row["source_place"] = row["place"]
+            row.pop("source_coord", None)
+            fields = ("place","place_en","scope_label","scope_label_en","sites","geonames_locality","coverage",
+                      "admin1_names","admin2_names","scope_sources","_location_evidence")
+            sources = list(dict.fromkeys([*(row.get("scope_sources") or []), *fact["scope_sources"]]))
+            row.update({k: fact[k] for k in fields if k in fact})
+            row["scope_sources"] = sources
+            row["_location_basis"] = "public-project-evidence"
+        if row.get("_title_region") and row.get("coverage") in {"adm1","adm2"}:
+            old = row.pop("coverage")
+            row["coverage"] = old.replace("adm","admin")
+            row[row["coverage"]+"_names"] = row.pop(old+"_names")
+    if review_geo:
+        prepare_locations(doc)
+    if doc["notice_search"]["limited"]:
+        doc = add_notices(doc, all_notices=True)
+    return doc
+
+
+def write_notice_comparison(baseline, prepared, countries):
+    def links(doc):
+        return {url: row for row in doc["notice_candidates"] for url in row["scope_sources"]}
+
+    with (prepared / "공고대조.csv").open("w", encoding="utf-8-sig", newline="") as stream:
+        writer = csv.writer(stream)
+        writer.writerow(["국가", "변동", "공고 URL", "기존 후보 ID", "현재 후보 ID", "현재 후보 사업명",
+                         "추출 사업기간", "비슷한 기존 사업 ID", "기존 후보 사업명"])
+        for country in countries:
+            iso = country["iso3"]
+            old = read_editor(baseline, iso)
+            if not old["notice_search"]["limited"]:
+                continue
+            before, after = links(old), links(read_editor(prepared, iso))
+            for url in sorted(before.keys() | after.keys()):
+                prev, curr = before.get(url, {}), after.get(url, {})
+                change = "추가" if not prev else "제외" if not curr else "유지"
+                writer.writerow([country["country"], change, url, prev.get("id"), curr.get("id"),
+                                 curr.get("name_ko"), curr.get("_period"), curr.get("_similar_project_id"),
+                                 prev.get("name_ko")])
+
+
 def check_country(job):
-    ref, year, out = job
+    ref, year, out, baseline, review_geo = job
     iso, country = ref["iso3"], ref["ko"]
-    doc = collect_for_review(country, year)
+    doc = refresh_review(baseline, iso, year, review_geo) if baseline else collect_for_review(country, year)
     doc["map_languages"] = ["ko","en"]
     selected = [r for r in doc["projects"] if r["selected"]]
     input_doc = {**doc, "projects":selected}
+    input_doc.pop("notice_candidates", None)
     pages = compute_pages(input_doc, ["ko","en"], detail="10m", render_background=False) if selected else []
     issues = []
     def issue(card, reason):
@@ -80,12 +146,19 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--year",type=int,required=True)
     parser.add_argument("--outdir",type=Path,required=True)
+    parser.add_argument("--baseline",type=Path,help="기존 선정 목록을 유지하고 위치 근거와 제한된 공고 검색을 갱신")
+    parser.add_argument("--location-countries", nargs="+", metavar="ISO3", help="위치 근거를 다시 판정할 국가 (기본 전체)")
     parser.add_argument("--workers",type=int,default=2)
     args = parser.parse_args()
     out = args.outdir.resolve()
     out.mkdir(parents=True, exist_ok=True)
     records, issues = [], []
-    jobs=[(c,args.year,out) for c in atlas_countries()]
+    if args.baseline and args.baseline.resolve() == out:
+        parser.error("기존 준비 자료와 다른 출력 폴더를 지정하세요.")
+    targets = set(args.location_countries or [c["iso3"] for c in atlas_countries()])
+    if targets - {c["iso3"] for c in atlas_countries()}:
+        parser.error("모르는 ISO3 국가 코드")
+    jobs=[(c,args.year,out,args.baseline,c["iso3"] in targets) for c in atlas_countries()]
     with ProcessPoolExecutor(max_workers=args.workers) as pool:
         for summary, problems in pool.map(check_country, jobs):
             records.append(summary)
@@ -109,6 +182,8 @@ def main():
         table.append(f"| [{r['country']}](editors/{r['iso3']}.html) | {r['projects']} | {r['pages_per_language']} | "
                      f"{r['location_reviews']} | {r['period_candidates']} | {r['notice_candidates']} | {status} |")
     (out / "국가별 준비현황.md").write_text("\n".join(table)+"\n", encoding="utf-8")
+    if args.baseline:
+        write_notice_comparison(args.baseline, out, records)
     persist(out / "manifest.json", {"year":args.year, "checked_at":date.today().isoformat(), "countries":records})
 
 
