@@ -297,7 +297,7 @@ def resolve(country: str, entries: list, detail: str = "50m", *, use_gazetteer: 
                     r = {"ok": True, "matched": name, "level": "source",
                          "kind": "point", "score": 1.0}
                 r.update({"lon": trusted["lon"], "lat": trusted["lat"],
-                          "source": "oda-map-lab",
+                          "source": e["source_coord"].get("publisher") or "oda-map-lab",
                           "coord_source": trusted["coord_source"]})
                 r["name"] = name
                 parts.append(r)

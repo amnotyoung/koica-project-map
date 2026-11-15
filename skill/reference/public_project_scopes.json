@@ -364,6 +364,60 @@
       "scope_sources": [
         "https://www.koica.go.kr/koica_kr/990/subview.do?enc=Zm5jdDF8QEB8JTJGYmJzJTJGa29pY2Ffa3IlMkYxNTElMkYzODM3NjQlMkZhcnRjbFZpZXcuZG8lM0Y%3D"
       ]
+    },
+    "iati:KR-GOV-051-2026010100026": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "타슈켄트·국가행정아카데미",
+      "place_en": "Tashkent · Academy of Public Policy and Administration",
+      "geonames_locality": {
+        "id": 1512569,
+        "name": "Tashkent",
+        "lat": 41.26465,
+        "lon": 69.21627
+      },
+      "_location_evidence": "시행기관이 특정한 사업 거점 · 도시 대표위치",
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://dsba.uz/en/management-centers/obrazovatelnyj-tsentr-tsifrovyh-tehnologij-i-iskusstvennogo-intellekta-v-gosudarstvennom-upravlenii",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ]
+    },
+    "iati:KR-GOV-051-2025010100078": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "타슈켄트·세계경제외교대학교",
+      "place_en": "Tashkent · University of World Economy and Diplomacy",
+      "geonames_locality": {
+        "id": 1512569,
+        "name": "Tashkent",
+        "lat": 41.26465,
+        "lon": 69.21627
+      },
+      "_location_evidence": "시행기관이 특정한 사업 거점 · 도시 대표위치",
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://www.uwed.uz/en/news/771",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ]
+    },
+    "iati:KR-GOV-051-2021010100187": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "타슈켄트·화학기술연구원",
+      "place_en": "Tashkent · Research Institute of Chemical Technologies",
+      "geonames_locality": {
+        "id": 1512569,
+        "name": "Tashkent",
+        "lat": 41.26465,
+        "lon": 69.21627
+      },
+      "_location_evidence": "시행기관이 특정한 사업 거점 · 도시 대표위치",
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://uzrict.uz/en/about",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ]
     }
   },
   "몽골": {
@@ -914,6 +968,408 @@
       "scope_sources": [
         "https://www.koica.go.kr/bbs/koica_kr/292/387191/artclView.do",
         "https://az.mofa.go.kr/az-en/brd/m_8237/view.do?seq=761760"
+      ]
+    }
+  },
+  "베트남": {
+    "iati:KR-GOV-051-2025010100136": {
+      "year": 2027,
+      "coverage": "admin1",
+      "place": "사업계획 당시 꽝빈·하띤성",
+      "place_en": "Quang Binh and Ha Tinh at project design",
+      "admin1_names": [
+        "Quảng Bình",
+        "Hà Tĩnh"
+      ],
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://hatinh.gov.vn/vi/bai-viet/koica-khao-sat-du-an-phong-chong-sa-mac-hoa-va-bien-doi-khi-hau-o-ha-tinh"
+      ],
+      "_location_evidence": "원문에 명시된 시행 당시 대상 권역 · Quang Binh and Ha Tinh"
+    },
+    "iati:KR-GOV-051-2024070100259": {
+      "year": 2027,
+      "coverage": "admin1",
+      "place": "옛 꽝남성 내 대상 교량",
+      "place_en": "Project bridges in former Quang Nam",
+      "admin1_names": [
+        "Quảng Nam"
+      ],
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://daumeng.co.kr/business/overseas.php"
+      ],
+      "_location_evidence": "원문에 명시된 시행 당시 대상 권역 · Quang Nam"
+    },
+    "iati:KR-GOV-051-2024070101141": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "하노이·중앙교통전문대학 1교",
+      "place_en": "Hanoi · Central College of Transport No. 1",
+      "geonames_locality": {
+        "name": "Hanoi",
+        "id": 1581130,
+        "lat": 21.0245,
+        "lon": 105.84117
+      },
+      "scope_sources": [
+        "https://www.hyundai-ce.com/en/media/newspress/view?detailsKey=2306",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ],
+      "_location_evidence": "시행사 확인 · CCT1 훈련시설의 소재 도시"
+    },
+    "iati:KR-GOV-051-2025070101141": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "하노이·중앙교통전문대학 1교",
+      "place_en": "Hanoi · Central College of Transport No. 1",
+      "geonames_locality": {
+        "name": "Hanoi",
+        "id": 1581130,
+        "lat": 21.0245,
+        "lon": 105.84117
+      },
+      "scope_sources": [
+        "https://www.hyundai-ce.com/en/media/newspress/view?detailsKey=2306",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ],
+      "_location_evidence": "시행사 확인 · CCT1 훈련시설의 소재 도시"
+    },
+    "iati:KR-GOV-051-2024010102683": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "하노이·한베과학기술연구원",
+      "place_en": "Hanoi · VKIST",
+      "geonames_locality": {
+        "id": 1581130,
+        "name": "Hanoi",
+        "lat": 21.0245,
+        "lon": 105.84117
+      },
+      "_location_evidence": "시행기관이 특정한 사업 거점 · 도시 대표위치",
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://www.mofa.go.kr/www/brd/m_24815/view.do?page=1&pitem=10&seq=150",
+        "https://vkist.gov.vn/",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ]
+    },
+    "iati:KR-GOV-051-2024010100127": {
+      "year": 2027,
+      "coverage": "admin1",
+      "place": "사업계획 당시 안장·동탑·롱안성",
+      "place_en": "An Giang, Dong Thap and Long An at project design",
+      "admin1_names": [
+        "An Giang",
+        "Đồng Tháp",
+        "Long An"
+      ],
+      "_location_evidence": "임업진흥원 발표를 인용한 두 보도 · 시행 당시 대상 3개 성",
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://www.amnews.co.kr/news/articleView.html?idxno=63418",
+        "https://www.newsis.com/view/NISX20241217_0003000684"
+      ]
+    },
+    "iati:KR-GOV-051-2023010100029": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "박장·빈 직업교육 거점",
+      "place_en": "Bac Giang and Vinh training sites",
+      "sites": [
+        {
+          "place": "박장",
+          "geonames_locality": {
+            "id": 1591527,
+            "name": "Bắc Giang",
+            "lat": 21.27307,
+            "lon": 106.1946
+          }
+        },
+        {
+          "place": "빈",
+          "geonames_locality": {
+            "id": 1562798,
+            "name": "Vinh",
+            "lat": 18.67337,
+            "lon": 105.69232
+          }
+        }
+      ],
+      "_location_evidence": "변경된 수원기관 두 대학의 소재 도시",
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://nabo.go.kr/board/file/down.do?fid=33318827",
+        "https://vkc.edu.vn/en/introduction/function-task/",
+        "https://en.naric.edu.vn/vietnam-recognised-bodies",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ]
+    },
+    "iati:KR-GOV-051-2024010100134": {
+      "year": 2027,
+      "coverage": "unknown",
+      "place": "하노이·껀터·하이퐁·꽝찌",
+      "scope_label": "하노이·껀터·하이퐁·꽝찌",
+      "scope_label_en": "Reintegration services in Hanoi, Can Tho, Hai Phong and Quang Tri",
+      "_location_evidence": "수행기관의 2026년 2단계 협약 대상 4개 지역. 경계 자료는 2008년판으로 2025년 통합 이후 권역과 불일치.",
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://www.hoilhpn.org.vn/en_US/web/guest/tin-chi-tiet/-/chi-tiet/hoi-lhpn-viet-nam-chinh-thuc-khoi-%C4%91ong-giai-%C4%91oan-ii-du-an-ho-tro-tai-hoa-nhap-cho-phu-nu-di-cu-va-con-cai-cua-ho-957801-201.html"
+      ]
+    },
+    "iati:KR-GOV-051-2025010100151": {
+      "year": 2027,
+      "coverage": "unknown",
+      "place": "옛 벤째·짜빈성",
+      "scope_label": "메콩델타 벤째·짜빈 제안 지역",
+      "scope_label_en": "Proposed footprint in former Ben Tre and Tra Vinh",
+      "_location_evidence": "공동 제안 당시 벤째·짜빈 두 성. 통합 이후 2027년 집행 대상지 추가 확인 필요.",
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://travinh.baovinhlong.vn/kinh-te/du-an-ho-tro-kinh-te-tuan-hoan-xanh-thong-qua-cai-thien-chuoi-gia-tri-nong-nghiep-vung-dbscl-viet-nam-khoi-dong-vao-cuoi-nam-2025-41914.html",
+        "https://mst.gov.vn/tu-xu-ly-vo-dua-vo-sau-rieng-den-nang-tam-chuoi-gia-tri-nong-san-vinh-long-197261102170437071.htm"
+      ]
+    }
+  },
+  "인도네시아": {
+    "iati:KR-GOV-051-2025070101135": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "팔렘방·확인된 누수저감 거점",
+      "place_en": "Palembang · confirmed NRW implementation site",
+      "geonames_locality": {
+        "id": 1633070,
+        "name": "Palembang",
+        "lat": -2.91673,
+        "lon": 104.7458
+      },
+      "_location_evidence": "시행기관이 특정한 사업 거점 · 도시 대표위치",
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://wiplat.com/blog/wi-plat-signs-performance-based-nrw-reduction-agreement-with-palembang-pdam-in-indonesia/",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ]
+    }
+  },
+  "캄보디아": {
+    "iati:KR-GOV-051-2022010100027": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "프놈펜·국립어린이병원",
+      "place_en": "Phnom Penh · National Pediatric Hospital",
+      "geonames_locality": {
+        "id": 1821306,
+        "name": "Phnom Penh",
+        "lat": 11.56245,
+        "lon": 104.91601
+      },
+      "_location_evidence": "시행기관이 특정한 사업 거점 · 도시 대표위치",
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://www.schmc.ac.kr/center/selectBbsNttView.do?bbsNo=603&integrDeptCode=&key=4176&nttNo=264732&pageIndex=1",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ]
+    },
+    "iati:KR-GOV-051-2025010100111": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "프놈펜·국립민간항공교육원",
+      "place_en": "Phnom Penh · National Institute of Civil Aviation",
+      "geonames_locality": {
+        "id": 1821306,
+        "name": "Phnom Penh",
+        "lat": 11.56245,
+        "lon": 104.91601
+      },
+      "_location_evidence": "시행기관이 특정한 사업 거점 · 도시 대표위치",
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://www.akp.gov.kh/post/detail/332439",
+        "https://igat.icao.int/ated/trainingcatalogue/Profile/1378",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ]
+    },
+    "iati:KR-GOV-051-2025010100145": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "프놈펜·왕립농업대학교",
+      "place_en": "Phnom Penh · Royal University of Agriculture",
+      "geonames_locality": {
+        "id": 1821306,
+        "name": "Phnom Penh",
+        "lat": 11.56245,
+        "lon": 104.91601
+      },
+      "_location_evidence": "시행기관이 특정한 사업 거점 · 도시 대표위치",
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://akp.gov.kh/post/detail/335266",
+        "https://library.ncdd.gov.kh/detail/7971/download",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ]
+    },
+    "iati:KR-GOV-051-2024010100015": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "프놈펜·당까오 후송병원",
+      "place_en": "Phnom Penh · Dangkor Referral Hospital",
+      "geonames_locality": {
+        "id": 1821306,
+        "name": "Phnom Penh",
+        "lat": 11.56245,
+        "lon": 104.91601
+      },
+      "_location_evidence": "시행기관이 특정한 사업 거점 · 도시 대표위치",
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://www.schmc.ac.kr/center/selectBbsNttView.do?bbsNo=123&key=544&nttNo=283766",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ]
+    },
+    "iati:KR-GOV-051-2024010100023": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "M-13·뚜올슬랭·쩡아익",
+      "place_en": "M-13, Tuol Sleng and Choeung Ek",
+      "sites": [
+        {
+          "place": "옛 M-13 수용소",
+          "place_en": "Former M-13 prison",
+          "kind": "point",
+          "source_coord": {
+            "place": "옛 M-13 수용소",
+            "lat": 11.7701611,
+            "lon": 104.3848139,
+            "source": "UNESCO WHC 1748-001",
+            "publisher": "UNESCO World Heritage Centre"
+          }
+        },
+        {
+          "place": "뚜올슬랭 박물관",
+          "place_en": "Tuol Sleng Genocide Museum",
+          "kind": "point",
+          "source_coord": {
+            "place": "뚜올슬랭 박물관",
+            "lat": 11.5495056,
+            "lon": 104.9175778,
+            "source": "UNESCO WHC 1748-002",
+            "publisher": "UNESCO World Heritage Centre"
+          }
+        },
+        {
+          "place": "쩡아익 집단학살센터",
+          "place_en": "Choeung Ek Genocidal Center",
+          "kind": "point",
+          "source_coord": {
+            "place": "쩡아익 집단학살센터",
+            "lat": 11.4844222,
+            "lon": 104.9021111,
+            "source": "UNESCO WHC 1748-003",
+            "publisher": "UNESCO World Heritage Centre"
+          }
+        }
+      ],
+      "_location_evidence": "KOICA 수혜 유적 3곳과 UNESCO 세계유산 등록 지점별 공식 좌표 대조",
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://whc.unesco.org/en/list/1748/",
+        "https://whc.unesco.org/en/list/1748/maps/"
+      ]
+    },
+    "iati:KR-GOV-051-2023010100008": {
+      "year": 2027,
+      "coverage": "unknown",
+      "place": "참여 직업교육기관 20곳",
+      "scope_label": "참여 직업교육기관 20곳",
+      "scope_label_en": "20 participating TVET institutions",
+      "_location_evidence": "IATI에 38곳 중 20곳 선정 명시. 참여 기관별 명단 미확인.",
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml"
+      ]
+    }
+  },
+  "필리핀": {
+    "iati:KR-GOV-051-2021010100072": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "로스바뇨스·농업유전체연구센터",
+      "place_en": "Los Baños · Agricultural Genomics Research Center",
+      "geonames_locality": {
+        "id": 1705536,
+        "name": "Los Baños",
+        "lat": 14.17025,
+        "lon": 121.24181
+      },
+      "_location_evidence": "시행기관이 특정한 사업 거점 · 도시 대표위치",
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://koicauplbirriproject.irri.org/agrc",
+        "https://www.cgiar.org/news-events/news/koica-uplb-successfully-launches-agricultural-genomics-research-center-los-banos",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ]
+    },
+    "iati:KR-GOV-051-2020010100094": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "무뇨스·농기계 설계 및 시제품 센터",
+      "place_en": "Muñoz · Agricultural Machinery Design and Prototyping Center",
+      "geonames_locality": {
+        "id": 1699088,
+        "name": "Muñoz",
+        "lat": 15.71611,
+        "lon": 120.90306
+      },
+      "_location_evidence": "시행기관이 특정한 사업 거점 · 도시 대표위치",
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://www.da.gov.ph/first-research-and-development-facility-for-agri-machinery-to-operate-in-nueva-ecija/",
+        "https://download.geonames.org/export/dump/cities500.zip"
+      ]
+    },
+    "iati:KR-GOV-051-2026070102817000": {
+      "year": 2027,
+      "coverage": "admin2",
+      "place": "사마르·동사마르주 내 참여 지역",
+      "place_en": "Participating communities in Samar and Eastern Samar",
+      "admin2_names": [
+        "Samar",
+        "Eastern Samar"
+      ],
+      "_location_evidence": "2단계 시행이 확인된 두 주 · 주 내 참여 지자체 대상",
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://pia.gov.ph/news/samar-koica-world-vision-expand-maternal-child-healthcare-partnership/",
+        "https://pia.gov.ph/news/koica-boosts-maternal-newborn-healthcare-in-guiuan/"
+      ]
+    },
+    "iati:KR-GOV-051-2026010102869000": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "나보타스시",
+      "place_en": "Navotas City",
+      "geonames_locality": {
+        "id": 1697846,
+        "name": "Navotas",
+        "lat": 14.66667,
+        "lon": 120.95
+      },
+      "_location_evidence": "KOICA 기획조사의 대상 시. 메트로 마닐라(NCR) 시 소재지로 동명 마을과 구분.",
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
+        "https://job.koica.go.kr/application/applicationDetailPage.do?empmnPblancSn=16330",
+        "https://www.navotas.gov.ph/",
+        "https://www.geonames.org/1697846"
+      ]
+    },
+    "iati:KR-GOV-051-2026010100131": {
+      "year": 2027,
+      "coverage": "unknown",
+      "place": "루손 BUCAS 센터 27곳 중 모델센터 5곳",
+      "scope_label": "루손 BUCAS 센터 27곳 중 모델센터 5곳",
+      "scope_label_en": "Luzon BUCAS network, including five model centres",
+      "_location_evidence": "IATI 사업 본문이 2025년 9월 기준 센터 27곳, 모델센터 5곳을 특정. 선정 명단 미확인.",
+      "scope_sources": [
+        "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml"
       ]
     }
   }

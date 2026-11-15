@@ -5,7 +5,7 @@ from collections import defaultdict
 from common import GEO_CACHE, fetch, norm, read_json, unzip_member
 from geo_prepare import GEONAMES_URL
 from iati_aid import URL
-from project_geography import evidence_scope
+from project_geography import evidence_scope, identifies_local_participants
 
 
 def cities_for(iso2):
@@ -73,10 +73,12 @@ def enrich_locations(doc, reported_places, cities, regions, *, descriptions=None
         places = reported_places.get(fid.partition("@")[0], [])
         if places:
             row["_iati_reported_places"] = places
-        if (row.get("reviewed_pins") or row.get("_location_basis") not in {"group-representative","annual-plan"}
+        if ("reviewed_pins" in row or "reviewed_unresolved" in row
+                or row.get("_location_basis") not in {"group-representative","annual-plan"}
                 or row.get("coverage") not in {None, "unknown"} or "@" in fid):
             continue
-        evidence = evidence_scope(row, doc.get("country",""), (descriptions or {}).get(fid, []),
+        activity_texts = (descriptions or {}).get(fid, [])
+        evidence = evidence_scope(row, doc.get("country",""), activity_texts,
                                   places, cities, regions, boundary_key)
         if evidence:
             links = evidence.pop("scope_sources", [])
@@ -85,6 +87,11 @@ def enrich_locations(doc, reported_places, cities, regions, *, descriptions=None
             row["scope_sources"] = list(dict.fromkeys([*(row.get("scope_sources") or []),
                 URL if fid.startswith("iati:") else doc["source"], *links,
                 GEONAMES_URL if row["coverage"]=="site" else "https://www.geoboundaries.org/"]))
+            continue
+        if identifies_local_participants(activity_texts):
+            row.setdefault("source_place", row["place"])
+            row["coverage"] = "unknown"
+            row.pop("source_coord", None)
             continue
         title = norm(row.get("name_en") or "")
         if re.search(r"\bnationwide\b", title):

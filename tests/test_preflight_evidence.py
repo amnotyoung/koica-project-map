@@ -39,6 +39,7 @@ class ActivityScopeTests(unittest.TestCase):
         src = ["Direct beneficiaries: Alpha - 3,000 people and Beta - 200 people"]
         self.assertEqual(beneficiary_regions(src,regs,boundary_key),[("adm1","Alpha"),("adm1","Beta")])
         self.assertFalse(beneficiary_regions(src,{"alpha":regs["alpha"]},boundary_key))
+        self.assertFalse(beneficiary_regions([src[0]+", plus an unspecified district"],regs,boundary_key))
 
     def test_exact_region_from_both_sources_reaches_polygon_renderer(self):
         from location_evidence import enrich_locations
@@ -49,3 +50,10 @@ class ActivityScopeTests(unittest.TestCase):
                          descriptions={"p":["Irrigated farming in Central Valley"]})
         self.assertEqual(row["coverage"],"admin1")
         self.assertEqual(row["admin1_names"],["Central Valley"])
+
+    def test_selected_municipalities_do_not_paint_the_whole_region(self):
+        row = {"id":"p","selected":True,"name_en":"Maternal health in Delta Region",
+               "name_ko":"델타 지역 모자보건","place":"Delta","_location_basis":"group-representative"}
+        enrich_locations({"projects":[row]}, {}, {}, {"delta":[("adm1","Delta","region")]},
+                         descriptions={"p":["Support for selected municipalities in Delta"]})
+        self.assertEqual(row["coverage"],"unknown")

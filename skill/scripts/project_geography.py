@@ -13,6 +13,12 @@ def contains_name(text, name):
     return re.search(r"(?<!\w)" + re.escape(name) + r"(?!\w)", text) is not None
 
 
+def identifies_local_participants(descriptions):
+    return any(re.search(r"\b(?:participating|selected|pilot)\s+(?:municipalities|districts|communities|villages)\b"
+                         r"|(?:참여|선정|시범)\s*(?:지자체|지방정부|마을|시군)|(?:실시된|도입한)\s*지역정부", text, re.I)
+               for text in descriptions)
+
+
 def beneficiary_regions(descriptions, regions, normalize):
     # All named rows in a counted direct-beneficiary list must resolve at the same level.
     for text in descriptions:
@@ -22,7 +28,8 @@ def beneficiary_regions(descriptions, regions, normalize):
         fields = re.split(r"\s*(?:&(?:amp;)*| and |;)\s*", match[1], flags=re.I)
         names = []
         for field in fields:
-            item = re.match(r"([\wÀ-ỹ -]{2,60}?)\s*[-–:]\s*[\d,]+\s+(?:people|persons|households)\b", field, re.I)
+            item = re.fullmatch(r"([\wÀ-ỹ -]{2,60}?)\s*[-–:]\s*[\d,]+\s+(?:people|persons|households)"
+                                r"(?:\s+in (?:the )?project area)?\s*[.]?", field.strip(), re.I)
             found = regions.get(normalize(item[1]), []) if item else []
             if len(found) != 1:
                 break
@@ -48,7 +55,8 @@ def evidence_scope(row, country, texts, reported, cities, regions, normalize):
         return area(direct,"IATI 사업 설명의 직접 수혜지역 · " + " / ".join(n for _,n in direct))
     # A named administrative area in BOTH title and implementation description. Avoid
     # depicting an entire province for the construction of a facility at one site.
-    if not re.search(r"\b(?:school|hospital|centre|center|university|construction|campus|district|city|town|station)\b",title):
+    if not identifies_local_participants(texts) and not re.search(
+            r"\b(?:school|hospital|centre|center|university|construction|campus|district|city|town|station)\b",title):
         candidates = [(level,label) for name,values in regions.items() if len(name)>3 and len(values)==1
                       and contains_name(title,name) and contains_name(description,name)
                       for level,label,_ in values if level=="adm1"]

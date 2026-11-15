@@ -50,6 +50,23 @@
         "https://www.koica.go.kr/bbs/koica_kr/292/385466/artclView.do",
         "https://gddt.edu.vn/don-vi/hoc-vien/hoc-vien-toa-an.html"
       ]
+    },
+    {
+      "ko": "하노이·비전통보안연구소",
+      "en": "Hanoi · Institute of Non-Traditional Security",
+      "aliases": [
+        "Institute of Non-Traditional Security"
+      ],
+      "locality": {
+        "id": 1581130,
+        "name": "Hanoi",
+        "lat": 21.0245,
+        "lon": 105.84117
+      },
+      "sources": [
+        "https://www.hsb.edu.vn/news/implementing-the-project-supporting-the-vietnam-institute-for-non-traditional-security-to-enhance-cybersecurity-training-capacity",
+        "https://www.hsb.edu.vn/research/institute-of-nontraditional-security-ins"
+      ]
     }
   ]
 }
