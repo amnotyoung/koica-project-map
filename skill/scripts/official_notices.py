@@ -151,7 +151,13 @@ def candidate(country, year, number, listing, body):
         period = tuple(int(v) if len(v)==4 else int(v)+2000 for v in m.groups())
     if period and not (2000 <= period[0] <= period[1] <= 2100):
         period = None
+    # A funding cohort may be separated from “사업” by the country or sector.
+    # Only inspect the title for this broad form: the body includes application dates.
     start = re.search(r"(?<!\d)((?:20)?\d{2})\s*년(?:도)?\s*신규", listing + " " + intro)
+    if not start:
+        start = re.search(r"(?<!\d)((?:20)?\d{2})\s*년(?:도)?\s+"
+                          r"(?:[가-힣A-Za-z·-]+\s+){0,6}(?:(?:신규\s*|후보\s*)+사업|ODA\s*사업|국별협력사업)",
+                          listing + "\n" + headline, re.I)
     start_year = (int(start[1]) % 100 + 2000) if start else None
     if year and (period and not period[0] <= year <= period[1] or not period and start_year and start_year > year):
         return None

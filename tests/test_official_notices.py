@@ -33,6 +33,15 @@ class OfficialNotices(unittest.TestCase):
         self.assertEqual(row["name_ko"], "쿠바 에너지 접근성 개선사업 (2026-2029/850 만불)")
         self.assertFalse(row["selected"])
 
+    def test_future_cohort_with_intervening_sector_is_excluded(self):
+        for phrase in ("2028년 AI ODA 신규사업", "2028년 예시국 문화유산 및 관광 신규 후보사업",
+                       "2028년도 과학기술혁신 신규사업", "2028년 AI ODA 사업"):
+            title = "예시국 " + phrase + " 예비조사 전문가 공모"
+            self.assertIsNone(candidate("예시국", 2027, "42", title, title))
+        title = "예시국 문화유산 사업 기획조사 전문가 공모"
+        row = candidate("예시국", 2027, "42", title, title + "\n2028년 교육 일정은 미정")
+        self.assertEqual(row["_period"], "")
+
     def test_board_filters_domains_and_distinguishes_failure_from_empty(self):
         link = BOARD + "123/artclView.do"
         parsed, _ = parse_board(f'<a href="{link}"><strong>예시국 공고</strong></a>'
