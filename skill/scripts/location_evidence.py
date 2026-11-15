@@ -5,6 +5,7 @@ from collections import defaultdict
 from common import GEO_CACHE, fetch, norm, read_json, unzip_member
 from geo_prepare import GEONAMES_URL
 from iati_aid import URL
+from facility_locations import FACILITY, facility_index, named_facility
 from project_geography import evidence_scope, identifies_local_participants
 
 
@@ -65,7 +66,46 @@ def named_city(title, cities):
     return None
 
 
-def enrich_locations(doc, reported_places, cities, regions, *, descriptions=None):
+def delivery_city(row, places, texts, cities, regions):
+    if len(places) != 1 or identifies_local_participants(texts):
+        return {}
+    key = norm(places[0])
+    matches = cities.get(key, {})
+    if len(key) < 3 or len(matches) != 1:
+        return {}
+    title = row.get("name_en") or ""
+    if re.search(r"\b(?:province|region|district|island|county|cities|municipalities)s?\b",title,re.I):
+        return {}
+    # A capital is often in the location field for policy work anywhere in the country.
+    # Require a physical intervention explicitly located in the reported city.
+    activity = r"(?:hospital|school|university|training cent(?:er|re)|laboratory|treatment plant|vocational cent(?:er|re)|facility)"
+    marker = r"(?:the city of |city of )?" + re.escape(key)
+    pattern = rf"\b{activity}\s+(?:located |based )?in\s+{marker}(?: city)?(?=\s*(?:$|[,.;(]))"
+    city = next(iter(matches.values()))
+    # Some titles identify the facility, its purpose, then the city and country.
+    # Require the same city in Korean and retain the locality's precision.
+    ko = city.get("ko")
+    ko_title = row.get("name_ko", "")
+    title_match = (ko and re.search(r"(?<![가-힣])"+re.escape(ko)+r"(?:시)?(?=\s)",ko_title)
+                   and re.search(r"\b(?:establishment|construction|renovation|modernization) of (?:an? |the )?"
+                                 r"[^,;]{0,60}\b(?:cent(?:er|re)|hospital|school|laboratory)\b"
+                                 r"[^,;]{0,120}\bin "+re.escape(key)+r"\s*,", norm(title)))
+    for sentence in (title, *(s for t in texts for s in re.split(r"[;\n]|(?<=[.!?])\s+", t))):
+        if re.search(r"\b(?:meeting|visit|example|survey|workshop|other|and elsewhere)\b", sentence, re.I):
+            continue
+        normalized = norm(sentence)
+        if not (sentence == title and title_match or re.search(pattern, normalized)) or not re.search(
+                r"\b(?:construct\w*|establish\w*|build\w*|moderniz\w*|renovat\w*|equip\w*|upgrad\w*)\b", normalized):
+            continue
+        if regions.get(boundary_key(key)) and not re.search(r"\b(?:city of "+re.escape(key)+"|"+re.escape(key)+r" city)\b", normalized):
+            continue
+        return {"coverage":"site", "place":city["ko"] or city["name"], "place_en":city["name"],
+                "geonames_locality":{k:city[k] for k in ("id","name","lat","lon")},
+                "_location_evidence":"시설 설치·개선 대상 도시와 IATI 보고 지명 일치 · "+city["name"]}
+    return {}
+
+
+def enrich_locations(doc, reported_places, cities, regions, *, descriptions=None, iso2=None):
     for row in doc["projects"]:
         if not row.get("selected"):
             continue
@@ -80,13 +120,18 @@ def enrich_locations(doc, reported_places, cities, regions, *, descriptions=None
         activity_texts = (descriptions or {}).get(fid, [])
         evidence = evidence_scope(row, doc.get("country",""), activity_texts,
                                   places, cities, regions, boundary_key)
+        if not evidence and iso2 and FACILITY.search(" ".join([row.get("name_en") or "", *activity_texts])):
+            evidence = named_facility(row.get("name_en") or "", activity_texts, facility_index(iso2))
+        if not evidence:
+            evidence = delivery_city(row, places, activity_texts, cities, regions)
         if evidence:
             links = evidence.pop("scope_sources", [])
             row.pop("source_coord", None)
             row.update(source_place=row["place"], _location_basis="public-project-evidence", **evidence)
             row["scope_sources"] = list(dict.fromkeys([*(row.get("scope_sources") or []),
                 URL if fid.startswith("iati:") else doc["source"], *links,
-                GEONAMES_URL if row["coverage"]=="site" else "https://www.geoboundaries.org/"]))
+                *([] if evidence.get("source_coord") else
+                  [GEONAMES_URL if row["coverage"]=="site" else "https://www.geoboundaries.org/"])]))
             continue
         if identifies_local_participants(activity_texts):
             row.setdefault("source_place", row["place"])

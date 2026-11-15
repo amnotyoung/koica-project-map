@@ -361,7 +361,7 @@ def prepare_locations(doc):
         index = iati_aid.load_index()
         enrich_locations(doc, index.get("places", {}), cities_for(ref["iso2"]),
                          regional_names(ref["iso3"], geo.get("admin", [])),
-                         descriptions=index.get("descriptions", {}))
+                         descriptions=index.get("descriptions", {}), iso2=ref["iso2"])
 
 
 def collect_for_review(country, year, include_all=False, force=False, all_notices=False):

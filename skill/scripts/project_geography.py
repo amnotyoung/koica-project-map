@@ -79,6 +79,8 @@ def evidence_scope(row, country, texts, reported, cities, regions, normalize):
                 "_location_evidence":"수혜기관 소재 도시 · "+facility["en"]+" (도시 대표위치)"}
     # One city named explicitly in a Korean title, corroborated by the official
     # English title or activity locality. Require an unambiguous Korean gazetteer name.
+    if re.search(r"\b(?:province|region|department|county|governorate|district|island)s?\b", title):
+        return {}
     for m in re.finditer(r"([가-힣]{2,12})\s*시(?:\s|의|에서|내)",bilingual):
         ko=m[1]
         matches=cities.get(normalize(ko),{})
