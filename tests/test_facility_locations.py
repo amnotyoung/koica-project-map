@@ -24,5 +24,11 @@ class FacilityLocations(unittest.TestCase):
         city = {"id":1,"name":"Delta","ko":"델타","lat":2,"lon":3}
         row = {"id":"p","place":"델타","_location_basis":"group-representative","selected":True,
                "name_ko":"델타시 폐기물 관리","name_en":"Waste management in the Province of Delta"}
-        enrich_locations({"projects":[row]}, {"p":["Delta"]}, {norm("델타"):{"1":city},"delta":{"1":city}}, {})
-        self.assertNotIn("geonames_locality", row)
+        for title in ("Waste management in the Province of Delta", "Waste management in Delta Province"):
+            with self.subTest(title=title):
+                sample = dict(row, name_en=title)
+                enrich_locations({"projects":[sample]}, {"p":["Delta"]}, {norm("델타"):{"1":city},"delta":{"1":city}},
+                                 {"delta":[("adm1","Delta","province")]})
+                self.assertNotIn("geonames_locality", sample)
+                self.assertEqual(sample["coverage"],"unknown")
+                self.assertNotIn("admin1_names",sample)

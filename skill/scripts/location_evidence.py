@@ -105,6 +105,17 @@ def delivery_city(row, places, texts, cities, regions):
     return {}
 
 
+def conflicting_city_unit(row, cities):
+    title = norm(row.get("name_en") or "")
+    for match in re.finditer(r"([가-힣]{2,12})\s*시(?:\s|의|에서|내)", row.get("name_ko") or ""):
+        for city in cities.get(norm(match[1]), {}).values():
+            name = re.escape(norm(city["name"]))
+            unit = r"(?:province|region|county|governorate|district|department)"
+            if re.search(rf"\b(?:{unit} of {name}|{name} {unit})\b", title):
+                return city["name"]
+    return None
+
+
 def enrich_locations(doc, reported_places, cities, regions, *, descriptions=None, iso2=None):
     for row in doc["projects"]:
         if not row.get("selected"):
@@ -118,6 +129,12 @@ def enrich_locations(doc, reported_places, cities, regions, *, descriptions=None
                 or row.get("coverage") not in {None, "unknown"} or "@" in fid):
             continue
         activity_texts = (descriptions or {}).get(fid, [])
+        conflict = conflicting_city_unit(row, cities)
+        if conflict:
+            row.setdefault("source_place", row["place"])
+            row.update(coverage="unknown", _location_evidence="국·영문 사업명의 시·권역 불일치 · "+conflict)
+            row.pop("source_coord", None)
+            continue
         evidence = evidence_scope(row, doc.get("country",""), activity_texts,
                                   places, cities, regions, boundary_key)
         if not evidence and iso2 and FACILITY.search(" ".join([row.get("name_en") or "", *activity_texts])):
