@@ -5,6 +5,7 @@ from difflib import SequenceMatcher
 
 from country_names import atlas_countries, canonical
 from common import REFERENCE_DIR, read_json
+from project_scope import edition_fields
 from portfolio_selection import project_key, title_period
 
 
@@ -76,8 +77,8 @@ def reconcile(rows, pending, country, year, countries, target, previous, display
                "_location_basis":"annual-plan", "_annual_plan":proofs, "scope_sources":[target["source"]]}
         if selected:
             # Presentation metadata is applied after admission and cannot change the roster.
-            labels = display.get(fid, {})
-            if labels.get("year") == year and labels.get("scope_sources"):
+            labels = edition_fields(display.get(fid), year)
+            if labels.get("scope_sources"):
                 for k in ("name_ko","name_en","_period","badges","place","place_en","coverage","scope_label","scope_label_en",
                           "admin1_names","admin2_names","sites","geonames_locality","partner_activity_ids"):
                     if k in labels:

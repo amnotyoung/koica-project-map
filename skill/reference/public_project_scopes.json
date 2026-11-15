@@ -16,15 +16,20 @@
     "iati:KR-GOV-051-2025010100118": {
       "year": 2026,
       "coverage": "admin1",
-      "place": "아샨티·이스턴·센트럴 주",
+      "place": "아샨티·이스턴·센트럴 주 내 참여 지역",
       "admin1_names": [
         "Ashanti",
         "Eastern",
         "Central"
       ],
       "scope_sources": [
-        "https://www.ghs.gov.gh/news-and-events/ghs-receives-three-toyota-hilux-pickups-to-strengthen-rmncahn-services"
-      ]
+        "https://www.ghs.gov.gh/news-and-events/ghs-receives-three-toyota-hilux-pickups-to-strengthen-rmncahn-services",
+        "https://www.unicef.org/gok/contributions-and-impact/ghana"
+      ],
+      "scope_years": [
+        2027
+      ],
+      "place_en": "Participating areas in Ashanti, Eastern and Central"
     },
     "iati:KR-GOV-051-2020010100024": {
       "year": 2026,
@@ -67,14 +72,19 @@
     "iati:KR-GOV-051-2024010100060": {
       "year": 2026,
       "coverage": "admin1",
-      "place": "센트럴·볼타 주",
+      "place": "센트럴·볼타 주 내 참여 지역",
       "admin1_names": [
         "Central",
         "Volta"
       ],
       "scope_sources": [
-        "https://www.ndpc.gov.gh/media/NDPC_APR_28_june_final_version.pdf"
-      ]
+        "https://www.ndpc.gov.gh/media/NDPC_APR_28_june_final_version.pdf",
+        "https://ndpc.gov.gh/media_center/blog_details/koica-and-ndpc-sign-record-discussion-boost-agribusiness-value-chains-ghana"
+      ],
+      "scope_years": [
+        2027
+      ],
+      "place_en": "Participating areas in Central and Volta"
     },
     "iati:KR-GOV-051-2026010100140": {
       "year": 2026,

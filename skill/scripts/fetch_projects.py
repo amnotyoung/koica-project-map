@@ -28,6 +28,7 @@ from pathlib import Path
 from country_names import canonical, identity
 import annual_portfolio
 import iati_aid
+from project_scope import edition_fields
 from portfolio_selection import TITLE_PERIOD, project_key, reconcile_notices, title_period, year_decision
 from common import CACHE_DIR, REFERENCE_DIR, fetch, log, read_json, sector_map, write_json
 
@@ -294,7 +295,8 @@ def collect(country: str, year: int | None, include_all: bool,
                 row["_coord_source"] = coord_source
             if source_coord:
                 row["source_coord"] = dict(source_coord)
-            if fact and year == fact["year"]:
+            fact = edition_fields(fact, year) if fid in scopes or (fact and year == fact["year"]) else {}
+            if fact:
                 if any(k in fact for k in ("coverage", "place", "sites", "geonames_locality")):
                     row["source_place"] = place
                     row.pop("source_coord", None)
@@ -303,7 +305,7 @@ def collect(country: str, year: int | None, include_all: bool,
                     field = "name_" + lang
                     if field in fact and fact[field] != row[field]:
                         row["_source_" + field] = row[field]
-                row.update({k:v for k,v in fact.items() if k != "year"})
+                row.update(fact)
                 if decision and decision["decision"] == "verified_period":
                     row["_period"] = decision["verified_period"]
                     for field in ("name_ko", "name_en"):

@@ -3,6 +3,20 @@ import re
 from collections import defaultdict
 
 
+LOCATION_FIELDS = ("place", "place_en", "scope_label", "scope_label_en", "sites", "geonames_locality",
+                   "coverage", "admin1_names", "admin2_names", "scope_sources", "_location_evidence")
+
+
+def edition_fields(fact, year):
+    if not fact:
+        return {}
+    if fact["year"] == year:
+        return {k:v for k,v in fact.items() if k not in {"year", "scope_years"}}
+    if year in fact.get("scope_years", []) and fact.get("scope_sources"):
+        return {k:fact[k] for k in LOCATION_FIELDS if k in fact}
+    return {}
+
+
 def prepare_projects(doc):
     country = doc["country"]
     projects = []

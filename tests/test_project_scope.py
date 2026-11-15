@@ -3,10 +3,17 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "skill" / "scripts"))
-from project_scope import prepare_projects
+from project_scope import edition_fields, prepare_projects
 
 
 class CoverageTests(unittest.TestCase):
+    def test_only_verified_location_fields_cross_editions(self):
+        fact = {"year":2026,"scope_years":[2027],"place":"A","coverage":"admin1",
+                "scope_sources":["proof"],"name_ko":"earlier title","verified_period":"2020-2027"}
+        self.assertEqual(edition_fields(fact, 2027), {"place":"A","coverage":"admin1","scope_sources":["proof"]})
+        self.assertFalse(edition_fields(fact, 2028))
+        self.assertFalse(edition_fields({**fact, "scope_sources":[]}, 2027))
+
     def test_national_and_unconfirmed_scope_remove_city_coordinate(self):
         record = {"place":"수도", "source_coord":{"lon":10,"lat":10},
                   "_location_basis":"group-representative","_coord_source":"도시"}
