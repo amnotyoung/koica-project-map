@@ -358,8 +358,10 @@ def prepare_locations(doc):
     ref = identity(doc["country"])
     if ref:
         geo = ensure_country(ref["iso3"], "10m")
-        enrich_locations(doc, iati_aid.load_index().get("places", {}), cities_for(ref["iso2"]),
-                         regional_names(ref["iso3"], geo.get("admin", [])))
+        index = iati_aid.load_index()
+        enrich_locations(doc, index.get("places", {}), cities_for(ref["iso2"]),
+                         regional_names(ref["iso3"], geo.get("admin", [])),
+                         descriptions=index.get("descriptions", {}))
 
 
 def collect_for_review(country, year, include_all=False, force=False, all_notices=False):

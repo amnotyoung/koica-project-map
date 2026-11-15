@@ -29,3 +29,23 @@ class PreflightEvidenceTests(unittest.TestCase):
         enrich_locations({"projects":[row]},{"a":["Capital"]},city,{})
         self.assertNotIn("geonames_locality",row)
         self.assertEqual(row["_iati_reported_places"],["Capital"])
+
+
+class ActivityScopeTests(unittest.TestCase):
+    def test_multi_region_goal_requires_every_beneficiary_to_resolve(self):
+        from project_geography import beneficiary_regions
+        from location_evidence import boundary_key
+        regs = {"alpha":[("adm1","Alpha","province")],"beta":[("adm1","Beta","province")]}
+        src = ["Direct beneficiaries: Alpha - 3,000 people and Beta - 200 people"]
+        self.assertEqual(beneficiary_regions(src,regs,boundary_key),[("adm1","Alpha"),("adm1","Beta")])
+        self.assertFalse(beneficiary_regions(src,{"alpha":regs["alpha"]},boundary_key))
+
+    def test_exact_region_from_both_sources_reaches_polygon_renderer(self):
+        from location_evidence import enrich_locations
+        row={"id":"p","selected":True,"name_en":"Crop development in Central Valley",
+             "name_ko":"중부 계곡지역 농업개발","place":"Capital","_location_basis":"group-representative"}
+        enrich_locations({"country":"example","source":"catalogue","projects":[row]}, {}, {},
+                         {"central valley":[("adm1","Central Valley","regions")]},
+                         descriptions={"p":["Irrigated farming in Central Valley"]})
+        self.assertEqual(row["coverage"],"admin1")
+        self.assertEqual(row["admin1_names"],["Central Valley"])

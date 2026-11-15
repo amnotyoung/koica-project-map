@@ -1,0 +1,55 @@
+{
+  "베트남": [
+    {
+      "ko": "하노이·국립농업대학교",
+      "en": "Hanoi · Vietnam National University of Agriculture",
+      "aliases": [
+        "Vietnam National University of Agriculture"
+      ],
+      "locality": {
+        "id": 1581130,
+        "name": "Hanoi",
+        "lat": 21.0245,
+        "lon": 105.84117
+      },
+      "sources": [
+        "https://vkli.vnua.edu.vn/gioi-thieu/gioi-thieu-chung",
+        "https://fas.vnua.edu.vn/"
+      ]
+    },
+    {
+      "ko": "다낭·한베 ICT 대학교",
+      "en": "Da Nang · Viet Nam–Korea University of ICT",
+      "aliases": [
+        "Vietnam-Korea University of Information",
+        "Viet Nam-Korea University of Information"
+      ],
+      "locality": {
+        "id": 1583992,
+        "name": "Da Nang",
+        "lat": 16.06778,
+        "lon": 108.22083
+      },
+      "sources": [
+        "https://vku.udn.vn/kick-off-oda-project-developing-vku-to-become-the-leading-university-in-vietnam-successfully-modeling-vietnam-korea-cooperation/"
+      ]
+    },
+    {
+      "ko": "하노이·베트남 법원아카데미",
+      "en": "Hanoi · Vietnam Court Academy",
+      "aliases": [
+        "Vietnam Court Academy"
+      ],
+      "locality": {
+        "id": 1581130,
+        "name": "Hanoi",
+        "lat": 21.0245,
+        "lon": 105.84117
+      },
+      "sources": [
+        "https://www.koica.go.kr/bbs/koica_kr/292/385466/artclView.do",
+        "https://gddt.edu.vn/don-vi/hoc-vien/hoc-vien-toa-an.html"
+      ]
+    }
+  ]
+}

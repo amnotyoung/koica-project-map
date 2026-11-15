@@ -9,13 +9,14 @@ from pathlib import Path
 from common import CACHE_DIR, fetch, log
 
 URL = "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml"
-INDEX = CACHE_DIR / "koica-iati-activities-v3.json"
+INDEX = CACHE_DIR / "koica-iati-activities-v4.json"
 
 
 def read_index(path):
     codes = {}
     triangular = []
     reported_places = {}
+    narratives = {}
     for _, node in ET.iterparse(path, events=("end",)):
         if node.tag != "iati-activity":
             continue
@@ -25,6 +26,9 @@ def read_index(path):
             fid = "iati:" + key
             codes[fid] = default.get("code", "")
             if codes[fid] in {"C01", "B03"}:
+                texts = [n.text.strip() for n in node.findall("description/narrative") if n.text and n.text.strip()]
+                if texts:
+                    narratives[fid] = list(dict.fromkeys(texts))
                 locations = []
                 for place in node.findall("location"):
                     name = (place.findtext("name/narrative") or "").strip()
@@ -41,7 +45,7 @@ def read_index(path):
         node.clear()
     if not codes:
         raise ValueError("KOICA XML 원조유형 없음")
-    return {"codes":codes, "triangular":triangular, "places":reported_places}
+    return {"codes":codes, "triangular":triangular, "places":reported_places, "descriptions":narratives}
 
 
 def load_index(force=False):
