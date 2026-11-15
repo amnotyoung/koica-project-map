@@ -7,6 +7,17 @@ from location_evidence import enrich_locations
 
 
 class AtlasRefreshTests(unittest.TestCase):
+    def test_only_missing_ids_and_their_sites_are_revisited(self):
+        rows = [{"id":i, "selected":True, "place":"A", "_location_basis":"group-representative"}
+                for i in ("iati:a@one", "iati:a@two", "iati:b")]
+        draft = {"year":2027, "country_iso3":"VNM", "country":"베트남", "projects":rows,
+                 "notice_search":{"limited":False}}
+        with patch("tools.prepare_atlas.read_editor", return_value=draft), \
+             patch("tools.prepare_atlas.read_json", return_value={}), \
+             patch("tools.prepare_atlas.prepare_locations") as prepare:
+            refresh_review(Path("."), "VNM", 2027, True, {"iati:a"})
+        self.assertEqual([r["id"] for r in prepare.call_args.args[0]["projects"]], ["iati:a@one", "iati:a@two"])
+
     def test_refresh_preserves_selection_period_and_reviewers_location(self):
         rows = [{"id":"x","selected":True,"_period":"2024-2028","place":"검토 위치",
                  "reviewed_pins":[],"_location_basis":"group-representative"},

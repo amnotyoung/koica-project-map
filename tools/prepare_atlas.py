@@ -18,7 +18,7 @@ from common import REFERENCE_DIR, read_json
 from official_notices import add_notices
 from layout import compute_pages
 from pick_projects import export_editor, persist
-from project_scope import prepare_projects
+from project_scope import edition_fields, LOCATION_FIELDS, prepare_projects
 
 
 def read_editor(folder, iso):
@@ -26,34 +26,36 @@ def read_editor(folder, iso):
     return json.loads(tree.get_element_by_id("payload").text)
 
 
-def refresh_review(baseline, iso, year, review_geo):
+def refresh_review(baseline, iso, year, review_geo, missing_ids=None):
     # Refresh locations and candidates without changing the reviewer’s selection.
     doc = read_editor(baseline, iso)
     if doc["year"] != year or doc["country_iso3"] != iso:
         raise ValueError("준비 목록과 검토 국가·연도가 일치하지 않습니다")
     facts = read_json(REFERENCE_DIR / "public_project_scopes.json").get(doc["country"], {})
+    location_rows = []
     for row in doc["projects"]:
         row.pop("_review_location", None)
         if (not review_geo or not row["selected"] or row.get("_location_basis") == "manager-reviewed"
                 or "reviewed_pins" in row or "reviewed_unresolved" in row):
             continue
-        fact = facts.get(row["id"], {})
-        if (fact.get("year") == year and fact.get("scope_sources") and "coverage" in fact
+        if missing_ids is not None and row["id"].partition("@")[0] not in missing_ids and row["id"] not in missing_ids:
+            continue
+        location_rows.append(row)
+        fact = edition_fields(facts.get(row["id"]), year)
+        if (fact.get("scope_sources") and "coverage" in fact
                 and row.get("_location_basis") in {"group-representative","annual-plan"}):
             row["source_place"] = row["place"]
             row.pop("source_coord", None)
-            fields = ("place","place_en","scope_label","scope_label_en","sites","geonames_locality","coverage",
-                      "admin1_names","admin2_names","scope_sources","_location_evidence")
             sources = list(dict.fromkeys([*(row.get("scope_sources") or []), *fact["scope_sources"]]))
-            row.update({k: fact[k] for k in fields if k in fact})
+            row.update({k: fact[k] for k in LOCATION_FIELDS if k in fact})
             row["scope_sources"] = sources
             row["_location_basis"] = "public-project-evidence"
         if row.get("_title_region") and row.get("coverage") in {"adm1","adm2"}:
             old = row.pop("coverage")
             row["coverage"] = old.replace("adm","admin")
             row[row["coverage"]+"_names"] = row.pop(old+"_names")
-    if review_geo:
-        prepare_locations(doc)
+    if location_rows:
+        prepare_locations({**doc, "projects":location_rows})
     if doc["notice_search"]["limited"]:
         doc = add_notices(doc, all_notices=True)
     return doc
@@ -82,9 +84,9 @@ def write_notice_comparison(baseline, prepared, countries):
 
 
 def check_country(job):
-    ref, year, out, baseline, review_geo = job
+    ref, year, out, baseline, review_geo, missing_ids = job
     iso, country = ref["iso3"], ref["ko"]
-    doc = refresh_review(baseline, iso, year, review_geo) if baseline else collect_for_review(country, year)
+    doc = refresh_review(baseline, iso, year, review_geo, missing_ids) if baseline else collect_for_review(country, year)
     doc["map_languages"] = ["ko","en"]
     selected = [r for r in doc["projects"] if r["selected"]]
     input_doc = {**doc, "projects":selected}
@@ -148,6 +150,7 @@ def main():
     parser.add_argument("--outdir",type=Path,required=True)
     parser.add_argument("--baseline",type=Path,help="기존 선정 목록을 유지하고 위치 근거와 제한된 공고 검색을 갱신")
     parser.add_argument("--location-countries", nargs="+", metavar="ISO3", help="위치 근거를 다시 판정할 국가 (기본 전체)")
+    parser.add_argument("--missing-sites-only", action="store_true", help="기존 사업지 미확정 항목만 재판정")
     parser.add_argument("--workers",type=int,default=2)
     args = parser.parse_args()
     out = args.outdir.resolve()
@@ -158,7 +161,15 @@ def main():
     targets = set(args.location_countries or [c["iso3"] for c in atlas_countries()])
     if targets - {c["iso3"] for c in atlas_countries()}:
         parser.error("모르는 ISO3 국가 코드")
-    jobs=[(c,args.year,out,args.baseline,c["iso3"] in targets) for c in atlas_countries()]
+    missing = None
+    if args.missing_sites_only:
+        if not args.baseline:
+            parser.error("--missing-sites-only에는 --baseline이 필요합니다")
+        with (args.baseline / "위치검토.csv").open(encoding="utf-8-sig") as stream:
+            missing = {(row["country"],row["id"]) for row in csv.DictReader(stream) if row["reason"]=="사업지 확인"}
+    jobs=[(c,args.year,out,args.baseline,c["iso3"] in targets,
+           {i for country,i in missing if country==c["ko"]} if missing is not None else None)
+          for c in atlas_countries()]
     with ProcessPoolExecutor(max_workers=args.workers) as pool:
         for summary, problems in pool.map(check_country, jobs):
             records.append(summary)
