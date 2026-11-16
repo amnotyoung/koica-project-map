@@ -18,6 +18,32 @@ def square(x, y, side):
 
 
 class GeographicGenerationTests(unittest.TestCase):
+    def test_cluster_zoom_preserves_the_coast_and_full_project_polygons(self):
+        full = [0,0,10,10]
+        land = [square(0,0,10)]
+        parts = [{"ok":True, "lon":x, "lat":y} for x,y in [(4,8),(5,9)]]
+        row = {"resolved":True, "parts":parts}
+        resolved = {"places":[row]}
+        focus = cartography.clustered_extent(full,resolved,land)
+        self.assertEqual(focus,[0,4.5,10,10])
+        self.assertEqual(cartography.extent({"land":land,"bbox":full},resolved,[1,2,3,4]),([1,2,3,4],False))
+        for other in ({"resolved":False, "parts":[]},
+                      {"resolved":True, "parts":[{"ok":True,"kind":"nationwide","lon":None}]},
+                      {**row,"source_conflicts":["Other site"]}):
+            self.assertIsNone(cartography.clustered_extent(full,{"places":[row,other]},land))
+        row["regions"] = [{"geometry":[[square(1,1,8)]]}]
+        self.assertIsNone(cartography.clustered_extent(full,resolved,land))
+
+    def test_eastern_area_groups_choose_the_right_column_even_on_a_tall_map(self):
+        doc = {"map_bbox":[0,0,4,12], "projects":[{"place":p,"name_ko":p} for p in ["A","B","전역"]]}
+        places = [{"region":p,"parts":[{"ok":True,"kind":"admin1","lon":3,"lat":y}]}
+                  for p,y in [("A",4),("B",6)]]
+        places.append({"parts":[{"ok":True,"kind":"nationwide","lon":None,"lat":None}]})
+        self.assertEqual(layout.choose_mode(doc,design_tokens(),"ko",{"places":places}), "R")
+        for p in places[:2]:
+            p["parts"][0]["lon"] = 1
+        self.assertEqual(layout.choose_mode(doc,design_tokens(),"ko",{"places":places}), "L")
+
     def test_island_framing_keeps_all_project_locations_and_adds_overview(self):
         base={"bbox":[0,0,21,21],"land":[square(0,0,10),square(20,20,.1)]}
         resolved={"places":[{"parts":[{"ok":True,"lon":4,"lat":5}]}]}

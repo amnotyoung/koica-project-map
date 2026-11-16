@@ -110,7 +110,14 @@ def draw_map(L: dict, tok: dict) -> str:
 
     for area in m.get("project_areas", []):
         for polygon in area["polygons"]:
-            s.append(f'<path d="{path_of(polygon)}" fill="#D02E35" fill-opacity=".055" fill-rule="evenodd" stroke="#C8343A" stroke-width=".014" stroke-linejoin="round"><title>{esc(area["name"])}</title></path>')
+            colors = area.get("colors") or ["#C8343A"]
+            path = path_of(polygon)
+            for i,color in enumerate(colors):
+                dash = ""
+                if len(colors) > 1:
+                    dash = f' stroke-dasharray=".065 {.065*(len(colors)-1):.4f}" stroke-dashoffset="{-i*.065:.4f}"'
+                fill = color if i == 0 else "none"
+                s.append(f'<path d="{path}" fill="{fill}" fill-opacity=".055" fill-rule="evenodd" stroke="{color}"{dash} stroke-width=".014" stroke-linejoin="round"><title>{esc(area["name"])}</title></path>')
     for n in m["neighbors"]:                       # 주변국 이름 (샘플의 CHINA/INDIA)
         lab = _neighbor_label(n, f, m["land"])
         if lab:
@@ -213,6 +220,9 @@ def draw_locator(locator, lang):
     f=locator["frame"]
     parts=[f'<rect x="{f["x"]:.4f}" y="{f["y"]:.4f}" width="{f["w"]:.4f}" height="{f["h"]:.4f}" fill="#F2F8FA" stroke="#ADB5B8" stroke-width=".005"/>',
            f'<path d="{path_of(locator["land"])}" fill="#D8E0DD" stroke="#879A99" stroke-width=".004"/>']
+    if locator.get("focus"):
+        x,y,right,bottom = locator["focus"]
+        parts.append(f'<rect x="{x:.4f}" y="{y:.4f}" width="{right-x:.4f}" height="{bottom-y:.4f}" fill="none" stroke="#355475" stroke-width=".012"/>')
     for point in locator["markers"]:
         parts.append(f'<circle cx="{point["x"]:.4f}" cy="{point["y"]:.4f}" r=".017" fill="#ED1C24"/>')
     label='국가 전체' if lang=='ko' else 'Country overview'
@@ -268,7 +278,7 @@ def draw_leaders(L: dict, tok: dict) -> str:
     for ld in L["leaders"]:
         pts = ld.get("points") or [ld["from"], ld["to"]]
         d = " ".join(f"{p[0]:.4f},{p[1]:.4f}" for p in pts)
-        out.append(f'<polyline points="{d}" fill="none" stroke="{c}" '
+        out.append(f'<polyline points="{d}" fill="none" stroke="{ld.get("color", c)}" '
                    f'stroke-width="{w:.5f}" stroke-linejoin="round"/>')
     return "\n".join(out)
 
@@ -300,7 +310,7 @@ def draw_cards(L: dict, tok: dict) -> str:
         if c.get("show_place", True):
             out.append(f'<text x="{x:.4f}" y="{y + cd["place"]["h"]*0.72:.4f}" '
                        f'font-size="{c.get("place_font", cd["place"]["size"])*PT:.5f}" font-weight="700" '
-                       f'fill="{col["heading"]}" letter-spacing="{-0.64*PT:.5f}" paint-order="stroke" stroke="#FFFFFF" '
+                       f'fill="{c.get("area_color", col["heading"])}" letter-spacing="{-0.64*PT:.5f}" paint-order="stroke" stroke="#FFFFFF" '
                        f'stroke-width="{0.026:.4f}" stroke-linejoin="round">{esc(c["place"])}</text>')
         # 분야 배지
         bx = x + bd["dx"]

@@ -3,10 +3,22 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "skill" / "scripts"))
-from project_scope import edition_fields, prepare_projects
+from project_scope import delivery_caption, edition_fields, prepare_projects
 
 
 class CoverageTests(unittest.TestCase):
+    def test_delivery_site_and_reported_locality_are_separate_from_the_area(self):
+        src = {"coverage":"adm1","adm1_names":["Province"],"place":"Province",
+               "_iati_reported_places":["Province","Capital"]}
+        row = prepare_projects({"country":"Example","projects":[src]})["projects"][0]
+        self.assertEqual(row["admin1_names"],["Province"])
+        self.assertEqual(delivery_caption(row, "en"), "IATI locality · Capital")
+        row.update(implementation_place="교육도시", implementation_place_en="College Town")
+        self.assertEqual(delivery_caption(row, "ko"), "수행지 · 교육도시")
+        self.assertEqual(delivery_caption(row, "en"), "Implementation site · College Town")
+        self.assertNotIn("source_coord", row)
+        self.assertEqual(delivery_caption({**row,"coverage":"unknown"}, "en"), "")
+
     def test_only_verified_location_fields_cross_editions(self):
         fact = {"year":2026,"scope_years":[2027],"place":"A","coverage":"admin1",
                 "scope_sources":["proof"],"name_ko":"earlier title","verified_period":"2020-2027"}

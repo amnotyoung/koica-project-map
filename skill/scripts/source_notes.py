@@ -7,6 +7,13 @@ def source_notes(L):
                "GeoNames (CC BY) · https://www.geonames.org/"]
     if L["map"].get("tiles"):
         details.append("VersaTiles · © OpenStreetMap contributors · https://www.openstreetmap.org/copyright")
+    if source.get("boundary", "").startswith("Natural Earth"):
+        details.append(f"국가 윤곽 · {source['boundary']} Admin 0 Countries (기본 de facto 경계) · https://www.naturalearthdata.com/about/disputed-boundaries-policy/")
+    m = L["map"]
+    if m.get("extent_basis"):
+        basis = {"explicit":"입력에 지정한 범위", "projects":"사업지 집중 지역",
+                 "main_landmasses":"주요 육지", "country":"국가 전체"}[m["extent_basis"]]
+        details.append(f"도곽 선택 · {basis} · 서·남·동·북 순서 · 국가 도형 {m['country_bbox']} · 지도 맞춤 범위 {[round(v, 5) for v in m['bbox']]}")
     if source.get("projects"):
         details.append(f"사업 자료: {source['projects']}")
     if source.get("retrieved_at"):

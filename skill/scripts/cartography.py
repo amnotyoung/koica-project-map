@@ -3,6 +3,56 @@ from common import ring_area, norm
 from text_metrics import measure
 
 
+def clustered_extent(full, resolved, land=()):
+    """Frame a cluster only when the page's entire known footprint fits in it."""
+    anchors = set()
+    footprint = []
+    for row in resolved["places"]:
+        if not row.get("resolved") or row.get("source_conflicts"):
+            return None
+        for part in row["parts"]:
+            if not part.get("ok") or part.get("lon") is None or part.get("lat") is None:
+                return None
+            anchors.add((part["lon"], part["lat"]))
+        for region in row.get("regions", []):
+            for polygon in region["geometry"]:
+                footprint.extend(polygon[0])
+    if len(anchors) < 2:
+        return None
+    footprint.extend(anchors)
+    west, south, east, north = full
+    bounds = []
+    for (lo, hi), values in zip(((west, east), (south, north)), zip(*footprint)):
+        low, high = min(values), max(values)
+        span = hi - lo
+        if low < lo or high > hi or span <= 0 or high - low > span * .45:
+            return None
+        # Retain surrounding geography even when two facilities are neighbours.
+        window = .55 * span
+        start = max(lo, min(hi - window, (low + high - window) / 2))
+        bounds.append((start, start + window))
+    # For a cluster at one end of the country, retain the mainland silhouette
+    # across the detail map. Include coastal segments crossing the window even
+    # when their vertices lie outside it (particularly on simplified maps).
+    offsets = [(sum(window)/2 - (lo+hi)/2)/(hi-lo)
+               for window, (lo,hi) in zip(bounds, ((west,east),(south,north)))]
+    axis = max(range(2), key=lambda k: abs(offsets[k]))
+    if land and abs(offsets[axis]) >= .15:
+        along = bounds[axis]
+        across = 1-axis
+        values = list(bounds[across])
+        mainland = max(land, key=lambda r: abs(ring_area(r)))
+        for a,b in zip(mainland, mainland[1:]):
+            if along[0] <= a[axis] <= along[1]:
+                values.append(a[across])
+            for edge in along:
+                if min(a[axis],b[axis]) < edge < max(a[axis],b[axis]):
+                    t = (edge-a[axis])/(b[axis]-a[axis])
+                    values.append(a[across]+t*(b[across]-a[across]))
+        bounds[across] = (min(values),max(values))
+    return [bounds[0][0], bounds[1][0], bounds[0][1], bounds[1][1]]
+
+
 def extent(base, resolved, override=None):
     if override:
         return list(override), False
@@ -18,6 +68,10 @@ def extent(base, resolved, override=None):
     # Every mapped project remains in the main map, including offshore sites.
     selected.extend([p["lon"], p["lat"]] for record in resolved["places"]
                     for p in record["parts"] if p.get("ok") and p.get("lon") is not None)
+    for row in resolved["places"]:
+        for region in row.get("regions", []):
+            for polygon in region["geometry"]:
+                selected.extend(polygon[0])
     if not selected:
         return full, False
     focus = [min(p[0] for p in selected), min(p[1] for p in selected),
@@ -39,6 +93,22 @@ def locator_adds_detail(main_rings, frame, overview_rings):
         if max(max(xs)-min(xs), max(ys)-min(ys)) >= 1/25.4:
             return True
     return False
+
+
+def locator_frame(frame, markers, areas):
+    """Choose an inset corner clear of pins and regional project footprints."""
+    width = min(1.65, frame["w"] * .32)
+    height = min(1.05, frame["h"] * .27)
+    occupied = [[p["x"]-.08, p["y"]-.08, p["x"]+.08, p["y"]+.08] for p in markers]
+    for area in areas:
+        for polygon in area["polygons"]:
+            xs, ys = zip(*polygon[0])
+            occupied.append([min(xs), min(ys), max(xs), max(ys)])
+    for y in (frame["y"]+frame["h"]-height-.08, frame["y"]+.08):
+        for x in (frame["x"]+.08, frame["x"]+frame["w"]-width-.08):
+            if not any(overlap([x,y,x+width,y+height], box) for box in occupied):
+                return {"x":x, "y":y, "w":width, "h":height}
+    return None
 
 
 def overlap(a, b):

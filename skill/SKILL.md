@@ -96,10 +96,13 @@ skill/.venv/bin/python skill/scripts/make_map.py --country 에티오피아 --yea
 | `name_ko` / `name_en` | 사업명. 영문 슬라이드를 만들 때만 `name_en` 필요 |
 | `kind` | (선택) 지명 해석을 `point` / `area`로 강제. 마커 종류와는 무관 |
 | `place_en` | (선택) 영문 지명 직접 지정. 없으면 해석된 라틴 표기를 자동 사용 |
+| `implementation_place` / `implementation_place_en` | (선택) 전국·권역 사업의 자료로 확인한 수행지. 대상 범위와 함께 카드에 표시하며 좌표 생성에는 쓰지 않는다. |
 | `country_en` | (선택) 국가 영문명. Natural Earth 표기가 KOICA 관례와 다를 때 (`East Timor` → `Timor-Leste`) |
 | `map_bbox` | (선택) `[서, 남, 동, 북]` 지도 범위. 도시·시도급 확대 지도 또는 외곽 섬을 제외할 때 사용 |
 | `map_density` | (선택) `standard` / `city` / `atlas`, 기본 `atlas`. 기본은 흰 국토·상세 수계·도로 중심이며 city에서 토지피복을 추가 |
 | `source_coord` | (자동) oda-map-lab 비폴백 좌표와 출처. 수집·수정 화면이 보존하며 직접 작성할 필요 없음 |
+
+국가별 지도는 확인된 사업지와 권역이 한쪽에 모이면 해당 범위를 확대하고 전국 위치도를 함께 표시한다. 국토 외형이 인간 작성본과 다르면 원본 이미지의 가장자리에서 해안선·경계선이 잘리는지 확인하고, 생성본의 국가 경계 출처와 지도 맞춤 범위를 발표자 노트에서 대조한다. 원본에서 보이지 않는 영토 경계를 추정해 다시 그리지 않는다.
 
 **도시·시도급 지도는 `map_bbox`를 지정한다.** 국가 전체는 기본 `atlas` 스타일을
 사용하고, 도시 생활도로·토지피복까지 필요할 때 `map_density: city`를 명시한다.

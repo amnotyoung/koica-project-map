@@ -28,6 +28,7 @@ import unicodedata
 from copy import deepcopy
 from pathlib import Path
 from portfolio_selection import TITLE_PERIOD
+from project_scope import delivery_caption
 
 from common import GEO_CACHE, design_tokens, log, read_json, write_json
 import cartography
@@ -159,7 +160,8 @@ def choose_mode(doc: dict, tok: dict, lang: str,
                 place=_place_label(rec, rp, lang, country_en),
             )
             valid = [part for part in rp["parts"]
-                     if part.get("ok") and part.get("kind") != "nationwide"]
+                     if part.get("ok") and part.get("kind") != "nationwide"
+                     and not rp.get("source_conflicts")]
             marker_kind = "multi" if len(valid) >= MULTI_SITE_MIN else "point"
             card["points"] = [
                 {"lon": part["lon"], "lat": part["lat"],
@@ -187,11 +189,11 @@ def choose_mode(doc: dict, tok: dict, lang: str,
     if bbox and resolved:
         aspect = country_aspect(bbox)
         if need <= capacity * .72:
-            # A single eastern point can connect straight into a right column.
-            points = groups[0]["points"] if len(groups) == 1 else []
-            if (len(points) == 1 and points[0]["marker_kind"] == "point" and aspect >= 1
-                    and not any(place.get("region") for place in resolved["places"])
-                    and points[0]["lon"] > (bbox[0] + bbox[2]) / 2):
+            # One vote per connected caption, independent of project or province count.
+            centers = [sum(p["lon"] for p in g["points"]) / len(g["points"])
+                       for g in groups if g["points"]]
+            if (centers and (len(centers) > 1 or not any(r.get("region") for r in resolved["places"]))
+                    and sum(centers) / len(centers) > bbox[0] + .54 * (bbox[2] - bbox[0])):
                 return "R"
             return "L"
         if aspect < 1 or any(place.get("region") for place in resolved["places"]):
@@ -280,6 +282,9 @@ def build_card(proj_rec: dict, tok: dict, lang: str, scale: float,
     first_dx = max(c["name"]["dx"], badge_right + c["badge"]["gap"])
     indent = first_dx - c["name"]["dx"]
     lines = wrap_text(name, c["name"]["w"], size, first_indent=indent)
+    caption = delivery_caption(proj_rec, lang)
+    if caption:
+        lines.extend(wrap_text(caption, c["name"]["w"], size))
     lh = c["name"]["line_h"] * scale
     place = place if place is not None else proj_rec.get("place", "")
     preferred = c["place"]["size"] * scale
@@ -688,7 +693,9 @@ def prepare(doc: dict, detail: str = "50m") -> tuple:
     from admin_areas import resolve_regions
     resolve_regions(doc, resolved, base["bbox"])
     extent, locator = cartography.extent(base, resolved, doc.get("map_bbox"))
-    framed = {**doc, "map_bbox": extent, "_locator": locator}
+    cluster = None if doc.get("map_bbox") else cartography.clustered_extent(extent, resolved, base["land"])
+    framed = {**doc, "map_bbox": cluster or extent, "_locator": locator or bool(cluster),
+              "_clustered": bool(cluster), "_explicit_bbox":bool(doc.get("map_bbox"))}
     if not framed.get("region"):
         feature = geo_prepare.find_country(geo_prepare.load_countries(detail, False), resolved["iso3"])
         framed["region"] = geographic_region(feature["properties"])
@@ -771,7 +778,11 @@ def compute(doc: dict, lang: str = "ko", index: int = 1,
     tok = design_tokens()
     doc, resolved, base = prepared or prepare(doc, detail)
     preferred = doc.get("_mode") or choose_mode(doc, tok, lang, resolved)
-    modes = [preferred] if doc.get("_mode") else list(dict.fromkeys([preferred, "A", "B", "C"]))
+    modes = [preferred]
+    if not doc.get("_mode"):
+        if preferred in {"L", "R"}:
+            modes.append("L" if preferred == "R" else "R")
+        modes = list(dict.fromkeys(modes + ["A", "B", "C"]))
     scales = [force_scale] if force_scale is not None else [1.0, .92, MIN_FONT_SCALE]
     best = None
     for scale in scales:
@@ -780,6 +791,10 @@ def compute(doc: dict, lang: str = "ko", index: int = 1,
                     else tok["layout"][mode])
             result = _try_layout(doc, resolved, base, tok, spec, mode, lang,
                                  index, dict(spec["map"]), scale, render_tiles=False)
+            if doc.get("_clustered") and "locator" not in result["map"]:
+                full = {**doc, "map_bbox":base["bbox"], "_locator":False, "_clustered":False}
+                return compute(full, lang, index, detail, force_scale, render_tiles=render_tiles,
+                               prepared=(full, resolved, base))
             if result["fits"]:
                 if render_tiles:
                     finish_background(result, base)
@@ -985,6 +1000,19 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale,
 
     mark_multi_site_group(cards)
 
+    footprints = sorted({tuple(sorted(c["region_ids"])) for c in cards if c.get("region_ids")})
+    if len(footprints) > 1:
+        palette = tok["map_style"]["project_area_colors"]
+        colors = {ids:palette[i % len(palette)] for i,ids in enumerate(footprints)}
+        for ids, color in colors.items():
+            for key in ids:
+                strokes = areas[key].setdefault("colors", [])
+                if color not in strokes:
+                    strokes.append(color)
+        for card in cards:
+            if card.get("region_ids"):
+                card["area_color"] = colors[tuple(sorted(card["region_ids"]))]
+
     groups = _group_cards(cards, tok)
 
     if mode in {"L", "R"}:
@@ -1041,6 +1069,8 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale,
     for group in placed_groups:
         for ld in _leaders_of_card(group):
             ld["card"] = group["first_card"]
+            if placed[ld["card"]].get("area_color"):
+                ld["color"] = placed[ld["card"]]["area_color"]
             leaders.append(ld)
     text_hits = count_text_hits(leaders, placed, tok)
     if text_hits:
@@ -1066,6 +1096,10 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale,
                    (doc.get("region_en")
                     or REGION_EN.get(doc.get("region", ""), doc.get("region", "")))),
         "map": {"project_areas": list(areas.values()), "frame": frame, "content": proj.content,
+                "country_bbox":list(base["bbox"]),
+                "extent_basis":("explicit" if doc.get("_explicit_bbox") else
+                                "projects" if doc.get("_clustered") else
+                                "main_landmasses" if doc.get("_locator") else "country"),
                 "density": density, "projection": proj.as_dict(),
                 "bbox": list(proj.bbox),
                 "tiles": _tile_background(base, proj, frame) if render_tiles else None,
@@ -1101,13 +1135,16 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale,
         "location_status": doc.get("location_status", ""),
         "renderer": "geographic-data",
     }
-    if doc.get("_locator"):
-        lf = {"x": frame["x"]+.08, "y": frame["y"]+frame["h"]-1.15, "w": 1.65, "h": 1.05}
+    lf = cartography.locator_frame(frame, markers, areas.values()) if doc.get("_locator") else None
+    if lf:
         ip = Projection(base["bbox"], lf, px_per_in=130)
         overview_land = ip.rings(base["land"])
-        if cartography.locator_adds_detail(doc_out["map"]["land"], frame, overview_land):
+        if doc.get("_clustered") or cartography.locator_adds_detail(doc_out["map"]["land"], frame, overview_land):
             doc_out["map"]["locator"] = {"frame":lf, "land":overview_land,
                 "markers":[dict(zip(("x","y"),ip(p["lon"],p["lat"]))) for p in markers]}
+            if doc.get("_clustered"):
+                west, south, east, north = proj.bbox
+                doc_out["map"]["locator"]["focus"] = [*ip(west, north), *ip(east, south)]
     doc_out["map"]["labels"] = cartography.place_labels(doc_out["map"],doc_out["markers"],leaders,tok)
     from text_metrics import mode as metrics_mode
     doc_out["font_metrics"] = metrics_mode()

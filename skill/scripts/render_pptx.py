@@ -231,7 +231,7 @@ def draw_slide(prs, L: dict, tok: dict, tmp: Path, layout_path: Path) -> None:
         for p, q in zip(pts, pts[1:]):
             cn = flatten(slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT,
                                             I(p[0]), I(p[1]), I(q[0]), I(q[1])))
-            cn.line.color.rgb = rgb(col["leader"])
+            cn.line.color.rgb = rgb(ld.get("color", col["leader"]))
             cn.line.width = Pt(tok["leader"]["w_pt"])
             cn.shadow.inherit = False
 
@@ -259,7 +259,7 @@ def draw_slide(prs, L: dict, tok: dict, tmp: Path, layout_path: Path) -> None:
         if card.get("show_place", True):
             textbox(slide, x, y, cd["name"]["w"], cd["place"]["h"] * 1.4,
                     card["place"], card.get("place_font", cd["place"]["size"]),
-                    col["heading"], bold=True, tracking_pt=-.64)
+                    card.get("area_color", col["heading"]), bold=True, tracking_pt=-.64)
         bx = x + bd["dx"]
         for k in card["badges"]:
             by = y + body_dy + bd["dy"] - cd["name"]["dy"]

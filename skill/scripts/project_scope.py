@@ -4,7 +4,24 @@ from collections import defaultdict
 
 
 LOCATION_FIELDS = ("place", "place_en", "scope_label", "scope_label_en", "sites", "geonames_locality",
-                   "coverage", "admin1_names", "admin2_names", "scope_sources", "_location_evidence")
+                   "coverage", "admin1_names", "admin2_names", "scope_sources", "_location_evidence",
+                   "implementation_place", "implementation_place_en")
+
+
+def delivery_caption(record, lang):
+    """Name the delivery site or reported locality separately from geographic coverage."""
+    if record.get("coverage") not in {"nationwide", "admin1", "admin2"}:
+        return ""
+    site = record.get("implementation_place_en" if lang == "en" else "implementation_place")
+    if site:
+        return ("Implementation site · " if lang == "en" else "수행지 · ") + site
+    areas = {name.casefold() for field in ("admin1_names", "admin2_names")
+             for name in record.get(field, [])}
+    reported = [s for s in dict.fromkeys(record.get("_iati_reported_places") or [])
+                if s and s.casefold() not in areas]
+    if reported:
+        return ("IATI locality · " if lang == "en" else "IATI 보고 지명 · ") + ", ".join(reported)
+    return ""
 
 
 def edition_fields(fact, year):
@@ -24,6 +41,12 @@ def prepare_projects(doc):
     for original in doc["projects"]:
         record = dict(original)
         scope = record.get("coverage")
+        if scope in {"adm1", "adm2"}:
+            canonical = {"adm1":"admin1", "adm2":"admin2"}[scope]
+            for suffix in ("_name", "_names", "_ids"):
+                if scope+suffix in record:
+                    record.setdefault(canonical+suffix, record[scope+suffix])
+            record["coverage"] = scope = canonical
         title = record.get("name_ko", "")
         if scope == "nationwide" or (
             scope is None and record.get("_location_basis") == "group-representative"
@@ -57,6 +80,9 @@ def prepare_projects(doc):
         if len(sites) < 2:
             continue
         project = sites[0]
+        reported = list(dict.fromkeys(p for s in sites for p in s.get("_iati_reported_places", [])))
+        if reported:
+            project["_iati_reported_places"] = reported
         project["source_ids"] = [s.get("id") or s["_id"] for s in sites]
         scope = project.get("coverage")
         if scope in {"admin1","admin2"} and all(s.get(scope+"_ids") for s in sites):

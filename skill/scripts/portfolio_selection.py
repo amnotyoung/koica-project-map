@@ -65,7 +65,8 @@ def public_additions(notices, year, catalog_titles, catalog_ids):
                "_source_info":{"name":notice["publisher"], "url":notice["scope_sources"][0],
                                "reference_date":notice["published"]},
                **{k:notice[k] for k in ("place","name_ko","name_en","badges","coverage",
-                                         "partner_activity_ids","admin1_names","admin2_names","sites","place_en","scope_label","scope_label_en","recipient_country","scope_sources") if k in notice}}
+                                         "partner_activity_ids","admin1_names","admin2_names","sites","place_en","scope_label","scope_label_en","recipient_country","scope_sources",
+                                         "implementation_place","implementation_place_en") if k in notice}}
 
 
 def reconcile_notices(rows, notices, year, catalog_titles, catalog_ids):
@@ -90,7 +91,7 @@ def reconcile_notices(rows, notices, year, catalog_titles, catalog_ids):
         for field in ("source_coord", "_coord_source", "sites", "admin1_names", "admin2_names"):
             kept.pop(field, None)
         for field in ("name_ko", "name_en", "place", "place_en", "coverage", "badges", "sites",
-                      "admin1_names", "admin2_names", "scope_label", "scope_label_en",
+                      "admin1_names", "admin2_names", "scope_label", "scope_label_en", "implementation_place", "implementation_place_en",
                       "scope_sources", "recipient_country", "partner_activity_ids"):
             if field in notice:
                 kept[field] = notice[field]
