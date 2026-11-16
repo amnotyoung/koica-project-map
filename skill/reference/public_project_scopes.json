@@ -972,13 +972,25 @@
       "year": 2027,
       "name_ko": "아제르바이잔 물·식량 안보를 위한 전통적 물공급시스템(카흐리즈) 복원과 재생에너지 활용을 통한 실향민 및 기후취약 지역사회 기후회복력 강화사업(IOM) (2025–2028 / 551만불)",
       "name_en": "Water and food security for displaced and climate-vulnerable communities through kahriz rehabilitation and renewable energy (IOM) (2025–2028 / USD 5.51m)",
-      "coverage": "unknown",
-      "scope_label": "카흐리즈 복원 대상 지역",
-      "scope_label_en": "Kahriz rehabilitation communities",
+      "coverage": "admin2",
       "scope_sources": [
         "https://www.koica.go.kr/bbs/koica_kr/292/387191/artclView.do",
-        "https://az.mofa.go.kr/az-en/brd/m_8237/view.do?seq=761760"
-      ]
+        "https://az.mofa.go.kr/az-en/brd/m_8237/view.do?seq=761760",
+        "https://www.koica.go.kr/koica_kr/940/subview.do"
+      ],
+      "place": "괴이괼군",
+      "place_en": "Goygol District",
+      "admin2_names": [
+        "Goygol"
+      ],
+      "map_scope": {
+        "total": 7,
+        "facilities": {
+          "ko": "카흐리즈 복원 대상지",
+          "en": "kahriz rehabilitation sites"
+        }
+      },
+      "_location_evidence": "2027 프로젝트 맵 111–112쪽은 괴이괼을 포함한 7개 지역을 명시한다. 이름이 명시된 군 경계만 표시한다. 카흐리즈 시설 좌표는 미확인."
     }
   },
   "베트남": {
@@ -1009,7 +1021,13 @@
         "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml",
         "https://daumeng.co.kr/business/overseas.php"
       ],
-      "_location_evidence": "원문에 명시된 시행 당시 대상 권역 · Quang Nam"
+      "_location_evidence": "원문에 명시된 시행 당시 대상 권역 · Quang Nam",
+      "map_scope": {
+        "facilities": {
+          "ko": "대상 교량",
+          "en": "participating bridges"
+        }
+      }
     },
     "iati:KR-GOV-051-2024070101141": {
       "year": 2027,
@@ -1381,6 +1399,65 @@
       "scope_sources": [
         "https://www.odakorea.go.kr/opm/iati_act_KR-GOV-051.xml"
       ]
+    }
+  },
+  "키르기스스탄": {
+    "iati:KR-GOV-051-2025010100050": {
+      "year": 2027,
+      "coverage": "admin1",
+      "place": "바트켄·잘랄아바드·오시·추이·나린주",
+      "place_en": "Batken, Jalal-Abad, Osh, Chuy and Naryn",
+      "admin1_names": [
+        "Batken Region",
+        "Jalal-Abad Region",
+        "Osh Region",
+        "Chuy Region",
+        "Naryn Region"
+      ],
+      "admin1_ids": [
+        "38789647B43528262636538",
+        "38789647B85532999857943",
+        "38789647B74878035894071",
+        "38789647B49701521312730",
+        "38789647B68189783551847"
+      ],
+      "scope_sources": [
+        "https://www.odakorea.go.kr/kor/bbs/PlanAndResulList?bbs_id=kor_001",
+        "https://www.wfp.org/news/wfp-and-koica-partner-improve-health-and-nutrition-schoolchildren-kyrgyzstan"
+      ],
+      "name_en": "Local food for school meals and healthier schools (WFP, 40 schools / 2025–2028 / USD 10m)",
+      "_location_evidence": "WFP가 발표한 40개 참여 학교의 소재 주. 영문 금액은 WFP 공식 발표와 국문 시행계획의 1,000만 달러 기준.",
+      "map_scope": {
+        "facilities": {
+          "ko": "참여 학교",
+          "en": "participating schools"
+        }
+      }
+    },
+    "iati:KR-GOV-051-2026010100107": {
+      "year": 2027,
+      "coverage": "site",
+      "place": "비슈케크–이식쿨 도로 구간",
+      "place_en": "Bishkek–Issyk-Kul road corridor",
+      "map_scope": {
+        "corridor": true
+      },
+      "reviewed_pins": [
+        {
+          "name": "Bishkek",
+          "lon": 74.59,
+          "lat": 42.87,
+          "source": "GeoNames 1528675 · 도시 대표점"
+        }
+      ],
+      "reviewed_unresolved": [
+        "Issyk-Kul end of project road"
+      ],
+      "scope_sources": [
+        "https://www.koica.go.kr/bbs/koica_kr/292/389393/artclView.do",
+        "https://www.koica.go.kr/koica_kr/940/subview.do"
+      ],
+      "_location_evidence": "KOICA 자료는 비슈케크와 이식쿨 방면을 명시한다. 비슈케크는 도시 대표점으로 표시하며 이식쿨 측 종점과 도로 선형은 미확인."
     }
   }
 }

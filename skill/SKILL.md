@@ -97,6 +97,7 @@ skill/.venv/bin/python skill/scripts/make_map.py --country 에티오피아 --yea
 | `kind` | (선택) 지명 해석을 `point` / `area`로 강제. 마커 종류와는 무관 |
 | `place_en` | (선택) 영문 지명 직접 지정. 없으면 해석된 라틴 표기를 자동 사용 |
 | `implementation_place` / `implementation_place_en` | (선택) 전국·권역 사업의 자료로 확인한 수행지. 대상 범위와 함께 카드에 표시하며 좌표 생성에는 쓰지 않는다. |
+| `map_scope` | 위치 근거(`scope_sources`)가 있는 경우 사용한다. `total`은 같은 단위의 전체 지점·권역 수, `facilities: {"ko":"참여 학교","en":"participating schools"}`는 시설이 속한 행정구역을 뜻한다. `corridor: true`와 `coverage: site`는 검토된 양 끝 지점(`reviewed_pins`)을 개략 점선으로 연결한다. 한쪽 끝만 확인되면 그 지점만 표시한다. |
 | `country_en` | (선택) 국가 영문명. Natural Earth 표기가 KOICA 관례와 다를 때 (`East Timor` → `Timor-Leste`) |
 | `map_bbox` | (선택) `[서, 남, 동, 북]` 지도 범위. 도시·시도급 확대 지도 또는 외곽 섬을 제외할 때 사용 |
 | `map_density` | (선택) `standard` / `city` / `atlas`, 기본 `atlas`. 기본은 흰 국토·상세 수계·도로 중심이며 city에서 토지피복을 추가 |
@@ -137,9 +138,7 @@ skill/.venv/bin/python skill/scripts/make_map.py \
 
 #### 인간 작성본을 시각 기준으로 받은 경우
 
-기본 생성은 공개 사업·지리 데이터에서 시작한다. 원본 PPTX는 Computer Use로
-직접 열어 외형을 비교하는 기준으로만 사용한다. 임의 국가에 적용할 수 있어야 하며,
-원본 지도·도형을 복사한 결과를 범용 생성 개선이라고 설명하지 않는다.
+같은 연도 원본 책자가 있으면 슬라이드 순서, 국가 제목, 그림 크기와 미디어 관계를 읽어 배경을 추출한다. 다른 파일명이나 여러 판본은 `--atlas-deck`로 지정한다. `reference/atlas_backgrounds/plates.json`은 이미지 SHA-256별 지리 정합 정보다. 2026·2027년 책자에서 확인한 그림은 OCR 없이 쓴다. 처음 보는 그림은 Tesseract(영어), Pillow, NumPy와 GeoNames로 기준점을 맞춰 검증한다. 원본 이미지가 없는 국가, 지정한 도시 확대도, 위치 정합이 실패하거나 사업지가 그림 밖에 있는 경우에는 공개 지도를 사용한다. 사업 표시가 이미 들어 있는 제한 범위의 그림은 일치하는 활동에만 사용한다. 원본 이미지 파일은 로컬 책자에서 읽으며, 책자·쪽수와 배경 이미지의 별도 이용허락 미확인 사실을 발표자 노트에 남긴다.
 
 `--country <국가> --year <연도>`로 원천 사업을 수집해 바로 생성할 수 있다.
 입력과 layout에 출처·자료 기준일·수집일·원천 ID를 남긴다. 기본 `atlas` 스타일과

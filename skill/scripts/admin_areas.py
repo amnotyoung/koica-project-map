@@ -4,7 +4,7 @@ import re
 from common import GEO_CACHE, read_json, norm
 from national_parks import label_anchor
 
-ADMIN_TYPE = r"(?:county|province|state|governorate|oblast|region)"
+ADMIN_TYPE = r"(?:county|district|province|state|governorate|oblast|region)"
 SITE_WORDS = re.compile(r"\b(?:hospital|campus|sub[- ]county|construction of .*? for )", re.I)
 
 
@@ -17,8 +17,8 @@ def assign_regions(records, resolved, features, center_lon=0, level="ADM1"):
         name = props.get("shapeName", "")
         simple = re.sub(r"\s+" + ADMIN_TYPE + r"$", "", name, flags=re.I)
         by_id[props.get("shapeID") or name] = feature
-        if simple:
-            boundaries.setdefault(norm(simple), []).append(feature)
+        for label in {norm(name), norm(simple)} - {""}:
+            boundaries.setdefault(label, []).append(feature)
     key = {"ADM1": "admin1", "ADM2": "admin2"}[level]
     for record, row in zip(records, resolved["places"]):
         scope = record.get("coverage")
@@ -41,6 +41,7 @@ def assign_regions(records, resolved, features, center_lon=0, level="ADM1"):
                 continue
         else:
             continue
+        partial = bool((record.get("map_scope") or {}).get("total") and record.get("scope_sources"))
         regions, parts = [], []
         for name in names:
             if ids:
@@ -48,6 +49,8 @@ def assign_regions(records, resolved, features, center_lon=0, level="ADM1"):
             else:
                 matches = boundaries.get(name, [])
             if len(matches) != 1:
+                if partial:
+                    continue
                 break
             feature = matches[0]
             props, geom = feature["properties"], feature["geometry"]
@@ -56,13 +59,15 @@ def assign_regions(records, resolved, features, center_lon=0, level="ADM1"):
                          for ring in polygon] for polygon in ringsets if polygon and polygon[0]]
             span, lon, lat = max((label_anchor(rings) for rings in polygons), default=(0,0,0))
             if not span:
+                if partial:
+                    continue
                 break
             region = props["shapeName"]
             regions.append({"region": region, "geometry": polygons,
                             "region_id": props.get("shapeID") or region})
             parts.append({"ok": True, "kind": key, "level": level, "matched": region,
                           "lon": lon, "lat": lat, "source": f"geoBoundaries {level}"})
-        if not regions or len(regions) != len(names):
+        if not regions or (len(regions) != len(names) and not partial):
             row.update(parts=[], resolved=False)
             continue
         row.update(resolved=True, source_conflicts=[], regions=regions, parts=parts,

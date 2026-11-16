@@ -8,7 +8,7 @@ def clustered_extent(full, resolved, land=()):
     anchors = set()
     footprint = []
     for row in resolved["places"]:
-        if not row.get("resolved") or row.get("source_conflicts"):
+        if not row.get("resolved") or row.get("source_conflicts") or row.get("partial_coverage"):
             return None
         for part in row["parts"]:
             if not part.get("ok") or part.get("lon") is None or part.get("lat") is None:

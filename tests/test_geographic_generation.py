@@ -18,6 +18,17 @@ def square(x, y, side):
 
 
 class GeographicGenerationTests(unittest.TestCase):
+    def test_wide_country_keeps_map_width_with_a_regional_project(self):
+        tok = design_tokens()
+        projects = [{"place":f"Site {i}", "name_en":"School health"} for i in range(9)]
+        places = [{"parts":[{"ok":True,"kind":"point","lon":2,"lat":i/3}]} for i in range(9)]
+        places[0].update(region="Province")
+        places[0]["parts"][0]["kind"] = "admin1"
+        def mode(bbox):
+            return layout.choose_mode({"projects":projects,"map_bbox":bbox}, tok, "en", {"places":places})
+        self.assertEqual(mode([0,0,12,4]), "L")
+        self.assertEqual(mode([0,0,4,12]), "C")
+
     def test_cluster_zoom_preserves_the_coast_and_full_project_polygons(self):
         full = [0,0,10,10]
         land = [square(0,0,10)]
@@ -125,7 +136,7 @@ class GeographicGenerationTests(unittest.TestCase):
         self.assertGreater(tall["h"], 1.5 * tall["w"])
         self.assertLess(wide["x"] + wide["w"], tok["region_tab"]["rail_x"])
         dense = {**doc,"projects":[{**rec,"name_ko":"사업 설명 " * 40}] * 8}
-        self.assertEqual(layout.choose_mode(dense,tok,"ko",{"places":[area]*8}), "C")
+        self.assertEqual(layout.choose_mode(dense,tok,"ko",{"places":[area]*8}), "A")
         point = {"parts":[{**area["parts"][0], "kind":"point"}]}
         self.assertEqual(layout.choose_mode(doc,tok,"en",{"places":[point]}), "R")
 

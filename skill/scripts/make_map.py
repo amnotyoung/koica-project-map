@@ -16,6 +16,7 @@ from datetime import datetime
 from pathlib import Path
 
 from common import design_tokens, log, read_json, write_json
+from atlas_background import extract as extract_background
 import layout as layout_mod
 import render_html
 from source_notes import source_notes
@@ -44,7 +45,7 @@ def stamped_dir(base: Path) -> Path:
 
 
 def run(inputs: list, outdir: Path, langs: list | None, formats: list,
-        detail: str = "50m", scale: int = 2, page_format: str = "wide") -> dict:
+        detail: str = "50m", scale: int = 2, page_format: str = "wide", atlas_deck: Path | None = None) -> dict:
     outdir.mkdir(parents=True, exist_ok=True)
     made = {f: [] for f in formats}
     layouts = []
@@ -53,6 +54,7 @@ def run(inputs: list, outdir: Path, langs: list | None, formats: list,
         doc = read_json(src)
         if "notice_search" in doc:
             doc["projects"] = [p for p in doc["projects"] if p.get("selected", True)]
+        doc["_atlas_plate"] = extract_background(doc, outdir, atlas_deck)
         chosen_langs = langs or doc.get("map_languages") or ["ko"]
         if not isinstance(chosen_langs, list) or any(lang not in ("ko","en") for lang in chosen_langs):
             raise ValueError("지도 언어를 확인하세요")
@@ -162,7 +164,9 @@ def main() -> int:
     ap.add_argument("--lang", nargs="+", default=None, choices=["ko", "en"])
     ap.add_argument("--formats", nargs="+", default=None,
                     choices=ALL_FORMATS)
-    ap.add_argument("--reference-template", type=Path,
+    sources = ap.add_mutually_exclusive_group()
+    sources.add_argument("--atlas-deck", type=Path, help="배경지도를 읽을 원본 책자 PPTX")
+    sources.add_argument("--reference-template", type=Path,
                     help="검수한 로컬 참조 매니페스트. 원본 지도·도형을 유지하며 사업명을 재생성")
     ap.add_argument("--detail", default="10m", choices=["10m", "50m", "110m"])
     ap.add_argument("--scale", type=int, default=2, help="PNG 배율 (2 = 192dpi)")
@@ -225,7 +229,7 @@ def main() -> int:
         return 0
     made = run(inputs, outdir, None if a.review else a.lang,
                a.formats or ["html", "pdf", "pptx"],
-               a.detail, a.scale, a.page_format)
+               a.detail, a.scale, a.page_format, a.atlas_deck)
     log(f"\n생성 완료 → {outdir}")
     if not a.flat:
         log(f"  (최신본은 {Path(a.outdir) / 'latest'} 로도 열 수 있습니다)")

@@ -66,7 +66,7 @@ def public_additions(notices, year, catalog_titles, catalog_ids):
                                "reference_date":notice["published"]},
                **{k:notice[k] for k in ("place","name_ko","name_en","badges","coverage",
                                          "partner_activity_ids","admin1_names","admin2_names","sites","place_en","scope_label","scope_label_en","recipient_country","scope_sources",
-                                         "implementation_place","implementation_place_en") if k in notice}}
+                                         "implementation_place","implementation_place_en","map_scope","reviewed_pins","reviewed_unresolved","admin1_ids","admin2_ids") if k in notice}}
 
 
 def reconcile_notices(rows, notices, year, catalog_titles, catalog_ids):
@@ -88,10 +88,10 @@ def reconcile_notices(rows, notices, year, catalog_titles, catalog_ids):
         kept["_reconciled_ids"] = list(dict.fromkeys([r["id"] for r in matches] + [notice["id"]]))
         kept["_reconciled_sources"] = [r.get("_source_info", {}) for r in matches]
         # Remove representative coordinates before attaching the verified project scope.
-        for field in ("source_coord", "_coord_source", "sites", "admin1_names", "admin2_names"):
+        for field in ("source_coord", "_coord_source", "sites", "admin1_names", "admin2_names", "map_scope", "reviewed_pins", "reviewed_unresolved", "admin1_ids", "admin2_ids"):
             kept.pop(field, None)
         for field in ("name_ko", "name_en", "place", "place_en", "coverage", "badges", "sites",
-                      "admin1_names", "admin2_names", "scope_label", "scope_label_en", "implementation_place", "implementation_place_en",
+                      "admin1_names", "admin2_names", "scope_label", "scope_label_en", "implementation_place", "implementation_place_en", "map_scope", "reviewed_pins", "reviewed_unresolved", "admin1_ids", "admin2_ids",
                       "scope_sources", "recipient_country", "partner_activity_ids"):
             if field in notice:
                 kept[field] = notice[field]

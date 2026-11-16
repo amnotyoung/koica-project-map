@@ -19,6 +19,7 @@ from pathlib import Path
 
 from pptx import Presentation
 from pptx.dml.color import RGBColor
+from pptx.enum.dml import MSO_LINE_DASH_STYLE
 from pptx.enum.shapes import MSO_CONNECTOR, MSO_SHAPE
 from pptx.enum.text import MSO_ANCHOR, MSO_AUTO_SIZE, PP_ALIGN
 from pptx.oxml.ns import qn
@@ -221,8 +222,36 @@ def draw_slide(prs, L: dict, tok: dict, tmp: Path, layout_path: Path) -> None:
     slide = prs.slides.add_slide(prs.slide_layouts[6])
 
     # 1) 지도 — 이미지
-    img, c = map_image(layout_path, tmp)
+    m = L["map"]
+    areas = m.get("project_areas", [])
+    # Preserve the original JPEG at its native resolution. The shared SVG
+    # renderer handles alternating strokes on overlapping regional footprints.
+    native_plate = m.get("atlas_plate") and all(len(a.get("colors", [])) <= 1 for a in areas)
+    img, c = (m["atlas_plate"]["path"], m["content"]) if native_plate else map_image(layout_path, tmp)
     slide.shapes.add_picture(str(img), I(c["x"]), I(c["y"]), I(c["w"]), I(c["h"]))
+    if native_plate:
+        for area in areas:
+            color = (area.get("colors") or ["#C8343A"])[0]
+            for polygon in area["polygons"]:
+                x,y = polygon[0][0]
+                outline = slide.shapes.build_freeform(I(x), I(y))
+                for i,ring in enumerate(polygon):
+                    if i:
+                        outline.move_to(I(ring[0][0]), I(ring[0][1]))
+                    outline.add_line_segments([(I(x), I(y)) for x,y in ring[1:]], close=True)
+                shape = flatten(outline.convert_to_shape())
+                shape.name = area["name"]
+                shape.fill.solid()
+                shape.fill.fore_color.rgb = rgb(color)
+                node = shape._element.spPr.solidFill.srgbClr
+                node.append(node.makeelement(qn("a:alpha"), {"val":"5500"}))
+                shape.line.color.rgb = rgb(color)
+                if area.get("context_only"):
+                    shape.fill.background()
+                    line_color = shape._element.spPr.ln.solidFill.srgbClr
+                    line_color.append(line_color.makeelement(qn("a:alpha"), {"val":"55000"}))
+                shape.line.width = Pt(.014 * 72)
+                shape.shadow.inherit = False
 
     # 2) 지시선 — 꺾은선은 직선 커넥터 여러 개로 나눠 그린다.
     #    python-pptx 의 ELBOW 커넥터는 꺾이는 지점을 지정할 수 없어 쓸 수 없다.
@@ -237,6 +266,14 @@ def draw_slide(prs, L: dict, tok: dict, tmp: Path, layout_path: Path) -> None:
 
     # 3) 마커
     mk = tok["marker"]
+    for card in L["cards"]:
+        if card.get("corridor"):
+            (x1,y1),(x2,y2) = card["corridor"]
+            line = flatten(slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, I(x1), I(y1), I(x2), I(y2)))
+            line.name = "Schematic corridor · " + card["place"]
+            line.line.dash_style = MSO_LINE_DASH_STYLE.DASH
+            line.line.width = Pt(.014 * 72)
+            line.line.color.rgb = rgb("#286397")
     for m in L["markers"]:
         if m.get("marker_kind") == "multi":
             d = mk["area"]["d"]

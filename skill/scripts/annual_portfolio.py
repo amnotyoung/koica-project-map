@@ -81,7 +81,7 @@ def reconcile(rows, pending, country, year, countries, target, previous, display
             if labels.get("scope_sources"):
                 for k in ("name_ko","name_en","_period","badges","place","place_en","coverage","scope_label","scope_label_en",
                           "admin1_names","admin2_names","sites","geonames_locality","partner_activity_ids",
-                          "implementation_place","implementation_place_en"):
+                          "implementation_place","implementation_place_en","map_scope","reviewed_pins","reviewed_unresolved","admin1_ids","admin2_ids"):
                     if k in labels:
                         row[k] = labels[k]
                 row["scope_sources"] += labels["scope_sources"]

@@ -110,7 +110,7 @@ function activateLocation(row,text){
  renderLocation();
 }
 const geoFields=['place','sites','source_coord','geonames_locality','aliases','kind','place_en','admin1_ids','admin2_ids',
- 'admin1_names','admin2_names','admin1_name','admin2_name','scope_label','scope_label_en','_coord_source','_inferred_scope',
+ 'admin1_names','admin2_names','admin1_name','admin2_name','scope_label','scope_label_en','map_scope','_coord_source','_inferred_scope',
  'reviewed_pins','reviewed_unresolved','coverage','_location_basis','_location_evidence'];
 function syncLocationPanel(){
  placeField(currentLocation).value=geoState().place;
@@ -249,7 +249,7 @@ $('geo-map').onpointerup=e=>{
 $('geo-map').onpointercancel=()=>{gesture=null};
 function applyLocation(p,edit){
  if(!edit)return;
- for(const k of ['sites','source_coord','geonames_locality','aliases','kind','place_en','admin1_ids','admin2_ids','admin1_names','admin2_names','admin1_name','admin2_name','scope_label','scope_label_en','_coord_source','_inferred_scope','reviewed_pins','reviewed_unresolved'])delete p[k];
+ for(const k of ['sites','source_coord','geonames_locality','aliases','kind','place_en','admin1_ids','admin2_ids','admin1_names','admin2_names','admin1_name','admin2_name','scope_label','scope_label_en','map_scope','_coord_source','_inferred_scope','reviewed_pins','reviewed_unresolved'])delete p[k];
  p.coverage=edit.mode;p._location_basis='manager-reviewed';
  if(edit.evidence?.trim())p._location_evidence=edit.evidence.trim();else delete p._location_evidence;
  if(edit.mode==='site'){

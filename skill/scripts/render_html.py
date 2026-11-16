@@ -22,7 +22,8 @@ PT = 1.0 / 72.0
 def _data_uri(png_path: str) -> str:
     """타일 배경을 data URI 로 박아 HTML 한 장으로 완결시킨다 (PDF·PPTX 변환에 필요)."""
     import base64
-    return "data:image/png;base64," + base64.b64encode(
+    mime = {".jpg":"image/jpeg", ".jpeg":"image/jpeg", ".gif":"image/gif"}.get(Path(png_path).suffix.lower(), "image/png")
+    return f"data:{mime};base64," + base64.b64encode(
         Path(png_path).read_bytes()).decode()
 
 
@@ -41,6 +42,23 @@ def path_of(rings: list) -> str:
 
 # ─────────────────────────────── 조각별 ───────────────────────────────
 
+def draw_project_areas(areas):
+    s = []
+    for area in areas:
+        for polygon in area["polygons"]:
+            colors = area.get("colors") or ["#C8343A"]
+            path = path_of(polygon)
+            for i,color in enumerate(colors):
+                dash = ""
+                if len(colors) > 1:
+                    dash = f' stroke-dasharray=".065 {.065*(len(colors)-1):.4f}" stroke-dashoffset="{-i*.065:.4f}"'
+                context = area.get("context_only")
+                fill = color if i == 0 and not context else "none"
+                opacity = ".55" if context else "1"
+                s.append(f'<path d="{path}" fill="{fill}" fill-opacity=".055" fill-rule="evenodd" stroke="{color}"{dash} stroke-opacity="{opacity}" stroke-width=".014" stroke-linejoin="round"><title>{esc(area["name"])}</title></path>')
+    return s
+
+
 def draw_map(L: dict, tok: dict) -> str:
     m, ms = L["map"], tok["map_style"]
     # 배경·클립은 프레임이 아니라 **실제 그림 영역**에 맞춘다 (빈 회색 띠 제거)
@@ -49,6 +67,12 @@ def draw_map(L: dict, tok: dict) -> str:
     s = [f'<clipPath id="mapclip"><rect x="{f["x"]:.4f}" y="{f["y"]:.4f}" '
          f'width="{f["w"]:.4f}" height="{f["h"]:.4f}"/></clipPath>',
          f'<g clip-path="url(#mapclip)">']
+
+    if m.get("atlas_plate"):
+        s.append(f'<image x="{f["x"]:.5f}" y="{f["y"]:.5f}" width="{f["w"]:.5f}" height="{f["h"]:.5f}" href="{_data_uri(m["atlas_plate"]["path"])}"/>')
+        s.extend(draw_project_areas(m.get("project_areas", [])))
+        s.append("</g>")
+        return "\n".join(s)
 
     if tiles:
         # OSM 벡터 타일 배경(도로·하천). 국토 밖은 마스크로 눌러 대상국만 밝게 남긴다 —
@@ -108,16 +132,7 @@ def draw_map(L: dict, tok: dict) -> str:
                  f'stroke-dasharray="{ms["admin2_dash"].replace(",", " ")}" '
                  f'opacity="0.85"/>')
 
-    for area in m.get("project_areas", []):
-        for polygon in area["polygons"]:
-            colors = area.get("colors") or ["#C8343A"]
-            path = path_of(polygon)
-            for i,color in enumerate(colors):
-                dash = ""
-                if len(colors) > 1:
-                    dash = f' stroke-dasharray=".065 {.065*(len(colors)-1):.4f}" stroke-dashoffset="{-i*.065:.4f}"'
-                fill = color if i == 0 else "none"
-                s.append(f'<path d="{path}" fill="{fill}" fill-opacity=".055" fill-rule="evenodd" stroke="{color}"{dash} stroke-width=".014" stroke-linejoin="round"><title>{esc(area["name"])}</title></path>')
+    s.extend(draw_project_areas(m.get("project_areas", [])))
     for n in m["neighbors"]:                       # 주변국 이름 (샘플의 CHINA/INDIA)
         lab = _neighbor_label(n, f, m["land"])
         if lab:
@@ -286,6 +301,10 @@ def draw_leaders(L: dict, tok: dict) -> str:
 def draw_markers(L: dict, tok: dict) -> str:
     mk, col = tok["marker"], tok["color"]
     out = []
+    for card in L.get("cards", []):
+        if card.get("corridor"):
+            (x1,y1),(x2,y2) = card["corridor"]
+            out.append(f'<line x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" stroke="#286397" stroke-width=".014" stroke-dasharray=".06 .04"/>')
     for m in L["markers"]:
         if m.get("marker_kind") == "multi":
             out.append(f'<circle cx="{m["x"]:.4f}" cy="{m["y"]:.4f}" '

@@ -28,7 +28,7 @@ import unicodedata
 from copy import deepcopy
 from pathlib import Path
 from portfolio_selection import TITLE_PERIOD
-from project_scope import delivery_caption
+from project_scope import delivery_caption, describe_map_scope
 
 from common import GEO_CACHE, design_tokens, log, read_json, write_json
 import cartography
@@ -188,7 +188,10 @@ def choose_mode(doc: dict, tok: dict, lang: str,
     bbox = doc.get("map_bbox")
     if bbox and resolved:
         aspect = country_aspect(bbox)
-        if need <= capacity * .72:
+        # A wide country loses map scale between two columns. Test a full
+        # single column first, including when it contains regional projects.
+        single_limit = capacity if aspect >= 1 else capacity * .72
+        if need <= single_limit:
             # One vote per connected caption, independent of project or province count.
             centers = [sum(p["lon"] for p in g["points"]) / len(g["points"])
                        for g in groups if g["points"]]
@@ -196,7 +199,7 @@ def choose_mode(doc: dict, tok: dict, lang: str,
                     and sum(centers) / len(centers) > bbox[0] + .54 * (bbox[2] - bbox[0])):
                 return "R"
             return "L"
-        if aspect < 1 or any(place.get("region") for place in resolved["places"]):
+        if aspect < 1:
             return "C"
     return "B" if need <= capacity else "A"
 
@@ -282,9 +285,11 @@ def build_card(proj_rec: dict, tok: dict, lang: str, scale: float,
     first_dx = max(c["name"]["dx"], badge_right + c["badge"]["gap"])
     indent = first_dx - c["name"]["dx"]
     lines = wrap_text(name, c["name"]["w"], size, first_indent=indent)
-    caption = delivery_caption(proj_rec, lang)
-    if caption:
-        lines.extend(wrap_text(caption, c["name"]["w"], size))
+    caption = proj_rec.get("_map_caption", {}).get(lang)
+    delivery = delivery_caption(proj_rec, lang) if not caption or proj_rec.get("implementation_place") or proj_rec.get("implementation_place_en") else ""
+    for extra in (caption, delivery):
+        if extra:
+            lines.extend(wrap_text(extra, c["name"]["w"], size))
     lh = c["name"]["line_h"] * scale
     place = place if place is not None else proj_rec.get("place", "")
     preferred = c["place"]["size"] * scale
@@ -296,7 +301,7 @@ def build_card(proj_rec: dict, tok: dict, lang: str, scale: float,
         "text": name,
         "external": proj_rec.get("coverage") == "external",
         "project_id": proj_rec.get("id") or proj_rec.get("_id"),
-        "provenance": {k: proj_rec[k] for k in ("_source_info", "_iati_reported_places", "_annual_plan", "_coord_source", "source_coord", "source_ids", "sites", "coverage", "source_place", "scope_sources", "_linked_notices", "_location_evidence") if k in proj_rec},
+        "provenance": {k: proj_rec[k] for k in ("_source_info", "_iati_reported_places", "_annual_plan", "_coord_source", "source_coord", "source_ids", "sites", "coverage", "map_scope", "reviewed_pins", "source_place", "scope_sources", "_linked_notices", "_location_evidence") if k in proj_rec},
         "tracking_pt": c["name"].get("tracking_pt", -0.64),
         "lines": lines,
         "first_line_dx": round(first_dx, 4),
@@ -692,10 +697,18 @@ def prepare(doc: dict, detail: str = "50m") -> tuple:
         base = read_json(bp)
     from admin_areas import resolve_regions
     resolve_regions(doc, resolved, base["bbox"])
+    for record, place in zip(doc["projects"], resolved["places"]):
+        describe_map_scope(record, place)
+    plate = doc.get("_atlas_plate")
+    if plate:
+        from atlas_background import covers_projects
+        if not covers_projects(plate, resolved):
+            log(f"  · {resolved['iso3']}: 사업지가 원본 그림의 범위를 벗어나 공개 지도를 사용합니다.")
+            plate = None
     extent, locator = cartography.extent(base, resolved, doc.get("map_bbox"))
-    cluster = None if doc.get("map_bbox") else cartography.clustered_extent(extent, resolved, base["land"])
+    cluster = None if doc.get("map_bbox") or plate else cartography.clustered_extent(extent, resolved, base["land"])
     framed = {**doc, "map_bbox": cluster or extent, "_locator": locator or bool(cluster),
-              "_clustered": bool(cluster), "_explicit_bbox":bool(doc.get("map_bbox"))}
+              "_clustered": bool(cluster), "_explicit_bbox":bool(doc.get("map_bbox")), "_atlas_plate":plate}
     if not framed.get("region"):
         feature = geo_prepare.find_country(geo_prepare.load_countries(detail, False), resolved["iso3"])
         framed["region"] = geographic_region(feature["properties"])
@@ -706,6 +719,8 @@ def prepare(doc: dict, detail: str = "50m") -> tuple:
 
 def finish_background(result: dict, base: dict) -> None:
     m = result["map"]
+    if m.get("atlas_plate"):
+        return
     proj = Projection(m["bbox"], m["frame"], px_per_in=m["projection"]["px_per_in"])
     cartography.add_lake_labels(m, proj)
     import national_parks
@@ -936,6 +951,11 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale,
                 "atlas": ATLAS_TILE_PX_PER_IN}[density]
     proj = Projection(doc.get("map_bbox") or base["bbox"], frame,
                       px_per_in=tile_ppi)
+    plate = doc.get("_atlas_plate")
+    overlay = proj
+    if plate:
+        from atlas_background import PlateProjection
+        overlay = PlateProjection(plate, frame)
 
     # 1) 카드 생성 + 마커 좌표
     cards, markers, warnings = [], [], []
@@ -960,7 +980,7 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale,
         use_english_sites = (lang == "en" and rec.get("reviewed_pins") and all(english_sites)
                              and not rec.get("reviewed_unresolved") and len(english_sites) == len(valid_parts))
         for i, part in enumerate(valid_parts):
-            xy = proj(part["lon"], part["lat"])
+            xy = overlay(part["lon"], part["lat"])
             # 경위도도 남긴다 — 인치 좌표만 두면 이 지도가 확정한 위치를
             # 밖으로 내보낼 수 없다 (contribute.py 가 이 값을 쓴다)
             pts.append({"x": xy[0], "y": xy[1], "kind": part["kind"],
@@ -976,7 +996,10 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale,
                 key = region["region_id"]
                 if key not in areas:
                     areas[key] = {"name":region["region"], "id":key, "source":rp["parts"][0]["source"],
-                                  "polygons":[proj.rings(poly) for poly in region["geometry"]]}
+                                  "context_only":bool(rp.get("facility_context")),
+                                  "polygons":[overlay.rings(poly) for poly in region["geometry"]]}
+                elif not rp.get("facility_context"):
+                    areas[key]["context_only"] = False
             for point in pts:
                 point["marker_kind"] = "admin1"
             card["region_ids"] = [region["region_id"] for region in regions]
@@ -985,6 +1008,8 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale,
             card["scope_evidence"] = rp["evidence"]
         card["nationwide"] = _is_nationwide(rp["parts"])
         card["points"] = pts
+        if rp.get("corridor"):
+            card["corridor"] = [[p["x"], p["y"]] for p in pts]
         if (len(pts)==1 and pts[0]["marker_kind"]=="point"
                 and pts[0].get("coord_source") in {"도시", "도시(음차)"}
                 and rec.get("_location_basis")=="group-representative"):
@@ -1135,6 +1160,14 @@ def _try_layout(doc, resolved, base, tok, L, mode, lang, index, frame, scale,
         "location_status": doc.get("location_status", ""),
         "renderer": "geographic-data",
     }
+    if plate:
+        doc_out["map"] = {"frame":frame, "content":overlay.frame, "project_areas":list(areas.values()),
+                          "density":"atlas", "atlas_plate":{k:plate[k] for k in
+                          ("path","deck","slides","media","sha256","validation_max_px","validation_width")}}
+        doc_out["renderer"] = "atlas-background"
+        from text_metrics import mode as metrics_mode
+        doc_out["font_metrics"] = metrics_mode()
+        return doc_out
     lf = cartography.locator_frame(frame, markers, areas.values()) if doc.get("_locator") else None
     if lf:
         ip = Projection(base["bbox"], lf, px_per_in=130)

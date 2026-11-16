@@ -5,9 +5,15 @@ def source_notes(L):
     details = ["지도 자료", "Natural Earth · https://www.naturalearthdata.com/",
                "geoBoundaries (CC BY) · https://www.geoboundaries.org/",
                "GeoNames (CC BY) · https://www.geonames.org/"]
+    plate = L["map"].get("atlas_plate")
+    if plate:
+        details[1] = (f"배경지도 · {plate['deck']} · 슬라이드 {plate['slides']} · {plate['media']} · "
+                      f"SHA-256 {plate['sha256']}")
+        details.append("배경 이미지의 별도 재사용 이용허락은 확인되지 않음.")
+        details.append(f"지리 기준점 교차검증 최대 오차 · 지도 폭 {plate['validation_width']}px 기준 {plate['validation_max_px']}px. 핀은 근사 위치.")
     if L["map"].get("tiles"):
         details.append("VersaTiles · © OpenStreetMap contributors · https://www.openstreetmap.org/copyright")
-    if source.get("boundary", "").startswith("Natural Earth"):
+    if not plate and source.get("boundary", "").startswith("Natural Earth"):
         details.append(f"국가 윤곽 · {source['boundary']} Admin 0 Countries (기본 de facto 경계) · https://www.naturalearthdata.com/about/disputed-boundaries-policy/")
     m = L["map"]
     if m.get("extent_basis"):
